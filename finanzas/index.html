@@ -272,8 +272,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 <div class="kpi-row">
   <div class="kpi"><div class="kpi-label">Balance</div><div class="kpi-value gold" id="kpi-bal" style="font-size:24px;line-height:1.1">—</div></div>
   <div class="kpi kpi-double" id="kpi-right-top"><div class="kpi-label">Pendiente cobrar</div><div class="kpi-value" id="kpi-pend" style="color:#E8850A">—</div></div>
-  <div class="kpi"><div class="kpi-label">Ingresos</div><div class="kpi-value pos" id="kpi-ing" style="font-size:28px;line-height:1.1">—</div></div>
-  <div class="kpi kpi-double"><div class="kpi-label">Gastos</div><div class="kpi-value" id="kpi-gas" style="font-size:20px;color:#7A3520;font-family:'Cormorant Garamond',serif;font-weight:500">—</div><div class="kpi-label" style="margin-top:6px">Gastos fijos</div><div class="kpi-value warn" id="kpi-prev" style="font-size:16px">—</div></div>
+  <div class="kpi"><div class="kpi-label">Ingresos brutos</div><div class="kpi-value pos" id="kpi-ing" style="font-size:22px;line-height:1.1">—</div><div class="kpi-label" style="margin-top:6px">Neto (−IVA −IRPF)</div><div class="kpi-value pos" id="kpi-neto" style="font-size:16px">—</div></div>
+  <div class="kpi kpi-double"><div class="kpi-label">Gastos</div><div class="kpi-value" id="kpi-gas" style="font-size:20px;color:#7A3520;font-family:'Cormorant Garamond',serif;font-weight:500">—</div><div class="kpi-label" style="margin-top:6px">Fijos/mes</div><div class="kpi-value warn" id="kpi-prev" style="font-size:16px">—</div></div>
 </div>
 
 <!-- TABS -->
@@ -421,26 +421,43 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 
 <!-- MODAL EVOLUCIÓN -->
 <div class="evo-modal-bg" id="evo-modal">
-  <div class="evo-modal">
+  <div class="evo-modal" style="max-height:88dvh;overflow-y:auto;">
     <div class="evo-modal-head">
       <div class="evo-modal-title">Evolución 2026</div>
       <button class="evo-close" onclick="closeModal('evo-modal')">×</button>
     </div>
-    <div class="evo-legend">
-      <span><span class="evo-ldot" style="background:var(--pos)"></span>Ingresos</span>
-      <span><span class="evo-ldot" style="background:var(--neg)"></span>Gastos</span>
+    <!-- Selector de vista -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;">
+      <button id="evo-btn-total" onclick="setEvoView('total')" style="flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--cream);font-weight:500;">Total</button>
+      <button id="evo-btn-cat" onclick="setEvoView('cat')" style="flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--cream3);background:var(--cream2);color:var(--ink2);">Por categoría</button>
+      <button id="evo-btn-proy" onclick="setEvoView('proy')" style="flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--cream3);background:var(--cream2);color:var(--ink2);">Proyección</button>
     </div>
-    <svg id="evo-chart-big" width="100%" height="120" viewBox="0 0 320 120" preserveAspectRatio="none">
-      <line x1="0" y1="90" x2="320" y2="90" stroke="#E8E0D5" stroke-width="0.5"/>
-      <line x1="0" y1="60" x2="320" y2="60" stroke="#E8E0D5" stroke-width="0.5"/>
-      <line x1="0" y1="30" x2="320" y2="30" stroke="#E8E0D5" stroke-width="0.5"/>
-      <polyline id="evo-line-ing" points="160,80 320,80" fill="none" stroke="#2C6040" stroke-width="2" stroke-linejoin="round"/>
-      <polyline id="evo-line-gas" points="160,80 320,80" fill="none" stroke="#7A3520" stroke-width="2" stroke-linejoin="round" stroke-dasharray="4,3"/>
-      <g id="evo-dots-ing"></g>
-      <g id="evo-dots-gas"></g>
-      <g id="evo-labels"></g>
-    </svg>
-    <div class="evo-totals" id="evo-totals"></div>
+    <!-- Vista total -->
+    <div id="evo-view-total">
+      <div class="evo-legend">
+        <span><span class="evo-ldot" style="background:var(--pos)"></span>Ingresos</span>
+        <span><span class="evo-ldot" style="background:var(--neg)"></span>Gastos</span>
+      </div>
+      <svg id="evo-chart-big" width="100%" height="120" viewBox="0 0 320 120" preserveAspectRatio="none">
+        <line x1="0" y1="90" x2="320" y2="90" stroke="#E8E0D5" stroke-width="0.5"/>
+        <line x1="0" y1="60" x2="320" y2="60" stroke="#E8E0D5" stroke-width="0.5"/>
+        <line x1="0" y1="30" x2="320" y2="30" stroke="#E8E0D5" stroke-width="0.5"/>
+        <polyline id="evo-line-ing" points="160,80 320,80" fill="none" stroke="#2C6040" stroke-width="2" stroke-linejoin="round"/>
+        <polyline id="evo-line-gas" points="160,80 320,80" fill="none" stroke="#7A3520" stroke-width="2" stroke-linejoin="round" stroke-dasharray="4,3"/>
+        <g id="evo-dots-ing"></g>
+        <g id="evo-dots-gas"></g>
+        <g id="evo-labels"></g>
+      </svg>
+      <div class="evo-totals" id="evo-totals"></div>
+    </div>
+    <!-- Vista por categoría -->
+    <div id="evo-view-cat" style="display:none;">
+      <div id="evo-cat-content"></div>
+    </div>
+    <!-- Vista proyección -->
+    <div id="evo-view-proy" style="display:none;">
+      <div id="evo-proy-content"></div>
+    </div>
   </div>
 </div>
 
@@ -669,16 +686,26 @@ function render(){
   const gas=movs.filter(m=>m.tipo==='gasto').reduce((a,b)=>a+b.importe,0);
   const irpf=facs.reduce((a,f)=>a+f.provision_irpf,0);
   const saldoInicial=parseFloat(localStorage.getItem('fin_saldo_inicial'))||0;
-  const bal=ing-gas;
-  const saldoReal=saldoInicial+bal;
+  const bal=ing-gas; // solo movimientos, saldoReal se recalcula abajo con fijos
   // Pendiente por cobrar: facturas no cobradas
   const pendiente=d.facs.filter(f=>!f.cobrada).reduce((a,f)=>a+f.total_cobrado,0);
   // Gastos fijos: recurrentes del mes no pagados
   const now2=new Date();
   const rec=getRecurrentes();
-  const previstos=rec.filter(r=>!isPagado(r.id,key)).reduce((a,r)=>a+r.importe,0);
+  const previstos=rec.reduce((a,r)=>a+r.importe,0); // total fijos del mes
+  // Gastos fijos: siempre se suman todos al total del mes
+  const gasFijos=rec.reduce((a,r)=>a+r.importe,0);
+  const gasTotal=r2(gas+gasFijos);
+  const balTotal=r2(ing-gasTotal);
+  const saldoReal=r2(saldoInicial+balTotal);
   document.getElementById('kpi-ing').textContent=fmt(ing);
-  document.getElementById('kpi-gas').textContent=fmt(gas);
+  // Neto real: ingresos - IVA facturas cobradas - provisión IRPF facturas cobradas
+  const facsCobradas=d.facs.filter(f=>f.cobrada&&f.fecha.startsWith(key));
+  const ivaFacs=facsCobradas.reduce((a,f)=>a+f.iva,0);
+  const irpfFacs=facsCobradas.reduce((a,f)=>a+f.provision_irpf,0);
+  const netoReal=r2(ing-ivaFacs-irpfFacs);
+  document.getElementById('kpi-neto').textContent=fmt(netoReal);
+  document.getElementById('kpi-gas').textContent=fmt(gasTotal);
   document.getElementById('kpi-pend').textContent=fmt(pendiente);
   document.getElementById('kpi-prev').textContent=fmt(previstos);
   // irpf shown in resumen tab
@@ -911,10 +938,22 @@ function renderResumen(c,movs,facs){
   // Recurrentes (resumen del mes)
   const rec2=getRecurrentes();
   const key2=mk(cd);
-  const pagadosCount=rec2.filter(r=>isPagado(r.id,key2)).length;
   const totalRec=rec2.reduce((a,r)=>a+r.importe,0);
-  const pagadoRec=rec2.filter(r=>isPagado(r.id,key2)).reduce((a,r)=>a+r.importe,0);
-  h+=`<div class="section-header"><span class="section-title">Gastos fijos del mes</span><span class="section-total">${pagadosCount}/${rec2.length} pagados</span></div><div class="res-box"><div class="res-row"><span class="l">Total gastos fijos</span><span class="v warn">${fmt(totalRec)}</span></div><div class="res-row"><span class="l">Pagados</span><span class="v pos">${fmt(pagadoRec)}</span></div><div class="res-row"><span class="l">Pendientes</span><span class="v neg">${fmt(totalRec-pagadoRec)}</span></div><div class="res-row" style="margin-top:4px"><span></span><button onclick="setTab('movs');setTimeout(()=>openSettings(),200)" style="font-size:11px;color:var(--gold-d);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline;">Gestionar en ⚙ Configuración</button></div></div>`;
+  h+=`<div class="section-header"><span class="section-title">Gastos fijos del mes</span><span class="section-total">${fmt(totalRec)}</span></div>`;
+  h+='<div class="mov-list" style="margin:0 16px 12px;">';
+  rec2.forEach(r=>{
+    h+=`<div class="mov-row">
+      <div class="mov-left">
+        <div class="mov-desc">${r.nombre}</div>
+        <div class="mov-meta">${r.categoria} · día ${r.dia}</div>
+      </div>
+      <div class="mov-right">
+        <div class="mov-amt neg">-${fmt(r.importe)}</div>
+      </div>
+    </div>`;
+  });
+  h+='</div>';
+  h+=`<div style="text-align:right;padding:0 16px 8px;"><button onclick="setTab('movs');setTimeout(()=>openSettings(),200)" style="font-size:11px;color:var(--gold-d);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline;">Gestionar en ⚙ →</button></div>`;
   h+=`<div class="section-header"><span class="section-title">Datos</span></div><div class="export-row"><button class="exp-btn" onclick="exportCSV()">Exportar CSV</button><div class="backup-dot" id="export-json-wrap"><button class="exp-btn" onclick="exportJSON()" style="width:100%">Exportar JSON</button></div></div><div class="export-row"><button class="exp-btn" onclick="importJSON()">Importar JSON</button><button class="exp-btn" onclick="importBankCSV()" style="color:#E8006A;font-weight:500;">Importar XLS ING</button></div>`;
   c.innerHTML=h;
 }
@@ -1116,7 +1155,193 @@ function updateEvoModal(){
 
 function toggleEvoModal(){
   updateEvoModal();
+  setEvoView('total');
   document.getElementById('evo-modal').classList.add('open');
+}
+
+// ── COLORES PARA CATEGORÍAS ──
+const CAT_COLORS={
+  '◉ Alimentación':'#A0522D','☽ Ocio':'#6B5B95','◈ Compras':'#E8850A',
+  '↟ Transporte':'#4A90A4','⌂ Hogar':'#5D8A5E','⊕ Suscripción':'#9B59B6',
+  '△ Deporte':'#27AE60','♾ Donación ONG':'#E8006A','⊗ Fiscal':'#7A3520',
+  '∴ Otros':'#95A5A6','☀ Nómina':'#2C6040','◎ Honorarios':'#C9A96E',
+  '⬡ Proyecto':'#1A5276','✦ Otros ingresos':'#2C6040'
+};
+
+let evoView='total';
+function setEvoView(v){
+  evoView=v;
+  ['total','cat','proy'].forEach(id=>{
+    const panel=document.getElementById('evo-view-'+id);
+    if(panel) panel.style.display=id===v?'block':'none';
+    const btn=document.getElementById('evo-btn-'+id);
+    if(btn){
+      btn.style.background=id===v?'var(--ink)':'var(--cream2)';
+      btn.style.color=id===v?'var(--cream)':'var(--ink2)';
+      btn.style.borderColor=id===v?'var(--ink)':'var(--cream3)';
+    }
+  });
+  if(v==='cat') renderEvoCat();
+  if(v==='proy') renderEvoProy();
+}
+
+function renderEvoCat(){
+  const d=getData();
+  const now=new Date();
+  const start=new Date(2026,0,1);
+  const current=new Date(now.getFullYear(),now.getMonth(),1);
+  // Collect all categories that appear in gastos
+  const allCats={};
+  let dt=new Date(start);
+  while(dt<=current){
+    const key=mk(dt);
+    d.movs.filter(m=>m.tipo==='gasto'&&m.fecha.startsWith(key)).forEach(m=>{
+      if(!allCats[m.cat]) allCats[m.cat]=[];
+    });
+    dt=new Date(dt.getFullYear(),dt.getMonth()+1,1);
+  }
+  const cats=Object.keys(allCats);
+  if(!cats.length){document.getElementById('evo-cat-content').innerHTML='<div class="empty">Sin datos de gastos aún.</div>';return;}
+
+  // Build monthly data per category
+  const months=[];
+  dt=new Date(start);
+  while(dt<=current){
+    const key=mk(dt);
+    const label=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][dt.getMonth()];
+    const catData={};
+    cats.forEach(cat=>{
+      catData[cat]=d.movs.filter(m=>m.tipo==='gasto'&&m.cat===cat&&m.fecha.startsWith(key)).reduce((a,b)=>a+b.importe,0);
+    });
+    months.push({key,label,catData});
+    dt=new Date(dt.getFullYear(),dt.getMonth()+1,1);
+  }
+
+  // Render stacked bar chart per month + per-cat lines
+  const W=320,H=110,PAD=6,BOTTOM=18;
+  const maxMonth=Math.max(...months.map(m=>Object.values(m.catData).reduce((a,b)=>a+b,0)),1);
+  const xStep=W/(months.length||1);
+  const barW=Math.max(xStep*0.6,4);
+
+  let svg=`<svg width="100%" height="${H+BOTTOM}" viewBox="0 0 ${W} ${H+BOTTOM}" preserveAspectRatio="none">`;
+  svg+=`<line x1="0" y1="${H*0.33}" x2="${W}" y2="${H*0.33}" stroke="#E8E0D5" stroke-width="0.5"/>`;
+  svg+=`<line x1="0" y1="${H*0.66}" x2="${W}" y2="${H*0.66}" stroke="#E8E0D5" stroke-width="0.5"/>`;
+
+  months.forEach((m,i)=>{
+    const x=(i+0.5)*xStep;
+    let yOff=H-PAD;
+    const total=cats.reduce((a,cat)=>a+m.catData[cat],0);
+    const scaledTotal=(total/maxMonth)*(H-PAD*2);
+    let stackY=H-PAD;
+    cats.forEach(cat=>{
+      const val=m.catData[cat];
+      if(!val) return;
+      const barH=(val/maxMonth)*(H-PAD*2);
+      stackY-=barH;
+      const col=CAT_COLORS[cat]||'#95A5A6';
+      svg+=`<rect x="${(x-barW/2).toFixed(1)}" y="${stackY.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${col}" opacity="0.85"/>`;
+    });
+    const isLast=i===months.length-1;
+    svg+=`<text x="${x.toFixed(1)}" y="${H+BOTTOM-2}" font-size="9" fill="${isLast?'#C9A96E':'#7A6A58'}" text-anchor="middle">${m.label}</text>`;
+  });
+  svg+='</svg>';
+
+  // Legend
+  let legend='<div style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;">';
+  // Total per cat across year
+  const catTotals={};
+  cats.forEach(cat=>{catTotals[cat]=months.reduce((a,m)=>a+m.catData[cat],0);});
+  const sortedCats=cats.sort((a,b)=>catTotals[b]-catTotals[a]);
+  sortedCats.forEach(cat=>{
+    if(!catTotals[cat]) return;
+    const col=CAT_COLORS[cat]||'#95A5A6';
+    legend+=`<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink2);">
+      <span style="width:10px;height:10px;border-radius:2px;background:${col};flex-shrink:0;display:inline-block;"></span>
+      ${cat} <span style="color:var(--ink3)">${fmt(catTotals[cat])}</span>
+    </span>`;
+  });
+  legend+='</div>';
+
+  // Monthly breakdown table (last 3 months)
+  const lastMonths=months.slice(-3);
+  let table='<div style="margin-top:14px;border-top:1px solid var(--cream3);padding-top:12px;">';
+  table+=`<div style="font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Detalle últimos meses</div>`;
+  sortedCats.forEach(cat=>{
+    if(!catTotals[cat]) return;
+    const col=CAT_COLORS[cat]||'#95A5A6';
+    table+=`<div style="display:flex;align-items:center;padding:5px 0;border-bottom:1px solid var(--cream3);gap:8px;">
+      <span style="width:8px;height:8px;border-radius:2px;background:${col};flex-shrink:0;display:inline-block;"></span>
+      <span style="flex:1;font-size:12px;color:var(--ink2);">${cat}</span>`;
+    lastMonths.forEach(m=>{
+      const v=m.catData[cat];
+      table+=`<span style="font-size:11px;color:${v>0?'var(--neg)':'var(--ink3)'};min-width:52px;text-align:right;">${v>0?'-'+fmt(v):'—'}</span>`;
+    });
+    table+='</div>';
+  });
+  // Header row
+  let headerRow='<div style="display:flex;align-items:center;padding:3px 0 6px;gap:8px;"><span style="width:8px;flex-shrink:0;"></span><span style="flex:1;"></span>';
+  lastMonths.forEach(m=>{headerRow+=`<span style="font-size:10px;color:var(--ink3);min-width:52px;text-align:right;">${m.label}</span>`;});
+  headerRow+='</div>';
+  table=table.replace('<div style="font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Detalle últimos meses</div>',
+    '<div style="font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Detalle últimos meses</div>'+headerRow);
+  table+='</div>';
+
+  document.getElementById('evo-cat-content').innerHTML=svg+legend+table;
+}
+
+function renderEvoProy(){
+  const months=getEvoData();
+  const now=new Date();
+  const currentMonthKey=mk(now);
+  const currentMonth=months.find(m=>m.key===currentMonthKey);
+  if(!months.length){document.getElementById('evo-proy-content').innerHTML='<div class="empty">Sin datos aún.</div>';return;}
+
+  // Average from previous months (not current)
+  const prevMonths=months.filter(m=>m.key<currentMonthKey);
+  const avgIng=prevMonths.length?prevMonths.reduce((a,m)=>a+m.ing,0)/prevMonths.length:0;
+  const avgGas=prevMonths.length?prevMonths.reduce((a,m)=>a+m.gas,0)/prevMonths.length:0;
+
+  // Days elapsed in current month
+  const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const daysPassed=now.getDate();
+  const ratio=daysPassed/daysInMonth;
+
+  const curIng=currentMonth?currentMonth.ing:0;
+  const curGas=currentMonth?currentMonth.gas:0;
+  const proyIng=ratio>0?r2(curIng/ratio):avgIng;
+  const proyGas=ratio>0?r2(curGas/ratio):avgGas;
+  const proyBal=r2(proyIng-proyGas);
+
+  // Annual YTD
+  const ytdIng=months.reduce((a,m)=>a+m.ing,0);
+  const ytdGas=months.reduce((a,m)=>a+m.gas,0);
+  // Projection to end of year
+  const monthsLeft=12-now.getMonth()-1; // remaining full months
+  const proyAnualIng=r2(ytdIng+proyIng*(monthsLeft>0?monthsLeft+ratio:ratio));
+  const proyAnualGas=r2(ytdGas+proyGas*(monthsLeft>0?monthsLeft+ratio:ratio));
+
+  const MESES2=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mesActual=MESES2[now.getMonth()];
+
+  let h=`<div style="font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Proyección ${mesActual} (día ${daysPassed}/${daysInMonth})</div>`;
+  h+=`<div style="background:var(--cream2);border:1px solid var(--cream3);border-radius:var(--rs);padding:12px;margin-bottom:12px;">`;
+  h+=`<div class="evo-row"><span style="color:var(--ink3)">Ingresos actuales</span><span style="color:var(--pos);font-weight:500">${fmt(curIng)}</span></div>`;
+  h+=`<div class="evo-row"><span style="color:var(--ink3)">Proyección fin de mes</span><span style="color:var(--pos);font-weight:500">${fmt(proyIng)}</span></div>`;
+  h+=`<div class="evo-row"><span style="color:var(--ink3)">Gastos actuales</span><span style="color:var(--neg);font-weight:500">${fmt(curGas)}</span></div>`;
+  h+=`<div class="evo-row"><span style="color:var(--ink3)">Proyección fin de mes</span><span style="color:var(--neg);font-weight:500">${fmt(proyGas)}</span></div>`;
+  h+=`<div class="evo-row" style="margin-top:4px;padding-top:8px;border-top:1px solid var(--cream3);"><span style="font-weight:500">Balance proyectado</span><span style="font-weight:500;font-size:15px;color:${proyBal>=0?'var(--pos)':'var(--neg)'}">${(proyBal>=0?'+':'')+fmt(proyBal)}</span></div>`;
+  h+='</div>';
+
+  if(prevMonths.length>0){
+    h+=`<div style="font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Media mensual (${prevMonths.length} meses anteriores)</div>`;
+    h+=`<div style="background:var(--cream2);border:1px solid var(--cream3);border-radius:var(--rs);padding:12px;margin-bottom:12px;">`;
+    h+=`<div class="evo-row"><span style="color:var(--ink3)">Ingresos medios</span><span style="color:var(--pos);font-weight:500">${fmt(avgIng)}</span></div>`;
+    h+=`<div class="evo-row"><span style="color:var(--ink3)">Gastos medios</span><span style="color:var(--neg);font-weight:500">${fmt(avgGas)}</span></div>`;
+    h+=`<div class="evo-row"><span style="font-weight:500">Balance medio</span><span style="font-weight:500;color:${(avgIng-avgGas)>=0?'var(--pos)':'var(--neg)'}">${((avgIng-avgGas)>=0?'+':'')+fmt(avgIng-avgGas)}</span></div>`;
+    h+='</div>';
+  }
+
+  document.getElementById('evo-proy-content').innerHTML=h;
 }
 
 function deleteMov(id){if(!confirm('¿Eliminar este movimiento?'))return;const d=getData();d.movs=d.movs.filter(m=>m.id!==id);saveData(d);render();}
