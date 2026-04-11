@@ -2472,6 +2472,15 @@ function generarPDF(facId){
 }
 
 function fmtPDF(v){return v?v.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €':'0,00 €';}
+function toggleRecPanel(){
+  const panel=document.getElementById('rec-panel');
+  const arrow=document.getElementById('rec-panel-arrow');
+  const open=panel.style.display==='none';
+  panel.style.display=open?'block':'none';
+  arrow.textContent=open?'▾':'▸';
+  if(open) renderSetRecs();
+}
+
 function renderSetRecs(){
   const recs=getRecurrentes();
   const el=document.getElementById('set-recs-list');
@@ -2508,7 +2517,11 @@ function openSettings(){
   const lastB=localStorage.getItem('fin_last_backup');
   const el=document.getElementById('set-last-backup');
   if(el) el.textContent=lastB?'Último backup: '+lastB:'Sin backup registrado';
-  renderSetRecs();
+  // Reset accordion to closed
+  const rp=document.getElementById('rec-panel');
+  const ra=document.getElementById('rec-panel-arrow');
+  if(rp){rp.style.display='none';}
+  if(ra){ra.textContent='▸';}
   document.getElementById('set-modal').classList.add('open');
 }
 function saveSettings(){
@@ -2719,12 +2732,17 @@ document.addEventListener('DOMContentLoaded',function(){
       </div>
     </div>
 
-    <div class="field" style="margin-top:18px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <label class="field-label" style="margin-bottom:0">Gastos fijos</label>
-        <button onclick="openRecModal(null)" style="background:var(--opera);border:none;border-radius:6px;padding:5px 12px;font-size:11px;color:#fff;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;">+ Añadir</button>
+    <div style="margin-top:18px;border:1px solid var(--cream3);border-radius:var(--rs);overflow:hidden;">
+      <button onclick="toggleRecPanel()" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--cream2);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;">
+        <span style="font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;font-weight:500;">Gastos fijos</span>
+        <span id="rec-panel-arrow" style="color:var(--ink3);font-size:14px;transition:transform .2s;">▸</span>
+      </button>
+      <div id="rec-panel" style="display:none;padding:10px 14px 14px;">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+          <button onclick="openRecModal(null)" style="background:var(--opera);border:none;border-radius:6px;padding:5px 12px;font-size:11px;color:#fff;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;">+ Añadir</button>
+        </div>
+        <div id="set-recs-list"></div>
       </div>
-      <div id="set-recs-list"></div>
     </div>
     <button class="btn-save" onclick="saveSettings()">Guardar</button>
     <button class="btn-cancel" onclick="closeModal('set-modal')">Cancelar</button>
