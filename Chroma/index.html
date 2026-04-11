@@ -48,9 +48,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .home-body{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
+  padding-top:max(52px, env(safe-area-inset-top));
+  padding-bottom:max(32px, env(safe-area-inset-bottom));
+  padding-left:0;padding-right:0;
 }
 
-/* SUN SYMBOL — fixed 36px, centered over grid intersection */
+/* SUN SYMBOL — inside grid-wrap, top:50% left:50% = exact block intersection */
 .sun-center{
   position:absolute;
   top:50%;left:50%;
@@ -60,12 +63,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 }
 .sun-center svg{width:36px;height:36px;display:block;}
 
-/* GRID — fills screen with breathing room */
+/* GRID */
 .grid-wrap{
   width:calc(100vw - 48px);
-  height:calc(100dvh - 60px);
-  max-width:500px;
-  max-height:800px;
+  height:min(calc(100dvh - 100px), 620px);
+  max-width:480px;
   display:grid;
   grid-template-columns:1fr 1fr;
   grid-template-rows:1fr 1fr;
@@ -76,7 +78,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 /* BLOCK */
 .block{
   background:var(--bg);
-  border:1.5px solid #D4A0A8;
+  border:2px solid #E8B4B8;
   cursor:pointer;
   display:flex;flex-direction:column;
   align-items:flex-start;justify-content:flex-end;
@@ -86,15 +88,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   border-radius:1px;
   min-height:0;min-width:0;
 }
-.block:nth-child(2){border-color:#C47888;}
-.block:nth-child(3){border-color:#C47888;}
-.block:nth-child(4){border-color:#9E4E64;}
+/* Clockwise from top-left: light → mid-light → dark → mid-dark */
+.block:nth-child(1){border-color:#E8B4B8;} /* top-left    — rose pálido */
+.block:nth-child(2){border-color:#C47888;} /* top-right   — rose medio */
+.block:nth-child(3){border-color:#7A3048;} /* bottom-left — rose oscuro */
+.block:nth-child(4){border-color:#9E4E64;} /* bottom-right— rose medio-oscuro */
 .block:active{transform:scale(0.97);}
 
-.block-num{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;color:var(--txt3);margin-bottom:5px;}
-.block:nth-child(1) .block-num{color:#C47888;}
-.block:nth-child(2) .block-num{color:#B06070;}
-.block:nth-child(3) .block-num{color:#B06070;}
+.block-num{font-family:var(--mono);font-size:9px;letter-spacing:0.15em;margin-bottom:5px;}
+.block:nth-child(1) .block-num{color:#E8B4B8;}
+.block:nth-child(2) .block-num{color:#C47888;}
+.block:nth-child(3) .block-num{color:#7A3048;}
 .block:nth-child(4) .block-num{color:#9E4E64;}
 
 .block-name{font-family:var(--display);font-size:clamp(13px,3.5vw,20px);letter-spacing:0.12em;color:var(--txt);opacity:0.75;line-height:1;margin-bottom:3px;}
@@ -440,25 +444,24 @@ canvas#extractor{display:none;}
 <!-- ===== HOME ===== -->
 <div id="home">
   <div class="home-body">
-    <!-- SUN CENTER -->
-    <div class="sun-center">
-      <svg viewBox="0 0 56 56" fill="none">
-        <defs>
-          <radialGradient id="sg" cx="40%" cy="36%" r="62%">
-            <stop offset="0%" stop-color="#E8C96A"/>
-            <stop offset="55%" stop-color="#C9A84C"/>
-            <stop offset="100%" stop-color="#7A5C1E"/>
-          </radialGradient>
-          <filter id="ss" x="-30%" y="-30%" width="160%" height="160%">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#7A5C1E" flood-opacity="0.4"/>
-          </filter>
-        </defs>
-        <circle cx="28" cy="28" r="20" stroke="url(#sg)" stroke-width="1.2" filter="url(#ss)"/>
-        <circle cx="28" cy="28" r="4.5" fill="url(#sg)" filter="url(#ss)"/>
-      </svg>
-    </div>
-
     <div class="grid-wrap">
+      <!-- SUN inside grid — top:50% left:50% = exact intersection of 4 blocks -->
+      <div class="sun-center">
+        <svg viewBox="0 0 56 56" fill="none">
+          <defs>
+            <radialGradient id="sg" cx="40%" cy="36%" r="62%">
+              <stop offset="0%" stop-color="#E8C96A"/>
+              <stop offset="55%" stop-color="#C9A84C"/>
+              <stop offset="100%" stop-color="#7A5C1E"/>
+            </radialGradient>
+            <filter id="ss" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#7A5C1E" flood-opacity="0.4"/>
+            </filter>
+          </defs>
+          <circle cx="28" cy="28" r="20" stroke="url(#sg)" stroke-width="1.2" filter="url(#ss)"/>
+          <circle cx="28" cy="28" r="4.5" fill="url(#sg)" filter="url(#ss)"/>
+        </svg>
+      </div>
       <div class="block" onclick="openModule('lab')">
         <div class="block-num">01</div>
         <div class="block-name">LABORATORIO</div>
@@ -1442,27 +1445,37 @@ function generateIcon(){
   const S=180;c.width=S;c.height=S;
   const ctx=c.getContext('2d');
 
-  // Background — app gray warm
-  ctx.fillStyle='#D4CEC5';
+  // Black background
+  ctx.fillStyle='#111010';
   ctx.fillRect(0,0,S,S);
 
-  // Rounded C drawn as arc path — not text, so it's perfectly round
+  // Rounded C as arc — dark charcoal
   const cx=S/2+6, cy=S/2;
   const R=58, stroke=18;
-  const gapAngle=0.72; // radians — opening of the C
+  const gapAngle=0.72;
   ctx.beginPath();
-  ctx.arc(cx, cy, R, gapAngle, Math.PI*2 - gapAngle);
-  ctx.strokeStyle='#2A2520';
+  ctx.arc(cx, cy, R, gapAngle, Math.PI*2-gapAngle);
+  ctx.strokeStyle='#F0EDE8';
   ctx.lineWidth=stroke;
   ctx.lineCap='round';
   ctx.stroke();
 
-  // Rose dot — solid, positioned in the C opening center
-  const dotX=cx + R * Math.cos(0); // right side opening
+  // Gold dot with shadow — in the C opening
+  const dotX=cx + R;
   const dotY=cy;
+  // Shadow
+  ctx.beginPath();
+  ctx.arc(dotX-2+2, dotY+2, 10, 0, Math.PI*2);
+  ctx.fillStyle='rgba(90,60,10,0.5)';
+  ctx.fill();
+  // Gold gradient
+  const grd=ctx.createRadialGradient(dotX-4, dotY-3, 1, dotX-2, dotY, 10);
+  grd.addColorStop(0,'#F0D070');
+  grd.addColorStop(0.5,'#C9A84C');
+  grd.addColorStop(1,'#7A5C1E');
   ctx.beginPath();
   ctx.arc(dotX-2, dotY, 10, 0, Math.PI*2);
-  ctx.fillStyle='#C47888';
+  ctx.fillStyle=grd;
   ctx.fill();
 
   const link=document.getElementById('apple-icon');
