@@ -46,8 +46,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 #home.hidden{opacity:0;pointer-events:none;transform:scale(0.96);}
 
 .home-body{
-  flex:1;display:flex;align-items:stretch;justify-content:stretch;
-  padding:calc(env(safe-area-inset-top)+16px) 20px calc(env(safe-area-inset-bottom)+16px);
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:calc(env(safe-area-inset-top)+36px) 36px calc(env(safe-area-inset-bottom)+36px);
   position:relative;
   overflow:hidden;
 }
@@ -57,17 +57,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   position:absolute;top:50%;left:50%;
   transform:translate(-50%,-50%);
   z-index:5;pointer-events:none;
-  width:clamp(36px,7vw,52px);height:clamp(36px,7vw,52px);
+  width:clamp(28px,5vw,38px);height:clamp(28px,5vw,38px);
 }
 
-/* GRID WRAPPER — fills full available space */
+/* GRID WRAPPER — contained, with air around it */
 .grid-wrap{
-  width:100%;
-  height:100%;
+  width:min(84%, 360px);
+  height:min(84vh, 560px);
   display:grid;
   grid-template-columns:1fr 1fr;
   grid-template-rows:1fr 1fr;
-  gap:clamp(24px,6vw,40px);
+  gap:clamp(16px,4vw,24px);
   position:relative;
 }
 
@@ -127,7 +127,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .back-btn svg{filter:none;}
 .back-label{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:var(--txt3);text-transform:uppercase;}
 
-.mod-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px calc(env(safe-area-inset-bottom)+80px);}
+.mod-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:24px 20px calc(env(safe-area-inset-bottom)+80px);}
 
 /* TABS */
 .tabs{display:flex;gap:1px;background:var(--card-border);border-radius:3px;overflow:hidden;margin-bottom:20px;}
@@ -213,7 +213,7 @@ input[type=color]{width:36px;height:32px;border:0.5px solid var(--card-border);b
 /* GRID VIEW */
 .archive-photo-grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr 1fr 1fr;
   gap:3px;
 }
 .archive-thumb{
@@ -871,101 +871,154 @@ function processImage(file){
   reader.onload=ev=>{
     const img=new Image();
     img.onload=()=>{
-      const canvas=document.getElementById('extractor');
-      const ctx=canvas.getContext('2d');
-      // Use larger canvas for better k-means accuracy
-      const size=200;
-      canvas.width=size;canvas.height=size;
-      ctx.drawImage(img,0,0,size,size);
-      const data=ctx.getImageData(0,0,size,size).data;
       showToast('Analizando colores…');
-      // Run in next tick to allow toast to show
       setTimeout(()=>{
+        const canvas=document.getElementById('extractor');
+        const ctx=canvas.getContext('2d');
+        // 400×400 for maximum sampling density
+        const W=400,H=400;
+        canvas.width=W;canvas.height=H;
+        ctx.drawImage(img,0,0,W,H);
+        const data=ctx.getImageData(0,0,W,H).data;
+
+        // Run 20 clusters, 28 iterations for maximum accuracy
+        const pool=kmeansExtract(data,20,28);
+
         const palettes={
-          p2:extractPal(data,2),
-          p3:extractPal(data,3),
-          p4:extractPal(data,4)
+          p2:selectDiverse(pool,2),
+          p3:selectDiverse(pool,3),
+          p4:selectDiverse(pool,4)
         };
-        archiveItems.unshift({src:ev.target.result,palettes,picked:[],name:file.name.replace(/\.[^.]+$/,''),date:Date.now()});
+        archiveItems.unshift({src:ev.target.result,palettes,picked:[],customPalettes:[],name:file.name.replace(/\.[^.]+$/,''),date:Date.now()});
         localStorage.setItem('chroma-v3-archive',JSON.stringify(archiveItems.slice(0,30)));
         renderArchive();
         showToast('Paletas extraídas');
-      }, 80);
+      },100);
     };
     img.src=ev.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-// ===== REAL K-MEANS COLOR EXTRACTION =====
-function extractPal(data, n) {
-  // Sample pixels (skip transparent)
-  const pixels = [];
-  for (let i = 0; i < data.length; i += 4 * 4) {
-    if (data[i+3] < 128) continue;
-    const r = data[i], g = data[i+1], b = data[i+2];
-    // Skip near-white and near-black
-    const brightness = (r + g + b) / 3;
-    if (brightness < 12 || brightness > 243) continue;
-    pixels.push([r, g, b]);
-  }
-  if (pixels.length < n) return Array(n).fill('#888888');
+// ===== HIGH-POWER K-MEANS EXTRACTION =====
 
-  // Initialize centroids with k-means++ strategy
-  const centroids = [];
-  centroids.push(pixels[Math.floor(Math.random() * pixels.length)]);
-  while (centroids.length < n) {
-    // Weight each pixel by distance to nearest centroid
-    const dists = pixels.map(p => {
-      let minD = Infinity;
-      for (const c of centroids) {
-        const d = colorDistSq(p, c);
-        if (d < minD) minD = d;
-      }
-      return minD;
-    });
-    const total = dists.reduce((a, b) => a + b, 0);
-    let rand = Math.random() * total;
-    for (let i = 0; i < pixels.length; i++) {
-      rand -= dists[i];
-      if (rand <= 0) { centroids.push(pixels[i]); break; }
-    }
-    if (centroids.length < n) centroids.push(pixels[Math.floor(Math.random() * pixels.length)]);
-  }
-
-  // Run k-means iterations
-  let assignments = new Array(pixels.length).fill(0);
-  for (let iter = 0; iter < 12; iter++) {
-    // Assign
-    for (let i = 0; i < pixels.length; i++) {
-      let best = 0, bestD = Infinity;
-      for (let k = 0; k < n; k++) {
-        const d = colorDistSq(pixels[i], centroids[k]);
-        if (d < bestD) { bestD = d; best = k; }
-      }
-      assignments[i] = best;
-    }
-    // Update centroids
-    for (let k = 0; k < n; k++) {
-      const members = pixels.filter((_, i) => assignments[i] === k);
-      if (members.length === 0) continue;
-      centroids[k] = [
-        Math.round(members.reduce((s, p) => s + p[0], 0) / members.length),
-        Math.round(members.reduce((s, p) => s + p[1], 0) / members.length),
-        Math.round(members.reduce((s, p) => s + p[2], 0) / members.length)
-      ];
-    }
-  }
-
-  // Return centroids sorted by cluster size (most dominant first)
-  const counts = centroids.map((_, k) => assignments.filter(a => a === k).length);
-  const sorted = centroids.map((c, k) => ({ c, count: counts[k] }))
-    .sort((a, b) => b.count - a.count);
-  return sorted.map(s => rgbToHex(s.c[0], s.c[1], s.c[2]));
+// Convert RGB to perceptual Lab-like space for better clustering
+function rgbToLab(r,g,b){
+  // sRGB to linear
+  let R=r/255,G=g/255,B=b/255;
+  R=R>0.04045?Math.pow((R+0.055)/1.055,2.4):R/12.92;
+  G=G>0.04045?Math.pow((G+0.055)/1.055,2.4):G/12.92;
+  B=B>0.04045?Math.pow((B+0.055)/1.055,2.4):B/12.92;
+  // to XYZ
+  let X=R*0.4124+G*0.3576+B*0.1805;
+  let Y=R*0.2126+G*0.7152+B*0.0722;
+  let Z=R*0.0193+G*0.1192+B*0.9505;
+  // normalize D65
+  X/=0.95047;Y/=1.0;Z/=1.08883;
+  const f=t=>t>0.008856?Math.cbrt(t):(7.787*t+16/116);
+  const fx=f(X),fy=f(Y),fz=f(Z);
+  return[116*fy-16,500*(fx-fy),200*(fy-fz)];
 }
 
-function colorDistSq(a, b) {
-  return (a[0]-b[0])**2 + (a[1]-b[1])**2 + (a[2]-b[2])**2;
+function labDistSq(a,b){
+  return(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2;
+}
+
+function kmeansExtract(data,k,iters){
+  // Sample every 2nd pixel for maximum coverage
+  const pixels=[],labs=[];
+  for(let i=0;i<data.length;i+=4*2){
+    if(data[i+3]<180)continue;
+    const r=data[i],g=data[i+1],b=data[i+2];
+    const lum=(r*299+g*587+b*114)/1000;
+    // Include more of the tonal range — only skip extreme black/white
+    if(lum<5||lum>250)continue;
+    pixels.push([r,g,b]);
+    labs.push(rgbToLab(r,g,b));
+  }
+  if(pixels.length<k)return pixels.slice(0,k).map(([r,g,b])=>({rgb:[r,g,b],count:1,sat:0}));
+
+  // k-means++ init in Lab space
+  const ci=[Math.floor(Math.random()*pixels.length)];
+  while(ci.length<k){
+    const dists=labs.map(l=>{
+      let mn=Infinity;
+      for(const idx of ci){const d=labDistSq(l,labs[idx]);if(d<mn)mn=d;}
+      return mn;
+    });
+    const sum=dists.reduce((a,b)=>a+b,0);
+    let r=Math.random()*sum;
+    for(let i=0;i<dists.length;i++){r-=dists[i];if(r<=0){ci.push(i);break;}}
+    if(ci.length<k)ci.push(Math.floor(Math.random()*pixels.length));
+  }
+
+  let centroids=ci.map(i=>labs[i].slice());
+  let assignments=new Int32Array(pixels.length);
+
+  for(let it=0;it<iters;it++){
+    let moved=false;
+    for(let i=0;i<labs.length;i++){
+      let best=0,bestD=Infinity;
+      for(let c=0;c<k;c++){const d=labDistSq(labs[i],centroids[c]);if(d<bestD){bestD=d;best=c;}}
+      if(assignments[i]!==best){assignments[i]=best;moved=true;}
+    }
+    if(!moved&&it>3)break;
+    for(let c=0;c<k;c++){
+      let sL=0,sA=0,sB=0,cnt=0;
+      for(let i=0;i<labs.length;i++){if(assignments[i]===c){sL+=labs[i][0];sA+=labs[i][1];sB+=labs[i][2];cnt++;}}
+      if(cnt>0)centroids[c]=[sL/cnt,sA/cnt,sB/cnt];
+    }
+  }
+
+  const results=[];
+  for(let c=0;c<k;c++){
+    const members=[];
+    for(let i=0;i<pixels.length;i++)if(assignments[i]===c)members.push(pixels[i]);
+    if(!members.length)continue;
+    const r=Math.round(members.reduce((s,p)=>s+p[0],0)/members.length);
+    const g=Math.round(members.reduce((s,p)=>s+p[1],0)/members.length);
+    const b=Math.round(members.reduce((s,p)=>s+p[2],0)/members.length);
+    const[,sat,l]=rgbToHsl(r,g,b);
+    results.push({rgb:[r,g,b],count:members.length,sat,l,hex:rgbToHex(r,g,b)});
+  }
+  return results.sort((a,b)=>b.count-a.count);
+}
+
+// Select N colors from pool ensuring maximum perceptual diversity
+// Balances dominance with chromatic variety — actively seeks accents
+function selectDiverse(pool,n){
+  if(pool.length<=n)return pool.map(p=>p.hex);
+
+  const selected=[];
+  selected.push(pool[0]); // most dominant first
+
+  while(selected.length<n){
+    let bestScore=-Infinity,bestIdx=-1;
+    for(let i=0;i<pool.length;i++){
+      if(selected.find(s=>s===pool[i]))continue;
+      const p=pool[i];
+      // Min perceptual distance to already selected
+      let minD=Infinity;
+      for(const s of selected){
+        const la=rgbToLab(...p.rgb),lb=rgbToLab(...s.rgb);
+        const d=labDistSq(la,lb);
+        if(d<minD)minD=d;
+      }
+      // Accent bonus: quadratic boost for high saturation colors
+      // Even a small accent cluster gets elevated if it's very chromatic
+      const satBonus=1+Math.pow(p.sat/100,1.5)*2.5;
+      // Diversity × saturation × presence — log smooths extreme sizes
+      const score=Math.sqrt(minD)*satBonus*Math.log1p(p.count);
+      if(score>bestScore){bestScore=score;bestIdx=i;}
+    }
+    if(bestIdx>=0)selected.push(pool[bestIdx]);
+    else break;
+  }
+  return selected.map(p=>p.hex);
+}
+
+function colorDistSq(a,b){
+  return(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2;
 }
 
 function renderArchive(){
