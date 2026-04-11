@@ -553,6 +553,10 @@ canvas#extractor{display:none;}
         <input type="color" id="mix-picker" value="#5B8DD9" oninput="updateMixer(this.value)">
         <input type="text" class="hex-field" id="mix-hex-field" value="#5B8DD9" oninput="mixHexInput(this.value)" maxlength="7" placeholder="#000000">
       </div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button class="mode-btn active" id="mix-mode-artist" onclick="setMixMode('artist',this)" style="flex:1;padding:8px;font-size:9px;">Pigmentos artista</button>
+        <button class="mode-btn" id="mix-mode-generic" onclick="setMixMode('generic',this)" style="flex:1;padding:8px;font-size:9px;">Colores genéricos</button>
+      </div>
       <button class="btn rose" onclick="calcMix()">Calcular mezcla</button>
       <div id="mix-result" style="margin-top:16px;display:none;"></div>
     </div>
@@ -733,7 +737,15 @@ function drawWheel(canvasId,clickCb,touchCb){
   }
 
   canvas.onclick=e=>{const c=getColor(e);if(c&&clickCb)clickCb(c);};
-  canvas.addEventListener('touchend',e=>{e.preventDefault();const c=getColor(e.changedTouches[0]?{touches:e.changedTouches}:e);if(c&&clickCb)clickCb(c);},{passive:false});
+
+  // Real-time drag support
+  let dragging=false;
+  canvas.addEventListener('mousedown',()=>{dragging=true;});
+  canvas.addEventListener('mouseup',()=>{dragging=false;});
+  canvas.addEventListener('mousemove',e=>{if(!dragging)return;const c=getColor(e);if(c&&clickCb)clickCb(c);});
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();dragging=true;const c=getColor(e);if(c&&clickCb)clickCb(c);},{passive:false});
+  canvas.addEventListener('touchend',e=>{e.preventDefault();dragging=false;},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!dragging)return;const c=getColor(e);if(c&&clickCb)clickCb(c);},{passive:false});
 }
 
 function initLabWheel(){
@@ -807,7 +819,7 @@ function setLabTab(tab,el){
 }
 
 // ===== MIXER =====
-const PALETTE=[
+const PALETTE_ARTIST=[
   {name:'Blanco Titanio',color:[240,237,230]},{name:'Negro Marfil',color:[42,34,24]},
   {name:'Am. Cadmio Claro',color:[255,244,79]},{name:'Am. Cadmio Oscuro',color:[255,179,0]},
   {name:'Ocre Amarillo',color:[200,144,42]},{name:'Siena Natural',color:[181,101,29]},
@@ -818,57 +830,145 @@ const PALETTE=[
   {name:'V. Veronés',color:[75,127,82]},{name:'V. Esmeralda',color:[27,127,94]}
 ];
 
+const PALETTE_GENERIC=[
+  {name:'Blanco',color:[255,255,255]},{name:'Negro',color:[20,20,20]},
+  {name:'Gris claro',color:[200,200,200]},{name:'Gris medio',color:[128,128,128]},
+  {name:'Rojo',color:[220,30,30]},{name:'Rojo oscuro',color:[140,10,10]},
+  {name:'Naranja',color:[240,110,20]},{name:'Amarillo',color:[255,220,0]},
+  {name:'Amarillo verdoso',color:[180,210,0]},{name:'Verde',color:[30,160,60]},
+  {name:'Verde oscuro',color:[10,90,30]},{name:'Cian',color:[0,180,200]},
+  {name:'Azul claro',color:[60,130,220]},{name:'Azul',color:[20,60,180]},
+  {name:'Azul marino',color:[10,20,100]},{name:'Violeta',color:[120,30,180]},
+  {name:'Magenta',color:[200,20,120]},{name:'Rosa',color:[240,100,150]},
+  {name:'Marrón',color:[130,70,30]},{name:'Marrón claro',color:[190,140,90]}
+];
+
+let mixMode='artist';
+function setMixMode(m,el){
+  mixMode=m;
+  document.querySelectorAll('#lab-mix .mode-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function activePalette(){return mixMode==='artist'?PALETTE_ARTIST:PALETTE_GENERIC;}
+
 function updateMixer(v){document.getElementById('mix-display').style.background=v;document.getElementById('mix-hex-lbl').textContent=v.toUpperCase();document.getElementById('mix-hex-field').value=v;}
 function mixHexInput(v){if(/^#[0-9A-Fa-f]{6}$/.test(v)){document.getElementById('mix-picker').value=v;updateMixer(v);}}
+
+// Mix n pigments in Lab space for perceptual accuracy
+function mixPigs(pigs){
+  // weighted average in RGB then convert — approximation for thin layers
+  let r=0,g=0,b=0,tot=0;
+  for(const p of pigs){r+=p.p.color[0]*p.w;g+=p.p.color[1]*p.w;b+=p.p.color[2]*p.w;tot+=p.w;}
+  return[r/tot,g/tot,b/tot];
+}
+
+function pigDist(rgb,target){
+  // Perceptual distance in Lab
+  const la=rgbToLab(rgb[0],rgb[1],rgb[2]);
+  const lb=rgbToLab(target[0],target[1],target[2]);
+  return Math.sqrt(labDistSq(la,lb));
+}
 
 function calcMix(){
   const hex=document.getElementById('mix-picker').value;
   const[r,g,b]=hexToRgb(hex);
-  let best={dist:999999};
-  for(let i=0;i<PALETTE.length;i++){
-    for(let j=i;j<PALETTE.length;j++){
+  const PAL=activePalette();
+  const N=PAL.length;
+  let best={dist:9999,pigs:[],rgb:[r,g,b]};
+
+  // ---- 2-pigment ----
+  for(let i=0;i<N;i++){
+    for(let j=i;j<N;j++){
       for(let w=1;w<=9;w++){
         const w1=w/10,w2=(10-w)/10;
-        const mr=PALETTE[i].color[0]*w1+PALETTE[j].color[0]*w2;
-        const mg=PALETTE[i].color[1]*w1+PALETTE[j].color[1]*w2;
-        const mb=PALETTE[i].color[2]*w1+PALETTE[j].color[2]*w2;
-        const dist=Math.sqrt((mr-r)**2+(mg-g)**2+(mb-b)**2);
-        if(dist<best.dist)best={dist,pigs:[{p:PALETTE[i],w:w1},{p:PALETTE[j],w:w2}],rgb:[mr,mg,mb]};
+        const mix=mixPigs([{p:PAL[i],w:w1},{p:PAL[j],w:w2}]);
+        const d=pigDist(mix,[r,g,b]);
+        if(d<best.dist)best={dist:d,pigs:[{p:PAL[i],w:w1},{p:PAL[j],w:w2}],rgb:mix};
       }
     }
   }
-  // try 3-pigment
-  if(best.dist>35){
-    const bp=best.pigs;
-    for(let k=0;k<PALETTE.length;k++){
-      if(PALETTE[k]===bp[0].p||PALETTE[k]===bp[1].p)continue;
-      for(let a=1;a<=6;a++){for(let b2=1;b2<=7-a;b2++){
-        const c2=10-a-b2;if(c2<1)continue;
-        const mr=(bp[0].p.color[0]*a+bp[1].p.color[0]*b2+PALETTE[k].color[0]*c2)/10;
-        const mg=(bp[0].p.color[1]*a+bp[1].p.color[1]*b2+PALETTE[k].color[1]*c2)/10;
-        const mb=(bp[0].p.color[2]*a+bp[1].p.color[2]*b2+PALETTE[k].color[2]*c2)/10;
-        const dist=Math.sqrt((mr-r)**2+(mg-g)**2+(mb-b)**2);
-        if(dist<best.dist)best={dist,pigs:[{p:bp[0].p,w:a/10},{p:bp[1].p,w:b2/10},{p:PALETTE[k],w:c2/10}],rgb:[mr,mg,mb]};
-      }}
+
+  // ---- 3-pigment (only if 2-pig result not close enough) ----
+  if(best.dist>18){
+    for(let i=0;i<N;i++){
+      for(let j=i;j<N;j++){
+        for(let k=j;k<N;k++){
+          for(let a=1;a<=7;a++){
+            for(let b2=1;b2<=8-a;b2++){
+              const c2=10-a-b2;if(c2<1)continue;
+              const mix=mixPigs([{p:PAL[i],w:a/10},{p:PAL[j],w:b2/10},{p:PAL[k],w:c2/10}]);
+              const d=pigDist(mix,[r,g,b]);
+              if(d<best.dist)best={dist:d,pigs:[{p:PAL[i],w:a/10},{p:PAL[j],w:b2/10},{p:PAL[k],w:c2/10}],rgb:mix};
+            }
+          }
+        }
+      }
     }
   }
-  const acc=Math.round((1-best.dist/441.67)*100);
-  const total=best.pigs.reduce((s,p)=>s+p.w,0);
-  const minW=Math.min(...best.pigs.map(p=>p.w));
+
+  // ---- 4-pigment (only if still not close enough) ----
+  if(best.dist>12){
+    const top6=PAL.map((p,i)=>({p,i,d:pigDist(p.color,[r,g,b])})).sort((a,b)=>a.d-b.d).slice(0,7);
+    for(let a=0;a<top6.length;a++){
+      for(let b2=a;b2<top6.length;b2++){
+        for(let c=b2;c<top6.length;c++){
+          for(let dd=c;dd<top6.length;dd++){
+            for(let w1=1;w1<=6;w1++){
+              for(let w2=1;w2<=7-w1;w2++){
+                for(let w3=1;w3<=8-w1-w2;w3++){
+                  const w4=10-w1-w2-w3;if(w4<1)continue;
+                  const mix=mixPigs([
+                    {p:top6[a].p,w:w1/10},{p:top6[b2].p,w:w2/10},
+                    {p:top6[c].p,w:w3/10},{p:top6[dd].p,w:w4/10}
+                  ]);
+                  const d=pigDist(mix,[r,g,b]);
+                  if(d<best.dist)best={dist:d,pigs:[
+                    {p:top6[a].p,w:w1/10},{p:top6[b2].p,w:w2/10},
+                    {p:top6[c].p,w:w3/10},{p:top6[dd].p,w:w4/10}
+                  ],rgb:mix};
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Filter zero-weight pigments and normalize
+  const usedPigs=best.pigs.filter(p=>p.w>0.01);
+  const total=usedPigs.reduce((s,p)=>s+p.w,0);
+  const minW=Math.min(...usedPigs.map(p=>p.w));
+  const maxDist=Math.sqrt(3)*255;
+  const acc=Math.max(0,Math.round((1-best.dist/maxDist)*100));
+  const resultHex=rgbToHex(Math.round(best.rgb[0]),Math.round(best.rgb[1]),Math.round(best.rgb[2]));
+
   document.getElementById('mix-result').style.display='block';
   document.getElementById('mix-result').innerHTML=`
     <div class="mix-result-pair">
       <div class="mix-half" style="background:${hex};"><span class="mix-half-label">Objetivo</span></div>
       <div style="display:flex;align-items:center;padding:0 6px;font-size:16px;color:var(--txt3);">≈</div>
-      <div class="mix-half" style="background:${rgbToHex(Math.round(best.rgb[0]),Math.round(best.rgb[1]),Math.round(best.rgb[2]))}"><span class="mix-half-label">Resultado</span></div>
+      <div class="mix-half" style="background:${resultHex};"><span class="mix-half-label">Resultado</span></div>
     </div>
-    <div class="acc-row"><span class="acc-label">Aproximación</span><span class="acc-val ${acc>=80?'good':acc>=60?'ok':'hard'}">${acc}%</span></div>
-    ${best.pigs.map(({p,w})=>{
+    <div class="acc-row">
+      <span class="acc-label">Aproximación</span>
+      <span class="acc-val ${acc>=85?'good':acc>=68?'ok':'hard'}">${acc}%</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--txt3);margin-left:6px;">${usedPigs.length} pigmento${usedPigs.length>1?'s':''}</span>
+    </div>
+    ${usedPigs.map(({p,w})=>{
       const pct=Math.round((w/total)*100);
       const parts=Math.round((w/minW)*10)/10;
-      return`<div class="ingredient"><div class="ing-dot" style="background:${rgbToHex(...p.color)};"></div><div class="ing-info"><div class="ing-name">${p.name}</div><div class="ing-amt">${pct}% — ${parts} parte${parts!==1?'s':''}</div></div><div class="ing-bar-wrap"><div class="ing-bar" style="width:${pct}%;background:${rgbToHex(...p.color)};"></div></div></div>`;
+      return`<div class="ingredient">
+        <div class="ing-dot" style="background:${rgbToHex(...p.color)};"></div>
+        <div class="ing-info">
+          <div class="ing-name">${p.name}</div>
+          <div class="ing-amt">${pct}% — ${parts} parte${parts!==1?'s':''}</div>
+        </div>
+        <div class="ing-bar-wrap"><div class="ing-bar" style="width:${pct}%;background:${rgbToHex(...p.color)};"></div></div>
+      </div>`;
     }).join('')}
-    <div class="mix-note">${acc>=80?'Buena aproximación con tu paleta habitual.':acc>=60?'Aproximación razonable. El resultado varía con la dilución y el soporte.':'Este color es difícil de conseguir con pigmentos tradicionales. Esta es la mezcla más cercana posible.'}</div>`;
+    <div class="mix-note">${acc>=85?'Muy buena aproximación.':acc>=68?'Aproximación razonable — el resultado varía con dilución y soporte.':'Color difícil de reproducir con mezcla sustractiva. Esta es la combinación más cercana posible.'}</div>`;
 }
 
 // ===== ARCHIVE =====
