@@ -183,6 +183,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 .img-modal-bg img{max-width:100%;max-height:90dvh;border-radius:var(--r);object-fit:contain;}
 
 .empty{text-align:center;padding:40px 20px;color:var(--ink3);font-size:14px;line-height:1.7;}
+.backup-dot{position:relative;display:inline-block;}
+.backup-dot::after{content:'';position:absolute;top:-3px;right:-8px;width:8px;height:8px;background:#E8006A;border-radius:50%;display:none;}
+.backup-dot.alert::after{display:block;}
+.search-bar{display:flex;align-items:center;gap:8px;margin:10px 16px 0;background:var(--cream2);border:1px solid var(--cream3);border-radius:var(--rs);padding:8px 12px;}
+.search-bar input{flex:1;border:none;background:none;font-size:14px;color:var(--ink);font-family:'DM Sans',sans-serif;outline:none;}
+.search-bar input::placeholder{color:var(--ink3);}
+.deducible-toggle{display:flex;align-items:center;gap:8px;padding:8px 0;}
+.deducible-toggle input[type=checkbox]{width:18px;height:18px;accent-color:var(--opera);cursor:pointer;}
+.deducible-toggle label{font-size:13px;color:var(--ink2);cursor:pointer;}
 </style>
 </head>
 <body>
@@ -325,6 +334,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
     <div class="field"><label class="field-label">Importe</label><input type="number" id="mov-imp" placeholder="0,00" step="0.01" min="0" inputmode="decimal"></div>
     <div class="field"><label class="field-label">Descripción</label><input type="text" id="mov-desc" placeholder="Ej: Condis, Café del Born…"></div>
     <div class="field"><label class="field-label">Categoría</label><div class="tags" id="cat-tags"></div></div>
+    <div class="field" id="deducible-field" style="display:none;">
+      <div class="deducible-toggle">
+        <input type="checkbox" id="mov-deducible" name="deducible">
+        <label for="mov-deducible">Gasto deducible (IRPF)</label>
+      </div>
+    </div>
     <div class="field"><label class="field-label">Fecha</label><input type="date" id="mov-fecha"></div>
     <div class="field"><label class="field-label">Forma de pago</label><div class="type-toggle"><button class="type-btn active" id="btn-banco" onclick="setEfectivo(false)">Banco</button><button class="type-btn" id="btn-efectivo" onclick="setEfectivo(true)">Efectivo</button></div></div>
     <button class="btn-save" onclick="saveMov()">Guardar</button>
@@ -628,6 +643,7 @@ function toggleEvoModal(){
 }
 
 function setTab(t){
+  if(t!=='movs') window._movSearch='';
   tab=t;
   ['movs','facturas','resumen','evolucion','recibos','clientes'].forEach(id=>{
     const el=document.getElementById('tab-'+id);
@@ -684,11 +700,14 @@ function renderContent(){
   else renderResumen(c,movs,facs);
 }
 
-function renderMovs(c,movs){
-  if(!movs.length){c.innerHTML='<div class="empty">Sin movimientos este mes.<br>Pulsa + Movimiento para añadir.<br><br>Puedes hacer foto de un recibo<br>y Claude rellena los datos.</div>';return;}
+function renderMovs(c,movs,searchQ){
+  searchQ=searchQ||window._movSearch||'';
+  let h='<div class="search-bar"><span style="color:var(--ink3);font-size:16px">⊙</span><input type="text" placeholder="Buscar movimiento…" value="'+escHtml(searchQ)+'" oninput="window._movSearch=this.value;renderMovsFilter()" id="mov-search"></div>';
+  const filtered=searchQ?movs.filter(m=>m.desc.toLowerCase().includes(searchQ.toLowerCase())||m.cat.toLowerCase().includes(searchQ.toLowerCase())):movs;
+  if(!filtered.length){c.innerHTML=h+'<div class="empty">Sin movimientos este mes.<br>Pulsa + Movimiento para añadir.<br><br>Puedes hacer foto de un recibo<br>y Claude rellena los datos.</div>';return;}
+  movs=filtered;
   const bycat={};
   movs.forEach(m=>{if(!bycat[m.cat])bycat[m.cat]=[];bycat[m.cat].push(m);});
-  let h='';
   Object.entries(bycat).sort().forEach(([cat,items])=>{
     const tot=items.reduce((a,b)=>a+(b.tipo==='ingreso'?b.importe:-b.importe),0);
     h+=`<div class="section-header"><span class="section-title">${cat}</span><span class="section-total">${tot>=0?'+':''}${fmt(Math.abs(tot))}</span></div><div class="mov-list">`;
@@ -884,28 +903,19 @@ function renderResumen(c,movs,facs){
   }
 
   if(facs.length) h+=`<div class="section-header"><span class="section-title">Fiscal facturas</span></div><div class="res-box"><div class="res-row"><span class="l">Neto real facturas</span><span class="v pos">${fmt(tn)}</span></div><div class="res-row"><span class="l">Provisión IRPF a apartar</span><span class="v warn">${fmt(tp)}</span></div></div>`;
-  // Recurrentes
+  // Deducible total
+  const totalDed=movs.filter(m=>m.tipo==='gasto'&&m.deducible).reduce((a,b)=>a+b.importe,0);
+  if(totalDed>0){
+    h+=`<div class="section-header"><span class="section-title">Gastos deducibles del mes</span></div><div class="res-box"><div class="res-row"><span class="l" style="font-weight:500">Total deducible IRPF</span><span class="v pos">${fmt(totalDed)}</span></div></div>`;
+  }
+  // Recurrentes (resumen del mes)
   const rec2=getRecurrentes();
   const key2=mk(cd);
-  h+=`<div class="section-header"><span class="section-title">Gastos recurrentes</span><span class="section-total">${rec2.filter(r=>isPagado(r.id,key2)).length}/${rec2.length} pagados</span></div>`;
-  h+='<div class="mov-list" style="margin:0 16px 12px;">';
-  rec2.forEach((r,ri)=>{
-    const pagado=isPagado(r.id,key2);
-    h+=`<div class="mov-row" style="background:${pagado?'var(--cream2)':'var(--cream)'}">
-      <div class="mov-left">
-        <div class="mov-desc" style="color:${pagado?'var(--ink3)':'var(--ink)'};text-decoration:${pagado?'line-through':'none'}">${r.nombre}</div>
-        <div class="mov-meta">${r.categoria} · día ${r.dia}</div>
-      </div>
-      <div class="mov-right">
-        <div class="mov-amt" style="color:${pagado?'var(--ink3)':'var(--neg)'}">-${fmt(r.importe)}</div>
-      </div>
-      <button onclick="togglePagado('${r.id}','${key2}')" style="background:${pagado?'var(--cream3)':'var(--pos)'};border:none;border-radius:4px;padding:4px 7px;font-size:10px;color:${pagado?'var(--ink3)':'white'};cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;margin-left:4px;">${pagado?'✓':'Pagar'}</button>
-      <button onclick="openRecModal(${ri})" style="background:#E8006A;border:none;border-radius:4px;padding:4px 7px;font-size:10px;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;margin-left:4px;">✎</button>
-      <button onclick="deleteRecurrente(${ri})" style="background:none;border:none;color:var(--cream3);font-size:16px;cursor:pointer;padding:4px;flex-shrink:0;" ontouchstart="this.style.color='var(--neg)'" ontouchend="this.style.color='var(--cream3)'">×</button>
-    </div>`;
-  });
-  h+='</div>';
-  h+=`<div class="section-header"><span class="section-title">Datos</span></div><div class="export-row"><button class="exp-btn" onclick="exportCSV()">Exportar CSV</button><button class="exp-btn" onclick="exportJSON()">Exportar JSON</button></div><div class="export-row"><button class="exp-btn" onclick="importJSON()">Importar JSON</button><button class="exp-btn" onclick="importBankCSV()" style="color:#E8006A;font-weight:500;">Importar XLS ING</button></div>`;
+  const pagadosCount=rec2.filter(r=>isPagado(r.id,key2)).length;
+  const totalRec=rec2.reduce((a,r)=>a+r.importe,0);
+  const pagadoRec=rec2.filter(r=>isPagado(r.id,key2)).reduce((a,r)=>a+r.importe,0);
+  h+=`<div class="section-header"><span class="section-title">Gastos fijos del mes</span><span class="section-total">${pagadosCount}/${rec2.length} pagados</span></div><div class="res-box"><div class="res-row"><span class="l">Total gastos fijos</span><span class="v warn">${fmt(totalRec)}</span></div><div class="res-row"><span class="l">Pagados</span><span class="v pos">${fmt(pagadoRec)}</span></div><div class="res-row"><span class="l">Pendientes</span><span class="v neg">${fmt(totalRec-pagadoRec)}</span></div><div class="res-row" style="margin-top:4px"><span></span><button onclick="setTab('movs');setTimeout(()=>openSettings(),200)" style="font-size:11px;color:var(--gold-d);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline;">Gestionar en ⚙ Configuración</button></div></div>`;
+  h+=`<div class="section-header"><span class="section-title">Datos</span></div><div class="export-row"><button class="exp-btn" onclick="exportCSV()">Exportar CSV</button><div class="backup-dot" id="export-json-wrap"><button class="exp-btn" onclick="exportJSON()" style="width:100%">Exportar JSON</button></div></div><div class="export-row"><button class="exp-btn" onclick="importJSON()">Importar JSON</button><button class="exp-btn" onclick="importBankCSV()" style="color:#E8006A;font-weight:500;">Importar XLS ING</button></div>`;
   c.innerHTML=h;
 }
 
@@ -925,6 +935,7 @@ function openMovModal(){
   window._fotoEx=null;
   document.getElementById('foto-area').classList.remove('has-photo');
   esEfectivo=false;editMovId=null;document.getElementById('btn-banco').classList.add('active');document.getElementById('btn-efectivo').classList.remove('active');
+  const dd=document.getElementById('mov-deducible');if(dd)dd.checked=false;
   setType('gasto');
   document.getElementById('mov-modal').classList.add('open');
 }
@@ -934,6 +945,8 @@ function setType(t){
   document.getElementById('btn-gasto').classList.toggle('active',t==='gasto');
   document.getElementById('btn-ingreso').classList.toggle('active',t==='ingreso');
   document.getElementById('foto-field').style.display=t==='gasto'?'block':'none';
+  const df=document.getElementById('deducible-field');
+  if(df) df.style.display=t==='gasto'?'block':'none';
   const cats=t==='gasto'?CG:CI;
   document.getElementById('cat-tags').innerHTML=cats.map(c=>`<div class="tag${scat===c?' sel':''}" onclick="selCat('${c}')">${c}</div>`).join('');
 }
@@ -954,7 +967,8 @@ function saveMov(){
     if(idx>=0){d.movs[idx]={...d.movs[idx],tipo:mtype,importe:imp,desc,cat:scat,fecha,efectivo:esEfectivo};if(fotoUrl)d.movs[idx].foto=fotoUrl;}
     editMovId=null;
   } else {
-    const m={id:Date.now().toString(),tipo:mtype,importe:imp,desc,cat:scat,fecha,efectivo:esEfectivo};
+    const deducible=document.getElementById('mov-deducible')&&document.getElementById('mov-deducible').checked;
+    const m={id:Date.now().toString(),tipo:mtype,importe:imp,desc,cat:scat,fecha,efectivo:esEfectivo,deducible:deducible||false};
     if(fotoUrl) m.foto=fotoUrl;
     if(manBase) m.base_imponible=manBase;
     if(manIva) m.iva=manIva;
@@ -1105,7 +1119,7 @@ function toggleEvoModal(){
   document.getElementById('evo-modal').classList.add('open');
 }
 
-function deleteMov(id){if(!confirm('¿Eliminar?'))return;const d=getData();d.movs=d.movs.filter(m=>m.id!==id);saveData(d);render();}
+function deleteMov(id){if(!confirm('¿Eliminar este movimiento?'))return;const d=getData();d.movs=d.movs.filter(m=>m.id!==id);saveData(d);render();}
 
 // ── EVOLUCIÓN ──
 editRecIdx=null;
@@ -1353,7 +1367,20 @@ function saveFac(){
   } else {
     d.facs.push({id:Date.now().toString(),cliente:scli,num,base,iva,retencion,total_cobrado,provision_irpf,neto_real,fecha,cobrada});
   }
-  saveData(d);closeModal('fac-modal');render();}
+  saveData(d);closeModal('fac-modal');render();
+  // Si la factura se marca como cobrada, ofrecer añadir ingreso
+  if(cobrada&&!editFacId){
+    const cl2=getClientes().find(x=>x.name===scli)||{};
+    const iva2=r2(base*0.21),ret2=cl2.ret?r2(base*0.15):0,cobrado2=r2(base+iva2-ret2);
+    setTimeout(()=>{
+      if(confirm('¿Añadir este cobro como ingreso en Movimientos?\n'+scli+' — '+fmt(cobrado2))){
+        const d2=getData();
+        d2.movs.push({id:Date.now().toString(),tipo:'ingreso',importe:cobrado2,desc:'Cobro factura '+num+' — '+scli,cat:'◎ Honorarios',fecha,efectivo:false});
+        saveData(d2);render();
+      }
+    },200);
+  }
+}
 
 // ── EVOLUCIÓN ──
 editRecIdx=null;
@@ -1499,7 +1526,7 @@ function toggleEvoModal(){
   document.getElementById('evo-modal').classList.add('open');
 }
 
-function deleteFac(id){if(!confirm('¿Eliminar?'))return;const d=getData();d.facs=d.facs.filter(f=>f.id!==id);saveData(d);render();}
+function deleteFac(id){if(!confirm('¿Eliminar esta factura?'))return;const d=getData();d.facs=d.facs.filter(f=>f.id!==id);saveData(d);render();}
 
 // ── EVOLUCIÓN ──
 editRecIdx=null;
@@ -1752,9 +1779,19 @@ function exportCSV(){
 }
 
 function exportJSON(){
+  localStorage.setItem('fin_last_backup', today());
+  checkBackupDot();
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([localStorage.getItem('fin_data')||'{}'],{type:'application/json'}));
   a.download=`finanzas_${today()}.json`;a.click();
+}
+function checkBackupDot(){
+  const last=localStorage.getItem('fin_last_backup');
+  const dot=document.getElementById('export-json-wrap');
+  if(!dot) return;
+  if(!last){dot.classList.add('alert');return;}
+  const daysDiff=(new Date()-new Date(last))/(1000*60*60*24);
+  dot.classList.toggle('alert', daysDiff>7);
 }
 
 function importJSON(){
@@ -2210,12 +2247,43 @@ function generarPDF(facId){
 }
 
 function fmtPDF(v){return v?v.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €':'0,00 €';}
+function renderSetRecs(){
+  const recs=getRecurrentes();
+  const el=document.getElementById('set-recs-list');
+  if(!el) return;
+  if(!recs.length){el.innerHTML='<div style="font-size:13px;color:var(--ink3);text-align:center;padding:12px">Sin gastos fijos. Pulsa + Añadir.</div>';return;}
+  el.innerHTML=recs.map((r,i)=>`<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--cream3);">
+    <div style="flex:1;">
+      <div style="font-size:13px;color:var(--ink);">${r.nombre}</div>
+      <div style="font-size:11px;color:var(--ink3);">${r.categoria} · día ${r.dia} · ${fmt(r.importe)}</div>
+    </div>
+    <button onclick="openRecModalFromSettings(${i})" style="background:#E8006A;border:none;border-radius:4px;padding:4px 8px;font-size:11px;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:6px;">✎</button>
+    <button onclick="deleteRecFromSettings(${i})" style="background:none;border:none;color:var(--ink3);font-size:18px;cursor:pointer;padding:4px;margin-left:2px;">×</button>
+  </div>`).join('');
+}
+function openRecModalFromSettings(idx){
+  closeModal('set-modal');
+  setTimeout(()=>openRecModal(idx),150);
+}
+function deleteRecFromSettings(idx){
+  if(!confirm('¿Eliminar este gasto fijo?'))return;
+  const recs=getRecurrentes();
+  recs.splice(idx,1);
+  saveRecurrentes(recs);
+  renderSetRecs();
+  render();
+}
 function openSettings(){
   document.getElementById('set-texto').value=localStorage.getItem('fin_texto')||'';
   document.getElementById('set-saldo').value=localStorage.getItem('fin_saldo_inicial')||'';
   const bgImg=localStorage.getItem('fin_bg');
   if(bgImg){document.getElementById('bg-preview').style.display='block';document.getElementById('bg-preview-img').src=bgImg;}
   else document.getElementById('bg-preview').style.display='none';
+  // last backup
+  const lastB=localStorage.getItem('fin_last_backup');
+  const el=document.getElementById('set-last-backup');
+  if(el) el.textContent=lastB?'Último backup: '+lastB:'Sin backup registrado';
+  renderSetRecs();
   document.getElementById('set-modal').classList.add('open');
 }
 function saveSettings(){
@@ -2320,7 +2388,16 @@ function importBankCSV(){
 
           const ingCat=String(row[1]||'');
           const desc=String(row[3]||'').replace(/^Pago en /i,'').trim().slice(0,60);
-          const importe=parseFloat(String(row[5]||'0').replace(',','.'));
+          // Parse importe — handle both '1234.56' and '1.234,56' formats
+          let importeStr=String(row[5]||'0').trim();
+          if(importeStr.match(/^-?\d{1,3}(\.\d{3})*(,\d+)?$/)){
+            // Spanish format: 1.234,56 → remove dots, replace comma
+            importeStr=importeStr.replace(/\./g,'').replace(',','.');
+          } else {
+            // Already decimal format or needs comma→dot
+            importeStr=importeStr.replace(/[^\d.\-]/g,'');
+          }
+          const importe=parseFloat(importeStr);
           if(isNaN(importe)||!desc) continue;
 
           // Additional categorization by description
@@ -2370,11 +2447,23 @@ function importBankCSV(){
   inp.click();
 }
 
+function escHtml(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderMovsFilter(){
+  const key=mk(cd),d=getData();
+  const movs=d.movs.filter(m=>m.fecha.startsWith(key));
+  const c=document.getElementById('content');
+  renderMovs(c,movs,window._movSearch||'');
+  // keep focus
+  setTimeout(()=>{const el=document.getElementById('mov-search');if(el){el.focus();const v=el.value;el.value='';el.value=v;}},10);
+}
+window._movSearch='';
+
 document.addEventListener('DOMContentLoaded',function(){
   applyCustomHeader();
   document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
   document.getElementById('evo-modal').addEventListener('click',e=>{if(e.target===document.getElementById('evo-modal'))closeModal('evo-modal');});
   render();
+  setTimeout(checkBackupDot, 500);
 });
 </script>
 
@@ -2391,6 +2480,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <label class="field-label">Saldo inicial del banco (€)</label>
       <input type="number" id="set-saldo" placeholder="0,00" step="0.01" inputmode="decimal">
       <div class="api-note">Introduce el saldo de tu extracto más reciente. La app sumará tus ingresos y gastos a partir de ahí.</div>
+      <div id="set-last-backup" style="font-size:11px;color:var(--ink3);margin-top:8px;"></div>
     </div>
     <div class="field">
       <label class="field-label">Imagen de fondo</label>
@@ -2404,6 +2494,13 @@ document.addEventListener('DOMContentLoaded',function(){
       </div>
     </div>
 
+    <div class="field" style="margin-top:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <label class="field-label" style="margin-bottom:0">Gastos fijos</label>
+        <button onclick="openRecModal(null)" style="background:var(--opera);border:none;border-radius:6px;padding:5px 12px;font-size:11px;color:#fff;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;">+ Añadir</button>
+      </div>
+      <div id="set-recs-list"></div>
+    </div>
     <button class="btn-save" onclick="saveSettings()">Guardar</button>
     <button class="btn-cancel" onclick="closeModal('set-modal')">Cancelar</button>
   </div>
