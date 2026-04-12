@@ -4,19 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fem Homes Lab</title>
-<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Cinzel:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background-color: #EBEBEB;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background-color: #1a1a1a; }
 
   /* ── LOGIN ── */
   #login-screen {
@@ -24,11 +15,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    height: 100vh;
     width: 100%;
     padding: 2rem;
+    background-color: #EBEBEB;
   }
-
   .login-title {
     font-family: 'Special Elite', serif;
     font-size: clamp(2rem, 6vw, 3.5rem);
@@ -36,9 +27,7 @@
     letter-spacing: 0.04em;
     text-align: center;
     margin-bottom: 0.4rem;
-    line-height: 1.1;
   }
-
   .login-subtitle {
     font-size: 13px;
     letter-spacing: 0.15em;
@@ -47,7 +36,6 @@
     margin-bottom: 2.5rem;
     text-align: center;
   }
-
   .login-box {
     background: #fff;
     border-radius: 12px;
@@ -56,7 +44,6 @@
     max-width: 340px;
     border: 0.5px solid #ddd;
   }
-
   .login-box label {
     display: block;
     font-size: 12px;
@@ -65,7 +52,6 @@
     text-transform: uppercase;
     margin-bottom: 0.5rem;
   }
-
   .login-box input[type="password"] {
     width: 100%;
     border: 0.5px solid #ccc;
@@ -80,12 +66,7 @@
     margin-bottom: 1.25rem;
     letter-spacing: 0.2em;
   }
-
-  .login-box input[type="password"]:focus {
-    border-color: #E8724A;
-    background: #fff;
-  }
-
+  .login-box input[type="password"]:focus { border-color: #E8724A; background: #fff; }
   .btn-acceso {
     width: 100%;
     background: #E8724A;
@@ -100,150 +81,228 @@
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
   }
-
   .btn-acceso:hover { background: #d4613b; }
   .btn-acceso:active { transform: scale(0.98); }
-
   .error-msg {
     font-size: 12px;
     color: #c0392b;
     text-align: center;
     margin-top: 0.75rem;
     min-height: 18px;
-    letter-spacing: 0.04em;
   }
 
   /* ── LAB ── */
   #lab-screen {
     display: none;
-    width: 100%;
-    min-height: 100vh;
-    padding: 0;
+    flex-direction: column;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  .lab-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-color: #1a1a1a;
+    z-index: 0;
+  }
+  .lab-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1;
   }
 
+  /* Header */
   .lab-header {
-    background: #fff;
-    border-bottom: 0.5px solid #ddd;
-    padding: 1.25rem 2rem;
+    position: relative;
+    z-index: 10;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    padding: 0.9rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
   }
-
   .lab-header-title {
     font-family: 'Special Elite', serif;
-    font-size: 1.3rem;
-    color: #1a1a1a;
+    font-size: 1.1rem;
+    color: #fff;
     letter-spacing: 0.04em;
   }
-
   .lab-header-sub {
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.12em;
-    color: #aaa;
+    color: rgba(255,255,255,0.4);
     text-transform: uppercase;
-    margin-top: 2px;
+    margin-top: 1px;
   }
-
-  .btn-salir {
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .btn-cambiar-fondo {
     font-size: 12px;
-    color: #aaa;
+    color: #E8724A;
     background: none;
-    border: 0.5px solid #ddd;
+    border: 0.5px solid #E8724A;
     border-radius: 6px;
-    padding: 0.4rem 0.9rem;
+    padding: 0.35rem 0.8rem;
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
-    letter-spacing: 0.06em;
-    transition: color 0.2s, border-color 0.2s;
+    transition: all 0.2s;
   }
-  .btn-salir:hover { color: #555; border-color: #bbb; }
+  .btn-cambiar-fondo:hover { background: #E8724A; color: #fff; }
+  .btn-salir {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    background: none;
+    border: 0.5px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 0.35rem 0.8rem;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-salir:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+  #bg-input { display: none; }
 
+  /* Grid */
   .lab-content {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem;
-  }
-
-  .tools-grid {
+    position: relative;
+    z-index: 10;
+    flex: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    min-height: 0;
   }
 
+  /* Tarjeta activa */
   .tool-card {
-    background: #fff;
-    border: 0.5px solid #ddd;
-    border-radius: 12px;
-    padding: 1.25rem;
+    background: rgba(10,10,10,0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 0.5px solid rgba(212,175,55,0.25);
+    border-radius: 16px;
     text-decoration: none;
     color: inherit;
-    display: block;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .tool-card:hover {
-    border-color: #E8724A;
-    box-shadow: 0 2px 12px rgba(232,114,74,0.08);
-  }
-
-  .tool-icon {
-    width: 36px;
-    height: 36px;
-    background: #f5f5f5;
-    border-radius: 8px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    margin-bottom: 1rem;
+    padding: 1.5rem;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s;
+    box-shadow: 0 0 0 1px rgba(212,175,55,0.08), inset 0 0 40px rgba(0,0,0,0.2);
+    min-height: 0;
+    gap: 0.6rem;
+  }
+  .tool-card:hover {
+    transform: scale(1.012);
+    background: rgba(10,10,10,0.6);
+    border-color: rgba(212,175,55,0.55);
+    box-shadow: 0 0 0 1px rgba(212,175,55,0.2), 0 8px 40px rgba(212,175,55,0.08);
   }
 
-  .tool-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: #1a1a1a;
-    margin-bottom: 0.35rem;
+  /* Tarjeta inactiva */
+  .tool-card-inactive {
+    background: rgba(10,10,10,0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 0.5px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    gap: 0.6rem;
+    opacity: 0.5;
+    min-height: 0;
   }
 
-  .tool-desc {
-    font-size: 12px;
-    color: #888;
-    line-height: 1.5;
-    margin-bottom: 1rem;
+  /* Número romano */
+  .roman {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 400;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(212,175,55,0.7);
+    text-shadow:
+      0 0 20px rgba(212,175,55,0.15),
+      0 2px 8px rgba(0,0,0,0.5);
+    letter-spacing: 0.06em;
   }
 
-  .tool-badge {
-    display: inline-block;
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 20px;
+  .roman-inactive {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 400;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+    letter-spacing: 0.06em;
   }
 
-  .badge-active {
-    background: #edf7f0;
-    color: #2d8a50;
-  }
-
-  .badge-wip {
-    background: #f5f5f5;
-    color: #aaa;
-  }
-
-  .lab-footer {
+  /* Nombre arcano */
+  .arcano-name {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.65rem, 1.4vw, 0.85rem);
+    font-weight: 400;
+    color: rgba(212,175,55,0.8);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     text-align: center;
-    padding: 2rem;
-    border-top: 0.5px solid #ddd;
-    margin-top: 2rem;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.8);
   }
 
-  .lab-footer a {
-    font-size: 12px;
-    color: #aaa;
-    text-decoration: none;
-    letter-spacing: 0.08em;
+  .arcano-name-inactive {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.65rem, 1.4vw, 0.85rem);
+    font-weight: 400;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-align: center;
   }
-  .lab-footer a:hover { color: #E8724A; }
+
+  /* Nombre herramienta */
+  .tool-name {
+    font-size: clamp(0.7rem, 1.3vw, 0.9rem);
+    font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  }
+
+  .divider {
+    width: 30px;
+    height: 0.5px;
+    background: rgba(212,175,55,0.35);
+  }
+
+  /* Footer */
+  .lab-footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 0.5rem;
+    flex-shrink: 0;
+  }
+  .lab-footer a {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+  .lab-footer a:hover { color: rgba(255,255,255,0.5); }
 </style>
 </head>
 <body>
@@ -262,37 +321,51 @@
 
 <!-- LAB -->
 <div id="lab-screen">
+  <div class="lab-bg" id="lab-bg"></div>
+  <div class="lab-bg-overlay"></div>
+
   <div class="lab-header">
     <div>
       <div class="lab-header-title">Fem Homes Lab</div>
       <div class="lab-header-sub">Herramientas</div>
     </div>
-    <button class="btn-salir" onclick="logout()">Salir</button>
+    <div class="header-right">
+      <button class="btn-cambiar-fondo" onclick="document.getElementById('bg-input').click()">Cambiar fondo</button>
+      <button class="btn-salir" onclick="logout()">Salir</button>
+    </div>
   </div>
 
+  <input type="file" id="bg-input" accept="image/*" onchange="cambiarFondo(event)" />
+
   <div class="lab-content">
-    <div class="tools-grid">
 
-      <a class="tool-card" href="./arcano/">
-        <div class="tool-icon">✦</div>
-        <p class="tool-name">El Espejo del Arcano</p>
-        <p class="tool-desc">Estudio del Tarot de Marsella con interpretación filosófica y análisis jungiano.</p>
-        <span class="tool-badge badge-active">Activo</span>
-      </a>
-<a class="tool-card" href="./finanzas/">
-  <div class="tool-icon">◈</div>
-  <p class="tool-name">Finanzas</p>
-  <p class="tool-desc">Gestión y seguimiento financiero personal.</p>
-  <span class="tool-badge badge-active">Activo</span>
-</a>
-      <div class="tool-card" style="opacity:0.5; cursor:default;">
-        <div class="tool-icon">◇</div>
-        <p class="tool-name">Próximamente</p>
-        <p class="tool-desc">Nueva herramienta en desarrollo.</p>
-        <span class="tool-badge badge-wip">En desarrollo</span>
-      </div>
+    <a class="tool-card" href="./arcano/">
+      <div class="roman">V</div>
+      <div class="arcano-name">El Sumo Sacerdote</div>
+      <div class="divider"></div>
+      <div class="tool-name">El Espejo del Arcano</div>
+    </a>
 
+    <a class="tool-card" href="./finanzas/">
+      <div class="roman">XXI</div>
+      <div class="arcano-name">El Mundo</div>
+      <div class="divider"></div>
+      <div class="tool-name">Finanzas</div>
+    </a>
+
+    <a class="tool-card" href="./Chroma/">
+      <div class="roman">III</div>
+      <div class="arcano-name">La Emperatriz</div>
+      <div class="divider"></div>
+      <div class="tool-name">Chroma</div>
+    </a>
+
+    <div class="tool-card-inactive">
+      <div class="roman-inactive">XVIII</div>
+      <div class="arcano-name-inactive">La Luna</div>
+      <div class="tool-name" style="color:rgba(255,255,255,0.2);">Próximamente</div>
     </div>
+
   </div>
 
   <div class="lab-footer">
@@ -303,11 +376,11 @@
 <script>
   const PASSWORD = '1812';
   const SESSION_KEY = 'fhl_auth';
+  const BG_KEY = 'fhl_bg';
 
   function checkPassword() {
     const input = document.getElementById('pwd').value;
     if (input === PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
       localStorage.setItem(SESSION_KEY, 'true');
       showLab();
     } else {
@@ -319,16 +392,32 @@
 
   function showLab() {
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('lab-screen').style.display = 'block';
+    const lab = document.getElementById('lab-screen');
+    lab.style.display = 'flex';
+    const savedBg = localStorage.getItem(BG_KEY);
+    if (savedBg) {
+      document.getElementById('lab-bg').style.backgroundImage = 'url(' + savedBg + ')';
+    }
   }
 
   function logout() {
     localStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem(SESSION_KEY);
     document.getElementById('lab-screen').style.display = 'none';
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('pwd').value = '';
     document.getElementById('error-msg').textContent = '';
+  }
+
+  function cambiarFondo(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      document.getElementById('lab-bg').style.backgroundImage = 'url(' + dataUrl + ')';
+      try { localStorage.setItem(BG_KEY, dataUrl); } catch(e) {}
+    };
+    reader.readAsDataURL(file);
   }
 
   document.getElementById('pwd').addEventListener('keydown', function(e) {
