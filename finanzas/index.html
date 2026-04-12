@@ -209,12 +209,19 @@ body{
   text-align:center;
   font-family:'DM Sans',sans-serif;
   font-size:11px;
-  font-weight:500;
-  letter-spacing:.2em;
+  font-weight:700;
+  letter-spacing:.22em;
   text-transform:uppercase;
-  color:rgba(255,255,255,0.5);
   padding:20px 0 16px;
   flex-shrink:0;
+  color:#FFFFFF;
+}
+.dt-tagline span{
+  background:rgba(30,30,30,0.5);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  padding:6px 18px;
+  border-radius:4px;
 }
 
 /* Bloque flotante centrado */
@@ -3160,6 +3167,17 @@ function deleteRecFromSettings(idx){
   renderSetRecs();
   render();
 }
+function resetMovimientos(){
+  if(!confirm('¿Borrar TODOS los movimientos? Las facturas y clientes quedan intactos.\n\nEsta acción no se puede deshacer.')) return;
+  const d=getData();
+  d.movs=[];
+  saveData(d);
+  localStorage.removeItem('fin_pagados');
+  closeModal('set-modal');
+  render();
+  alert('Movimientos borrados correctamente.');
+}
+
 function openSettings(){
   document.getElementById('set-texto').value=localStorage.getItem('fin_texto')||'';
   document.getElementById('set-saldo').value=localStorage.getItem('fin_saldo_inicial')||'';
@@ -3216,7 +3234,7 @@ function applyCustomHeader(){
   const quoteEl=document.querySelector('.header-quote');
   if(quoteEl&&texto) quoteEl.textContent=texto;
   const dtTag=document.getElementById('dt-tagline');
-  if(dtTag) dtTag.textContent=texto||'HUMANA, DEMASIADO HUMANA.';
+  if(dtTag) dtTag.innerHTML='<span>'+(texto||'HUMANA, DEMASIADO HUMANA.')+'</span>';
   // Mobile header bg
   const header=document.querySelector('.header');
   if(header){
@@ -3527,6 +3545,13 @@ document.addEventListener('DOMContentLoaded',function(){
       </div>
     </div>
     <button class="btn-save" onclick="saveSettings()">Guardar</button>
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--cream3);">
+      <div style="font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;">Zona de peligro</div>
+      <button type="button" onclick="resetMovimientos()" style="width:100%;padding:12px;background:none;border:1.5px solid var(--neg);border-radius:var(--rs);font-size:13px;color:var(--neg);font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;">
+        Borrar todos los movimientos
+      </button>
+      <div style="font-size:11px;color:var(--ink3);margin-top:6px;text-align:center;">Las facturas y clientes no se borran</div>
+    </div>
     <button class="btn-cancel" onclick="closeModal('set-modal')">Cancelar</button>
   </div>
 </div>
