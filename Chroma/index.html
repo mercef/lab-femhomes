@@ -531,6 +531,7 @@ canvas#extractor{display:none;}
             <input type="file" accept="image/*" style="display:none;" onchange="changeBgImage(event)">
             <span id="settings-upload-label">Subir imagen</span>
           </label>
+          <button onclick="openBgFromLibrary()" style="flex:1;background:none;border:0.5px solid var(--rose-3);color:var(--rose-4);padding:10px;border-radius:3px;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;" id="settings-lib-label">Del archivo</button>
           <button onclick="resetBgImage()"
             style="background:none;border:0.5px solid var(--card-border);color:var(--txt3);
             padding:10px 14px;border-radius:3px;font-family:var(--mono);font-size:10px;
@@ -540,6 +541,11 @@ canvas#extractor{display:none;}
         <div id="bg-preview-thumb" style="margin-top:10px;height:48px;border-radius:3px;background:var(--bg2);border:0.5px solid var(--card-border);background-size:cover;background-position:center;display:none;"></div>
       </div>
 
+      <!-- Library picker -->
+      <div id="bg-library-picker" style="display:none;margin-top:12px;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:8px;">Selecciona del archivo</div>
+        <div id="bg-library-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:4px;overflow:hidden;max-height:180px;overflow-y:auto;"></div>
+      </div>
       <!-- Close -->
       <button onclick="closeSettings()"
         style="width:100%;background:none;border:0.5px solid var(--card-border);color:var(--txt2);
@@ -640,6 +646,7 @@ canvas#extractor{display:none;}
         <span class="harm-pill" onclick="setHarmony('tetradic',this)">Tetrádica</span>
       </div>
       <div class="harmony-row" id="lab-harmony"></div>
+      <button onclick="saveHarmonyToDiary()" style="width:100%;background:none;border:0.5px solid var(--rose-3);color:var(--rose-4);padding:8px;border-radius:3px;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;margin-top:8px;">&#8594; Guardar armonía en Diario</button>
       <div class="mod-divider" style="height:0.5px;background:var(--card-border);margin:14px 0;"></div>
       <span class="section-label">Ajuste fino</span>
       <div class="slider-group">
@@ -764,25 +771,27 @@ canvas#extractor{display:none;}
       <span class="back-label">Inicio</span>
     </button>
   </div>
-  <div class="mod-body" style="padding:0 0 calc(env(safe-area-inset-bottom)+80px);">
-    <div class="contrast-module">
+  <div class="mod-body" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="contrast-module" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
       <div class="wheel-third">
         <canvas class="color-wheel" id="contrast-wheel" width="200" height="200"></canvas>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;padding:8px 20px 0;">
-        <div id="contrast-hex-prev" style="width:28px;height:28px;border-radius:3px;border:0.5px solid var(--card-border);flex-shrink:0;background:#888;"></div>
-        <input type="text" id="contrast-hex-manual" value="#888888" maxlength="7" placeholder="#000000"
-          style="flex:1;font-family:var(--mono);font-size:11px;background:rgba(26,22,20,0.05);border:0.5px solid var(--card-border);color:var(--txt);padding:6px 8px;border-radius:3px;outline:none;letter-spacing:0.04em;"
-          oninput="contrastHexManual(this.value)">
+      <div style="display:flex;justify-content:center;padding:8px 20px 4px;flex-shrink:0;">
+        <div style="display:flex;gap:8px;align-items:center;background:rgba(26,22,20,0.04);border:0.5px solid var(--card-border);border-radius:20px;padding:5px 12px;">
+          <div id="contrast-hex-prev" style="width:18px;height:18px;border-radius:50%;border:0.5px solid var(--card-border);flex-shrink:0;background:#888;"></div>
+          <input type="text" id="contrast-hex-manual" value="#888888" maxlength="7" placeholder="#000000"
+            style="width:78px;font-family:var(--mono);font-size:11px;background:none;border:none;color:var(--txt);padding:0;outline:none;letter-spacing:0.04em;"
+            oninput="contrastHexManual(this.value)">
+        </div>
       </div>
-      <div class="contrast-field" id="contrast-field" style="background:#E8D5C0;flex:0.7;">
+      <div class="contrast-field" id="contrast-field" style="background:#E8D5C0;flex:1;">
         <div class="contrast-block" id="contrast-block" style="background:#3D6B8A;"></div>
         <div class="contrast-toggle">
           <button class="ct-btn active" id="ct-bg" onclick="setContrastMode('bg')">Fondo</button>
           <button class="ct-btn" id="ct-center" onclick="setContrastMode('center')">Centro</button>
         </div>
       </div>
-      <div style="padding:16px 20px;">
+      <div style="padding:12px 20px;flex-shrink:0;">
         <button class="btn rose" onclick="saveContrast()">Guardar relación</button>
         <div class="contrast-saved" id="contrast-saved"></div>
       </div>
@@ -1125,8 +1134,14 @@ function calcMix(){
       const r=Math.round(minR+(w/maxW)*(maxR-minR));
       const[ox,oy]=spreadOffsets[i]||[0,0];
       const col=rgbToHex(...p.color);
-      // Use percentage-based centering: left/top as calc from 50%
-      return`<div style="position:absolute;width:${r*2}px;height:${r*2}px;border-radius:50%;background:${col};left:calc(50% + ${ox-r}px);top:calc(50% + ${oy-r}px);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:#fff;font-weight:500;text-shadow:0 1px 4px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.35);">${pct}%</div>`;
+      // Label positioned at edge of circle, offset outward from center
+      // so it never overlaps with other circles' centers
+      const labelOffsets=[[0,-1],[1,0],[-1,0],[0,1],[1,-1],[-1,1]];
+      const[lox,loy]=labelOffsets[i]||[0,-1];
+      const labelX=50+(ox+(lox*(r*0.55)))/2.8; // percentage from left of container
+      const labelY=50+(oy+(loy*(r*0.55)))/1.8;
+      return`<div style="position:absolute;width:${r*2}px;height:${r*2}px;border-radius:50%;background:${col};left:calc(50% + ${ox-r}px);top:calc(50% + ${oy-r}px);border:2px solid rgba(255,255,255,0.35);"></div>
+<div style="position:absolute;left:calc(50% + ${ox}px);top:calc(50% + ${oy}px);transform:translate(-50%,-50%);font-family:var(--mono);font-size:10px;color:#fff;font-weight:600;text-shadow:0 1px 5px rgba(0,0,0,0.7);pointer-events:none;white-space:nowrap;z-index:10;">${pct}%</div>`;
     }).join('')}</div>`;
   };
 
@@ -1649,7 +1664,7 @@ function openProject(i){
   dc.innerHTML=`
     <div style="font-family:var(--display);font-size:clamp(20px,6vw,32px);letter-spacing:0.1em;color:var(--txt);opacity:0.75;margin-bottom:16px;">${p.name}</div>
     <span class="section-label">Paleta del proyecto</span>
-    <div class="proj-palette-strip" id="proj-strip">${p.colors.map((c,ci)=>`<div class="proj-sw" style="background:${c};" onclick="copyHex('${c}')"><span class="proj-sw-hex">${c}</span></div>`).join('')}${!p.colors.length?'<div style="flex:1;display:flex;align-items:center;justify-content:center;"><span style="font-family:var(--mono);font-size:9px;color:var(--txt3);letter-spacing:0.06em;">VACÍA</span></div>':''}</div>
+    <div class="proj-palette-strip" id="proj-strip">${p.colors.map((c,ci)=>`<div class="proj-sw" style="background:${c};" onclick="copyHex('${c}')"><span class="proj-sw-hex">${c}</span><button onclick="event.stopPropagation();removeColorFromProject(${ci})" style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:rgba(42,37,32,0.7);border:none;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;">×</button></div>`).join('')}${!p.colors.length?'<div style="flex:1;display:flex;align-items:center;justify-content:center;"><span style="font-family:var(--mono);font-size:9px;color:var(--txt3);letter-spacing:0.06em;">VACÍA</span></div>':''}</div>
     <div class="add-color-row">
       <input type="color" id="proj-picker" value="#C47888" oninput="projPickChange(this.value)">
       <div class="proj-color-prev" id="proj-color-prev" style="background:#C47888;"></div>
@@ -1690,6 +1705,59 @@ function addColorToProject(){
   saveProjects();
   openProject(currentProjectId);
   showToast('Color añadido');
+}
+
+function removeColorFromProject(ci){
+  const p=projects[currentProjectId];
+  p.colors.splice(ci,1);
+  saveProjects();
+  // Re-render just the palette strip without full reload
+  const strip=document.getElementById('proj-strip');
+  if(strip){
+    strip.innerHTML=p.colors.map((c,idx)=>`<div class="proj-sw" style="background:${c};position:relative;" onclick="copyHex('${c}')"><span class="proj-sw-hex">${c}</span><button onclick="event.stopPropagation();removeColorFromProject(${idx})" style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:rgba(42,37,32,0.7);border:none;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;">x</button></div>`).join('')||'<div style="flex:1;display:flex;align-items:center;justify-content:center;"><span style="font-family:var(--mono);font-size:9px;color:var(--txt3);">VACÍA</span></div>';
+  }
+  showToast('Color eliminado');
+}
+
+function saveHarmonyToDiary(){
+  const harmonyEl=document.getElementById('lab-harmony');
+  if(!harmonyEl)return;
+  const colors=[...harmonyEl.querySelectorAll('.harm-sw')].map(el=>el.style.background).filter(Boolean).map(bg=>{
+    // Convert rgb() to hex if needed
+    const m=bg.match(/\d+/g);
+    if(m&&m.length>=3)return rgbToHex(parseInt(m[0]),parseInt(m[1]),parseInt(m[2]));
+    return bg;
+  });
+  if(!colors.length){showToast('No hay armonía que guardar');return;}
+  const name=(labHarmonyType||'Armonía')+' '+fmtDate(Date.now());
+  projects.unshift({id:Date.now(),name,colors,canvasData:null,date:Date.now()});
+  saveProjects();
+  showToast('Armonía guardada en Diario');
+}
+
+function openBgFromLibrary(){
+  const picker=document.getElementById('bg-library-picker');
+  const grid=document.getElementById('bg-library-grid');
+  if(!picker||!grid)return;
+  const isOpen=picker.style.display!=='none';
+  picker.style.display=isOpen?'none':'block';
+  if(!isOpen){
+    if(!archiveItems.length){grid.innerHTML='<div style="font-family:var(--mono);font-size:9px;color:var(--txt3);padding:8px;grid-column:1/-1;">Sin imágenes en el archivo</div>';return;}
+    grid.innerHTML=archiveItems.map((item,i)=>`
+      <div onclick="setBgFromLibrary(${i})" style="aspect-ratio:1;overflow:hidden;cursor:pointer;border-radius:2px;border:0.5px solid var(--card-border);">
+        <img src="${item.src}" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>`).join('');
+  }
+}
+
+function setBgFromLibrary(i){
+  const src=archiveItems[i].src;
+  applyBgImage(src);
+  try{localStorage.setItem('chroma-bg-image',src);}catch(e){}
+  const thumb=document.getElementById('bg-preview-thumb');
+  if(thumb){thumb.style.backgroundImage=`url(${src})`;thumb.style.display='block';}
+  document.getElementById('bg-library-picker').style.display='none';
+  showToast('Fondo actualizado');
 }
 
 function setTool(t,el){
@@ -1874,18 +1942,25 @@ function generateIcon(){
   const gapAngle=0.72;
   ctx.beginPath();
   ctx.arc(cx, cy, R, gapAngle, Math.PI*2-gapAngle);
-  ctx.strokeStyle='#C47888';
-  ctx.lineWidth=stroke;
-  ctx.lineCap='round';
-  ctx.stroke();
-
-  // Rose solid dot in C opening
-  const dotX=cx+R;
-  const dotY=cy;
+  // neon rose C with metallic shadow
   ctx.beginPath();
-  ctx.arc(dotX-2, dotY, 11, 0, Math.PI*2);
-  ctx.fillStyle='#C47888';
-  ctx.fill();
+  ctx.arc(cx+2, cy+3, R, gapAngle, Math.PI*2-gapAngle);
+  ctx.strokeStyle='rgba(80,0,40,0.35)';
+  ctx.lineWidth=stroke+4;ctx.lineCap='round';ctx.stroke();
+  const cGrd=ctx.createLinearGradient(cx-R,cy-R,cx+R,cy+R);
+  cGrd.addColorStop(0,'#FF8EC8');cGrd.addColorStop(0.5,'#FF2D7A');cGrd.addColorStop(1,'#C4005A');
+  ctx.beginPath();ctx.arc(cx,cy,R,gapAngle,Math.PI*2-gapAngle);
+  ctx.strokeStyle=cGrd;ctx.lineWidth=stroke;ctx.lineCap='round';ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,R,gapAngle+0.2,Math.PI-0.2);
+  ctx.strokeStyle='rgba(255,180,220,0.45)';ctx.lineWidth=stroke*0.3;ctx.stroke();
+  const dotX=cx+R,dotY=cy;
+  ctx.beginPath();ctx.arc(dotX-1,dotY+3,12,0,Math.PI*2);
+  ctx.fillStyle='rgba(80,0,40,0.3)';ctx.fill();
+  const dGrd=ctx.createRadialGradient(dotX-4,dotY-3,1,dotX-2,dotY,11);
+  dGrd.addColorStop(0,'#FF8EC8');dGrd.addColorStop(0.5,'#FF2D7A');dGrd.addColorStop(1,'#A0003A');
+  ctx.beginPath();ctx.arc(dotX-2,dotY,11,0,Math.PI*2);ctx.fillStyle=dGrd;ctx.fill();
+  ctx.beginPath();ctx.arc(dotX-5,dotY-4,4,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,200,230,0.5)';ctx.fill();
 
   const link=document.getElementById('apple-icon');
   link.href=c.toDataURL('image/png');
