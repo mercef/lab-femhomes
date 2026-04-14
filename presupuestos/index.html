@@ -278,10 +278,10 @@ function toggleProject(pid,projId){var b=document.getElementById('pb-'+projId);v
 function upProjectName(pid,projId,v){var p=pros.find(function(x){return x.id===pid});if(!p)return;var pr=p.projects.find(function(x){return x.id===projId});if(pr){pr.name=v;save()}}
 function upPartida(pid,projId,chId,rid,f,v){var p=pros.find(function(x){return x.id===pid});if(!p)return;var pr=p.projects.find(function(x){return x.id===projId});if(!pr)return;var ch=pr.chapters&&pr.chapters.find(function(x){return x.id===chId});if(!ch)return;var r=ch.partidas.find(function(x){return x.id===rid});if(!r)return;r[f]=(f==='qty'||f==='price')?(parseFloat(v)||0):v;save()}
 function lineKey(pid,projId,chId,rid){return pid+'__'+projId+'__'+chId+'__'+rid}
-function getLine(k){if(!lines[k])lines[k]={included:true,pct:DEFAULT_PCT};return lines[k]}
+function getLine(k){if(!lines[k])lines[k]={included:true,pct:DEFAULT_PCT,myName:null};return lines[k]}
 function toggleIncluded(k){var l=getLine(k);l.included=!l.included;save();renderConstructor()}
 function updatePct(k,v){var l=getLine(k);l.pct=parseFloat(v)||0;save();renderConstructor()}
-function updateNameInLine(pid,projId,chId,rid,v){var p=pros.find(function(x){return x.id===pid});if(!p)return;var pr=p.projects.find(function(x){return x.id===projId});if(!pr)return;var ch=pr.chapters&&pr.chapters.find(function(x){return x.id===chId});if(!ch)return;var r=ch.partidas.find(function(x){return x.id===rid});if(r){r.name=v;save()}}
+function updateNameInLine(k,v){var l=getLine(k);l.myName=v;save()}
 function handleDrop(e,pid,projId){e.preventDefault();var f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')extractPDF(pid,projId,f)}
 function handleFileSelect(inp,pid,projId){var f=inp.files[0];if(f)extractPDF(pid,projId,f)}
 
@@ -353,13 +353,15 @@ function renderConstructor(){
         ch.partidas.forEach(function(r){
           var k=lineKey(p.id,pr.id,ch.id,r.id);var l=getLine(k);
           var base=r.qty*r.price;var final=base*(1+l.pct/100);
-          var im=improved[r.id];var nameCell='';
+          var im=improved[r.id];
+          var displayName=l.myName!==null&&l.myName!==undefined?l.myName:r.name;
+          var nameCell='';
           if(im&&!im.accepted&&im.new){
-            nameCell='<span class="txt-orig">'+esc(im.orig)+'</span><textarea class="name-edit" rows="2" onchange="updateNameInLine(\''+p.id+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',this.value)">'+esc(im.new)+'</textarea><div class="txt-actions"><button class="btn sm" style="background:#F0FDF4;color:#16A34A;border-color:#16A34A" onclick="acceptImproved(\''+r.id+'\')">Aceptar</button><button class="btn sm ghost" onclick="discardImproved(\''+r.id+'\')">Descartar</button></div>';
+            nameCell='<div style="font-size:10px;color:#A8A29E;margin-bottom:3px;font-style:italic">Original: '+esc(r.name)+'</div><textarea class="name-edit" rows="2" onchange="updateNameInLine(\''+k+'\',this.value)">'+esc(im.new)+'</textarea><div class="txt-actions"><button class="btn sm" style="background:#F0FDF4;color:#16A34A;border-color:#16A34A" onclick="acceptImproved(\''+r.id+'\',\''+k+'\')">Aceptar</button><button class="btn sm ghost" onclick="discardImproved(\''+r.id+'\')">Descartar</button></div>';
           }else if(im&&im.loading){
-            nameCell='<span style="font-size:11px;color:#A8A29E;font-style:italic">Mejorando...</span>';
+            nameCell='<div style="font-size:10px;color:#A8A29E;margin-bottom:3px;font-style:italic">Original: '+esc(r.name)+'</div><span style="font-size:11px;color:#A8A29E;font-style:italic">Mejorando...</span>';
           }else{
-            nameCell='<textarea class="name-edit" rows="'+(r.name&&r.name.length>60?2:1)+'" onchange="updateNameInLine(\''+p.id+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',this.value)">'+esc(r.name||'')+'</textarea>';
+            nameCell=(l.myName!==null&&l.myName!==undefined&&l.myName!==r.name?'<div style="font-size:10px;color:#A8A29E;margin-bottom:3px;font-style:italic">Original: '+esc(r.name)+'</div>':'')+'<textarea class="name-edit" rows="'+(displayName&&displayName.length>60?2:1)+'" onchange="updateNameInLine(\''+k+'\',this.value)">'+esc(displayName)+'</textarea>';
           }
           html+='<tr><td style="min-width:200px">'+nameCell+'</td><td style="color:#A8A29E;font-size:11px">'+esc(r.ud)+'</td><td class="r" style="color:#6B6560">'+r.qty+'</td><td class="r" style="color:#6B6560">'+fmt(base)+'</td><td class="r"><div class="pct-wrap"><input type="number" class="pct-input" value="'+l.pct+'" min="0" step="0.5" '+(l.included?'':'disabled')+' onchange="updatePct(\''+k+'\',this.value)"><span class="pct-sym">%</span></div></td><td class="price'+(l.included?'':' off')+'">'+(l.included?fmt(final):'&mdash;')+'</td><td class="check-cell"><input type="checkbox" '+(l.included?'checked':'')+' onchange="toggleIncluded(\''+k+'\')"></td></tr>';
         });
@@ -378,21 +380,21 @@ function renderTotals(){
   document.getElementById('totals-bar').innerHTML=coste?'<div class="totals-bar"><div class="tot-item"><div class="lbl">Coste profesionales</div><div class="val muted">'+fmt(coste)+'</div></div><div class="tot-divider"></div><div class="tot-item"><div class="lbl">Mi precio al cliente</div><div class="val">'+fmt(precio)+'</div></div><div class="tot-divider"></div><div class="tot-item"><div class="lbl">Mis honorarios</div><div class="val orange">'+fmt(precio-coste)+'</div></div></div>':'';
 }
 
-function acceptImproved(rid){var im=improved[rid];if(!im)return;pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){if(r.id===rid)r.name=im.new})})})});improved[rid]=Object.assign({},im,{accepted:true});save();renderConstructor()}
+function acceptImproved(rid,k){var im=improved[rid];if(!im)return;var l=getLine(k);l.myName=im.new;improved[rid]=Object.assign({},im,{accepted:true});save();renderConstructor()}
 function discardImproved(rid){delete improved[rid];save();renderConstructor()}
 
 async function mejorarTextos(){
   var key=cfg.key||'';
   if(!key){alert('Introduce tu API key en Configuraci\u00f3n.');toggleCfg();return;}
   var partidas=[];
-  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){if(r.name&&r.name.trim())partidas.push({id:r.id,name:r.name})})})})});
+  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){if(r.name&&r.name.trim()){var k=lineKey(p.id,pr.id,ch.id,r.id);partidas.push({id:r.id,key:k,name:r.name})}})})})});
   if(!partidas.length){document.getElementById('ia-status').textContent='No hay descripciones que mejorar.';return;}
   var btn=document.getElementById('btn-mejorar');btn.disabled=true;btn.textContent='Mejorando...';
   document.getElementById('ia-status').textContent='Claude est\u00e1 mejorando los textos...';
-  partidas.forEach(function(p){improved[p.id]={orig:p.name,new:'',loading:true,accepted:false}});
+  partidas.forEach(function(p){improved[p.id]={orig:p.name,new:'',loading:true,accepted:false,key:p.key}});
   renderConstructor();
   try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:'Eres un experto en redacci\u00f3n de presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nCorrige ortograf\u00eda, puntuaci\u00f3n y reescribe cada descripci\u00f3n de forma profesional, clara y concisa.\nMant\u00e9n el significado t\u00e9cnico exacto. No a\u00f1adas informaci\u00f3n que no est\u00e9 en el original.\nDevuelve SOLO un JSON v\u00e1lido sin texto adicional:\n{"partidas":[{"id":"xxx","name":"descripci\u00f3n mejorada"},...]}\nPartidas: '+JSON.stringify(partidas)}]})});
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:'Eres un experto en redacci\u00f3n de presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nCorrige ortograf\u00eda, puntuaci\u00f3n y reescribe cada descripci\u00f3n de forma profesional, clara y concisa.\nMant\u00e9n el significado t\u00e9cnico exacto. No a\u00f1adas informaci\u00f3n que no est\u00e9 en el original.\nDevuelve SOLO un JSON v\u00e1lido sin texto adicional:\n{"partidas":[{"id":"xxx","name":"descripci\u00f3n mejorada"},...]}\nPartidas: '+JSON.stringify(partidas.map(function(p){return{id:p.id,name:p.name}}))}]})});
     var data=await res.json();
     if(data.error)throw new Error(data.error.message);
     var json=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
@@ -405,7 +407,7 @@ async function mejorarTextos(){
 
 function getIncluded(){
   var out=[];
-  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var l=getLine(lineKey(p.id,pr.id,ch.id,r.id));if(!l.included)return;out.push(Object.assign({},r,{pid:p.id,proName:p.name,projName:pr.name,chName:ch.name,myPrice:r.qty*r.price*(1+l.pct/100),unitPrice:r.price*(1+l.pct/100)}))})})})});
+  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var k=lineKey(p.id,pr.id,ch.id,r.id);var l=getLine(k);if(!l.included)return;var displayName=(l.myName!==null&&l.myName!==undefined)?l.myName:r.name;out.push(Object.assign({},r,{pid:p.id,proName:p.name,projName:pr.name,chName:ch.name,myPrice:r.qty*r.price*(1+l.pct/100),unitPrice:r.price*(1+l.pct/100),displayName:displayName}))})})})});
   return out;
 }
 
@@ -478,7 +480,7 @@ function renderPDF(){
       rows.forEach(function(r,i){
         var bg=i%2===0?'#fff':'#FAFAF8';
         html+='<tr style="background:'+bg+';border-bottom:0.5px solid #F0EDE8">';
-        html+='<td style="padding:6px 8px;font-size:11px;color:#1C1917;line-height:1.4">'+esc(r.name||'Partida')+'</td>';
+        html+='<td style="padding:6px 8px;font-size:11px;color:#1C1917;line-height:1.4">'+esc(r.displayName||r.name||'Partida')+'</td>';
         html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+esc(r.ud)+'</td>';
         html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+r.qty+'</td>';
         html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+fmtP(r.unitPrice)+'</td>';
