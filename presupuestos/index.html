@@ -293,13 +293,27 @@ async function extractPDF(pid,projId,file){
   var stateEl=document.getElementById('es-'+projId);
   if(stateEl)stateEl.innerHTML='<div class="extracting"><div class="spinner"></div>Claude est\u00e1 leyendo el PDF y extrayendo cap\u00edtulos, partidas y descripciones...</div>';
   var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result.split(',')[1])};r.onerror=rej;r.readAsDataURL(file)});
-  var prompt='Eres un experto en presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nAnaliza este presupuesto PDF y extrae su estructura completa en 3 niveles:\n\n1. CAP\u00cdTULOS: agrupaciones principales (Alba\u00f1iler\u00eda, Electricidad, Fontaner\u00eda, Derribos, Pintura, Pladur...)\n2. PARTIDAS: cada l\u00ednea con precio unitario, cantidad y total dentro de un cap\u00edtulo\n3. DESCRIPCI\u00d3N: todas las l\u00edneas de texto sin precio que aparecen debajo de una partida (son el detalle de esa partida). Unc\u00e9talas en un solo texto separado por saltos de l\u00ednea.\n\nIMPORTANTE:\n- Extrae TODAS las partidas, tengan o no descripci\u00f3n debajo\n- Las l\u00edneas de texto puro sin precio son siempre descripci\u00f3n de la partida anterior\n- Si no hay precio, cantidad o unidad, usa price:0, qty:1, ud:"PA"\n- Si una partida no tiene cap\u00edtulo claro, ponla en "General"\n\nDevuelve SOLO un JSON v\u00e1lido sin texto adicional:\n{"chapters":[{"name":"Nombre cap\u00edtulo","partidas":[{"name":"t\u00edtulo de la partida","ud":"m\u00b2","qty":1,"price":85.00,"description":"texto descriptivo completo de la partida, puede ser varias l\u00edneas"}]}]}';
+  var prompt='Eres un experto en presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nAnaliza este presupuesto PDF y extrae su estructura completa en 3 niveles:\n\n1. CAP\u00cdTULOS: agrupaciones principales (Alba\u00f1iler\u00eda, Electricidad, Fontaner\u00eda, Derribos, Pintura, Pladur...)\n2. PARTIDAS: cada l\u00ednea con precio unitario, cantidad y total dentro de un cap\u00edtulo\n3. DESCRIPCI\u00d3N: l\u00edneas de texto sin precio debajo de una partida (detalle de esa partida). M\u00e1ximo 200 caracteres por descripci\u00f3n.\n\nIMPORTANTE:\n- Extrae TODAS las partidas, tengan o no descripci\u00f3n\n- Las l\u00edneas de texto puro sin precio son descripci\u00f3n de la partida anterior\n- Si no hay precio, cantidad o unidad usa price:0, qty:1, ud:"PA"\n- Si una partida no tiene cap\u00edtulo claro, ponla en "General"\n- Las descripciones deben ser concisas, m\u00e1ximo 200 caracteres\n- Aseg\u00farate de que el JSON est\u00e9 completo y bien cerrado\n\nDevuelve SOLO un JSON v\u00e1lido sin texto adicional:\n{"chapters":[{"name":"Nombre cap\u00edtulo","partidas":[{"name":"t\u00edtulo partida","ud":"m\u00b2","qty":1,"price":85.00,"description":"texto breve"}]}]}';
   try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:6000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:8000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
     var data=await res.json();
     if(data.error)throw new Error(data.error.message);
-    var clean=data.content[0].text.replace(/```json|```/g,'').trim();
-    var json=JSON.parse(clean);
+    var raw=data.content[0].text.replace(/```json|```/g,'').trim();
+    var json;
+    try{json=JSON.parse(raw)}catch(e){
+      // Try to repair truncated JSON by closing open structures
+      var repaired=raw;
+      // Close any open string
+      var openStr=(repaired.match(/"/g)||[]).length%2!==0;
+      if(openStr)repaired+='"';
+      // Count and close open arrays/objects
+      var opens=0;
+      for(var i=0;i<repaired.length;i++){var c=repaired[i];if(c==='{')opens++;else if(c==='}')opens--;}
+      // Close partidas array and chapters array if needed
+      repaired+=']}';
+      while(opens>1){repaired+='}';opens--;}
+      try{json=JSON.parse(repaired)}catch(e2){throw new Error('No se pudo parsear el JSON. El PDF puede ser demasiado largo. Intenta con un PDF m\u00e1s corto o con menos partidas.')}
+    }
     var p=pros.find(function(x){return x.id===pid});
     var pr=p&&p.projects.find(function(x){return x.id===projId});
     if(pr){
