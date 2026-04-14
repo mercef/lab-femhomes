@@ -11,8 +11,7 @@
   --bg:#F7F5F2;--white:#FFFFFF;--surface:#FAFAF8;
   --border:#E8E4DE;--border-strong:#D4CEC6;
   --text:#1C1917;--text-2:#6B6560;--text-3:#A8A29E;
-  --accent:#2D6A4F;--accent-light:#EAF2EE;--accent-dim:rgba(45,106,79,0.12);
-  --amber:#92400E;--amber-bg:#FEF3C7;
+  --accent:#E8724A;--accent-light:#FEF0EB;--accent-dim:rgba(232,114,74,0.1);
   --danger:#DC2626;--danger-bg:#FEF2F2;
   --success:#16A34A;--success-bg:#F0FDF4;
   --radius:12px;--radius-sm:7px;--radius-lg:16px;
@@ -20,17 +19,12 @@
   --shadow-md:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;min-height:100vh}
-
-.shell{max-width:960px;margin:0 auto;padding:28px 24px 60px}
-
-/* HEADER */
+.shell{max-width:980px;margin:0 auto;padding:28px 24px 60px}
 .app-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
 .app-title{font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--text);letter-spacing:-0.02em}
 .app-title span{color:var(--accent)}
 .btn-cfg{display:flex;align-items:center;gap:6px;padding:7px 13px;font-size:12px;font-family:'DM Sans',sans-serif;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--white);color:var(--text-2);cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
-.btn-cfg:hover{background:var(--surface);color:var(--text);border-color:var(--accent)}
-
-/* CFG PANEL */
+.btn-cfg:hover{background:var(--surface);color:var(--accent);border-color:var(--accent)}
 .cfg-panel{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:24px;margin-bottom:24px;display:none}
 .cfg-panel.open{display:block}
 .cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
@@ -40,20 +34,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .cfg-field input[type=password]{letter-spacing:.1em}
 .cfg-logo-preview{height:40px;margin-top:8px;border-radius:var(--radius-sm);display:none;border:0.5px solid var(--border)}
 .cfg-note{font-size:11px;color:var(--text-3);margin-top:5px}
-.cfg-section{font-family:'Fraunces',serif;font-size:13px;font-weight:400;color:var(--text-2);margin-bottom:0;padding-bottom:10px;border-bottom:0.5px solid var(--border)}
-
-/* TABS */
+.cfg-section{font-family:'Fraunces',serif;font-size:13px;font-weight:400;color:var(--text-2);padding-bottom:10px;border-bottom:0.5px solid var(--border)}
 .tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:24px}
-.tab{padding:10px 18px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-2);margin-bottom:-0.5px;transition:all .15s;font-weight:400}
+.tab{padding:10px 18px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-2);margin-bottom:-0.5px;transition:all .15s}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
 .tab:hover:not(.active){color:var(--text)}
 .tab-num{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:10px;font-weight:500;margin-right:6px}
 .tab.active .tab-num{background:var(--accent);color:white}
-
-/* VIEWS */
 .view{display:none}.view.active{display:block}
-
-/* PRO LIST */
 .pro-card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;transition:box-shadow .2s}
 .pro-card:hover{box-shadow:var(--shadow-md)}
 .pro-card-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:0.5px solid var(--border);background:var(--surface)}
@@ -62,49 +50,41 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .pro-name-input::placeholder{color:var(--text-3)}
 .pro-card-body{padding:16px 20px}
 .pro-projects{display:flex;flex-direction:column;gap:10px}
-
-/* PROJECT */
 .project-row{border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .project-head{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--surface);cursor:pointer;transition:background .15s}
 .project-head:hover{background:var(--accent-dim)}
 .project-chevron{font-size:10px;color:var(--text-3);transition:transform .2s;flex-shrink:0}
 .project-chevron.open{transform:rotate(90deg)}
-.project-name{flex:1;font-size:13px;font-weight:500;color:var(--text)}
 .project-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--accent-dim);color:var(--accent);font-weight:500}
 .project-body{display:none;padding:12px 14px;border-top:0.5px solid var(--border)}
 .project-body.open{display:block}
-
-/* DROP ZONE */
 .drop-zone{border:1.5px dashed var(--border-strong);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface)}
 .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:var(--accent-light)}
 .drop-zone-icon{font-size:22px;margin-bottom:6px;display:block}
 .drop-zone p{font-size:12px;color:var(--text-2)}
 .drop-zone p strong{color:var(--accent)}
 .drop-zone input{display:none}
-
-/* PARTIDAS TABLE */
-.partidas-wrap{margin-top:12px}
+.ch-block{margin-top:14px}
+.ch-block:first-child{margin-top:0}
+.ch-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);padding:5px 0 6px;border-bottom:0.5px solid var(--accent-dim);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.ch-label-tot{font-size:11px;color:var(--text-2);font-weight:400;text-transform:none;letter-spacing:0}
 .ptable{width:100%;border-collapse:collapse;font-size:12px}
-.ptable th{text-align:left;font-size:10px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:0.5px solid var(--border)}
+.ptable th{text-align:left;font-size:10px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:5px 8px;border-bottom:0.5px solid var(--border)}
 .ptable th.r{text-align:right}
-.ptable td{padding:7px 8px;border-bottom:0.5px solid var(--border);vertical-align:top;color:var(--text)}
+.ptable td{padding:6px 8px;border-bottom:0.5px solid var(--border);vertical-align:top;color:var(--text)}
 .ptable tr:last-child td{border-bottom:none}
 .ptable td.r{text-align:right;color:var(--text-2)}
 .ptable td.price{text-align:right;font-weight:500;color:var(--text);white-space:nowrap}
 .ptable input{width:100%;padding:3px 6px;font-size:12px;font-family:'DM Sans',sans-serif;border:0.5px solid transparent;border-radius:4px;background:transparent;color:var(--text);outline:none}
 .ptable input:focus{border-color:var(--accent);background:var(--white)}
 .ptable input.r{text-align:right}
-
-/* EXTRACTING STATE */
-.extracting{display:flex;align-items:center;gap:10px;padding:16px;font-size:13px;color:var(--text-2)}
+.extracting{display:flex;align-items:center;gap:10px;padding:14px;font-size:13px;color:var(--text-2)}
 .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* BUTTONS */
 .btn{padding:7px 14px;font-size:12px;font-family:'DM Sans',sans-serif;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);color:var(--text);cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
 .btn:hover{background:var(--surface);border-color:var(--border-strong)}
 .btn.primary{background:var(--accent);color:white;border-color:var(--accent)}
-.btn.primary:hover{background:#245C43}
+.btn.primary:hover{background:#d4613b}
 .btn.sm{padding:4px 10px;font-size:11px}
 .btn.danger{color:var(--danger);border-color:rgba(220,38,38,0.2)}
 .btn.danger:hover{background:var(--danger-bg)}
@@ -114,8 +94,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .btn-add-pro:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
 .btn-del{background:none;border:none;cursor:pointer;color:var(--text-3);font-size:15px;padding:2px 5px;border-radius:4px;line-height:1}
 .btn-del:hover{color:var(--danger);background:var(--danger-bg)}
-
-/* CONSTRUCTOR */
 .con-header{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
 .con-header h3{font-family:'Fraunces',serif;font-size:15px;font-weight:400;margin-bottom:14px;color:var(--text-2)}
 .con-header-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -124,23 +102,27 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .field input:focus{border-color:var(--accent);background:var(--white)}
 .con-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
 .ia-status{font-size:12px;color:var(--text-2);font-style:italic}
-
-/* CON TABLE */
 .con-card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
 .con-card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--surface);border-bottom:0.5px solid var(--border)}
-.con-card-head-left{display:flex;align-items:center;gap:8px}
 .con-card-pro{font-family:'Fraunces',serif;font-size:14px;font-weight:400;color:var(--text)}
-.con-card-project{font-size:11px;color:var(--text-3);padding:2px 8px;border-radius:20px;background:var(--border);margin-left:4px}
+.con-card-project{font-size:11px;color:var(--text-3);padding:2px 8px;border-radius:20px;background:var(--border);margin-left:6px}
 .con-card-total{font-size:13px;font-weight:500;color:var(--accent)}
+.con-ch{border-bottom:0.5px solid var(--border)}
+.con-ch:last-child{border-bottom:none}
+.con-ch-title{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--accent-dim);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--accent)}
+.con-ch-title-right{font-size:11px;color:var(--text-2);font-weight:400;text-transform:none;letter-spacing:0}
 .ctable{width:100%;border-collapse:collapse;font-size:12px}
-.ctable th{text-align:left;font-size:10px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:8px 12px;border-bottom:0.5px solid var(--border);background:var(--surface)}
+.ctable th{text-align:left;font-size:10px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:7px 12px;border-bottom:0.5px solid var(--border);background:var(--surface)}
 .ctable th.r{text-align:right}
-.ctable td{padding:9px 12px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+.ctable td{padding:8px 12px;border-bottom:0.5px solid var(--border);vertical-align:middle}
 .ctable tr:last-child td{border-bottom:none}
-.ctable tr:hover td{background:var(--accent-dim)}
+.ctable tr:hover td{background:rgba(232,114,74,0.03)}
 .ctable td.r{text-align:right}
 .ctable td.price{text-align:right;font-weight:500;white-space:nowrap}
 .ctable td.price.off{color:var(--text-3);font-weight:400}
+.name-edit{width:100%;padding:3px 6px;font-size:12px;font-family:'DM Sans',sans-serif;border:0.5px solid transparent;border-radius:4px;background:transparent;color:var(--text);outline:none;resize:none;line-height:1.4}
+.name-edit:hover{border-color:var(--border)}
+.name-edit:focus{border-color:var(--accent);background:var(--white)}
 .pct-wrap{display:flex;align-items:center;gap:4px;justify-content:flex-end}
 .pct-input{width:52px;padding:4px 6px;font-size:12px;font-family:'DM Sans',sans-serif;border:0.5px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:right;outline:none}
 .pct-input:focus{border-color:var(--accent)}
@@ -148,21 +130,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .pct-sym{font-size:11px;color:var(--text-3)}
 .check-cell{text-align:center}
 .check-cell input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
-
-/* IMPROVED TEXT */
 .txt-orig{color:var(--text-3);font-size:11px;text-decoration:line-through;display:block}
-.txt-new{color:var(--text);display:block}
 .txt-actions{display:flex;gap:4px;margin-top:4px}
-
-/* TOTALS BAR */
-.totals-bar{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px 20px;display:flex;gap:28px;flex-wrap:wrap;margin-top:4px}
+.totals-bar{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px 20px;display:flex;gap:28px;flex-wrap:wrap;margin-top:4px;align-items:center}
 .tot-item .lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);margin-bottom:3px}
 .tot-item .val{font-size:18px;font-family:'Fraunces',serif;font-weight:300;color:var(--text)}
-.tot-item .val.green{color:var(--success)}
+.tot-item .val.orange{color:var(--accent)}
 .tot-item .val.muted{color:var(--text-2);font-size:15px}
-.tot-divider{width:0.5px;background:var(--border);align-self:stretch}
-
-/* PDF PREVIEW */
+.tot-divider{width:0.5px;background:var(--border);align-self:stretch;min-height:32px}
 .pdf-wrap{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
 .pdf-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid var(--border);background:var(--surface)}
 .pdf-toolbar h3{font-family:'Fraunces',serif;font-size:15px;font-weight:400;color:var(--text-2)}
@@ -177,8 +152,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .pdf-numblock{text-align:right}
 .pdf-num{font-size:20px;font-weight:700;color:#111}
 .pdf-fecha{font-size:11px;color:#888;margin-top:2px}
-.pdf-ch{background:#111;color:white;padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between;margin-top:16px}
-.pdf-row-head{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:5px 10px;background:#f5f5f5;font-size:9px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em}
+.pdf-ch-block{margin-top:16px}
+.pdf-ch{background:#111;color:white;padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between}
+.pdf-subch{background:#f0f0f0;padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#444;display:flex;justify-content:space-between;margin-top:2px}
+.pdf-row-head{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:5px 10px;background:#f9f9f9;font-size:9px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em}
 .pdf-row{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:6px 10px;border-bottom:0.5px solid #eee;font-size:11px;align-items:start}
 .pdf-row .r{text-align:right;color:#333}
 .pdf-row .name{color:#111;line-height:1.4}
@@ -188,41 +165,35 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .pdf-tot-lbl{color:#666;min-width:110px;text-align:right}
 .pdf-tot-val{min-width:80px;text-align:right;color:#111}
 .pdf-note{margin-top:16px;font-size:9px;color:#bbb;border-top:0.5px solid #eee;padding-top:8px}
-
-/* EMPTY */
 .empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
 .empty-icon{font-size:28px;margin-bottom:8px;display:block;opacity:.4}
 </style>
 </head>
 <body>
-<div class="shell">
 
-  <!-- HEADER -->
+<div class="shell">
   <div class="app-header">
-    <div>
-      <div class="app-title">Fem Homes <span>Presupuestos</span></div>
-    </div>
-    <button class="btn-cfg" onclick="toggleCfg()">⚙ Configuración</button>
+    <div class="app-title">Fem Homes <span>Presupuestos</span></div>
+    <button class="btn-cfg" onclick="toggleCfg()">&#9881; Configuraci&oacute;n</button>
   </div>
 
-  <!-- CFG PANEL -->
   <div class="cfg-panel" id="cfg-panel">
     <div class="cfg-section">Empresa</div>
     <div class="cfg-grid">
       <div class="cfg-field" style="grid-column:1/-1">
         <label>Logo</label>
         <input type="file" id="cfg-logo-input" accept="image/*" onchange="uploadLogo(this)">
-        <button class="btn sm" onclick="document.getElementById('cfg-logo-input').click()">Subir logo</button>
+        <button class="btn sm" onclick="document.getElementById('cfg-logo-input').click()" style="margin-top:6px">Subir logo</button>
         <img id="cfg-logo-preview" class="cfg-logo-preview">
       </div>
       <div class="cfg-field"><label>Nombre de empresa</label><input id="cfg-empresa" placeholder="Mi Empresa S.L." oninput="saveCfg()"></div>
       <div class="cfg-field"><label>Web</label><input id="cfg-web" placeholder="www.miempresa.com" oninput="saveCfg()"></div>
       <div class="cfg-field"><label>Email</label><input id="cfg-email" placeholder="info@miempresa.com" oninput="saveCfg()"></div>
-      <div class="cfg-field"><label>Teléfono</label><input id="cfg-tel" placeholder="+34 600 000 000" oninput="saveCfg()"></div>
+      <div class="cfg-field"><label>Tel&eacute;fono</label><input id="cfg-tel" placeholder="+34 600 000 000" oninput="saveCfg()"></div>
       <div class="cfg-field" style="grid-column:1/-1">
         <label>API Key de Anthropic</label>
         <input id="cfg-key" type="password" placeholder="sk-ant-..." oninput="saveCfg()">
-        <div class="cfg-note">Se guarda solo en tu navegador. Nunca se envía a ningún servidor propio.</div>
+        <div class="cfg-note">Se guarda solo en tu navegador. Nunca se env&iacute;a a ning&uacute;n servidor propio.</div>
       </div>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:16px">
@@ -230,38 +201,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     </div>
   </div>
 
-  <!-- TABS -->
   <div class="tabs">
     <div class="tab active" onclick="switchTab(0)"><span class="tab-num">1</span>Profesionales</div>
     <div class="tab" onclick="switchTab(1)"><span class="tab-num">2</span>Mi presupuesto</div>
     <div class="tab" onclick="switchTab(2)"><span class="tab-num">3</span>Vista cliente</div>
   </div>
 
-  <!-- VIEW 1: PROFESIONALES -->
   <div class="view active" id="v0">
     <div id="pro-list"></div>
-    <button class="btn-add-pro" onclick="addPro()">+ Añadir profesional</button>
+    <button class="btn-add-pro" onclick="addPro()">+ A&ntilde;adir profesional</button>
   </div>
 
-  <!-- VIEW 2: MI PRESUPUESTO -->
   <div class="view" id="v1">
     <div class="con-header">
       <h3>Datos del presupuesto</h3>
       <div class="con-header-grid">
         <div class="field"><label>Cliente</label><input type="text" id="f-cliente" placeholder="Nombre del cliente"></div>
-        <div class="field"><label>Nº presupuesto</label><input type="text" id="f-num" placeholder="E261470"></div>
+        <div class="field"><label>N&ordm; presupuesto</label><input type="text" id="f-num" placeholder="E261470"></div>
         <div class="field"><label>Fecha</label><input type="date" id="f-fecha"></div>
       </div>
     </div>
     <div class="con-toolbar">
-      <button class="btn primary" id="btn-mejorar" onclick="mejorarTextos()">✦ Mejorar textos con IA</button>
+      <button class="btn primary" id="btn-mejorar" onclick="mejorarTextos()">&#10022; Mejorar textos con IA</button>
       <span class="ia-status" id="ia-status"></span>
     </div>
     <div id="con-content"></div>
     <div id="totals-bar"></div>
   </div>
 
-  <!-- VIEW 3: VISTA CLIENTE -->
   <div class="view" id="v2">
     <div class="pdf-wrap">
       <div class="pdf-toolbar">
@@ -271,461 +238,194 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div id="pdf-doc"></div>
     </div>
   </div>
-
 </div>
 
 <script>
-let pros=[], lines={}, improved={}, cfg={};
+var pros=[],lines={},improved={},cfg={};
+var DEFAULT_PCT=10;
 function uid(){return Math.random().toString(36).slice(2,8)}
-function fmt(n){return Number(n).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+function fmt(n){return Number(n).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' \u20ac'}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function initials(n){return (n||'?').trim().charAt(0).toUpperCase()}
-
-// ── PERSIST ─────────────────────────────────────────────────────────────
-function save(){try{localStorage.setItem('fhl_pros',JSON.stringify(pros));localStorage.setItem('fhl_lines',JSON.stringify(lines));localStorage.setItem('fhl_improved',JSON.stringify(improved))}catch(e){}}
-function load(){
-  try{
-    const p=localStorage.getItem('fhl_pros'); if(p)pros=JSON.parse(p);
-    const l=localStorage.getItem('fhl_lines'); if(l)lines=JSON.parse(l);
-    const im=localStorage.getItem('fhl_improved'); if(im)improved=JSON.parse(im);
-  }catch(e){}
-}
-
-// ── CFG ─────────────────────────────────────────────────────────────────
-function loadCfg(){
-  try{cfg=JSON.parse(localStorage.getItem('fhl_cfg')||'{}')}catch(e){cfg={}}
-  if(cfg.empresa)document.getElementById('cfg-empresa').value=cfg.empresa;
-  if(cfg.web)document.getElementById('cfg-web').value=cfg.web;
-  if(cfg.email)document.getElementById('cfg-email').value=cfg.email;
-  if(cfg.tel)document.getElementById('cfg-tel').value=cfg.tel;
-  if(cfg.key)document.getElementById('cfg-key').value=cfg.key;
-  if(cfg.logo){const i=document.getElementById('cfg-logo-preview');i.src=cfg.logo;i.style.display='block'}
-}
-function saveCfg(){
-  cfg.empresa=document.getElementById('cfg-empresa').value;
-  cfg.web=document.getElementById('cfg-web').value;
-  cfg.email=document.getElementById('cfg-email').value;
-  cfg.tel=document.getElementById('cfg-tel').value;
-  cfg.key=document.getElementById('cfg-key').value;
-  localStorage.setItem('fhl_cfg',JSON.stringify(cfg));
-}
-function uploadLogo(inp){
-  const f=inp.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{cfg.logo=e.target.result;const i=document.getElementById('cfg-logo-preview');i.src=cfg.logo;i.style.display='block';saveCfg()};
-  r.readAsDataURL(f);
-}
+function save(){try{localStorage.setItem('fhl_pros3',JSON.stringify(pros));localStorage.setItem('fhl_lines3',JSON.stringify(lines));localStorage.setItem('fhl_imp3',JSON.stringify(improved))}catch(e){}}
+function load(){try{var p=localStorage.getItem('fhl_pros3');if(p)pros=JSON.parse(p);var l=localStorage.getItem('fhl_lines3');if(l)lines=JSON.parse(l);var im=localStorage.getItem('fhl_imp3');if(im)improved=JSON.parse(im)}catch(e){}}
+function loadCfg(){try{cfg=JSON.parse(localStorage.getItem('fhl_cfg')||'{}')}catch(e){cfg={}}if(cfg.empresa)document.getElementById('cfg-empresa').value=cfg.empresa;if(cfg.web)document.getElementById('cfg-web').value=cfg.web;if(cfg.email)document.getElementById('cfg-email').value=cfg.email;if(cfg.tel)document.getElementById('cfg-tel').value=cfg.tel;if(cfg.key)document.getElementById('cfg-key').value=cfg.key;if(cfg.logo){var i=document.getElementById('cfg-logo-preview');i.src=cfg.logo;i.style.display='block'}}
+function saveCfg(){cfg.empresa=document.getElementById('cfg-empresa').value;cfg.web=document.getElementById('cfg-web').value;cfg.email=document.getElementById('cfg-email').value;cfg.tel=document.getElementById('cfg-tel').value;cfg.key=document.getElementById('cfg-key').value;localStorage.setItem('fhl_cfg',JSON.stringify(cfg))}
+function uploadLogo(inp){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){cfg.logo=e.target.result;var i=document.getElementById('cfg-logo-preview');i.src=cfg.logo;i.style.display='block';saveCfg()};r.readAsDataURL(f)}
 function toggleCfg(){document.getElementById('cfg-panel').classList.toggle('open')}
+function switchTab(i){document.querySelectorAll('.tab').forEach(function(t,idx){t.classList.toggle('active',idx===i)});document.querySelectorAll('.view').forEach(function(v,idx){v.classList.toggle('active',idx===i)});if(i===1)renderConstructor();if(i===2)renderPDF()}
+function addPro(){pros.push({id:uid(),name:'',projects:[]});save();renderPros();setTimeout(function(){var ins=document.querySelectorAll('.pro-name-input');if(ins.length)ins[ins.length-1].focus()},50)}
+function removePro(pid){if(!confirm('Eliminar este profesional y todos sus proyectos?'))return;pros=pros.filter(function(p){return p.id!==pid});save();renderPros()}
+function upProName(pid,v){var p=pros.find(function(x){return x.id===pid});if(p){p.name=v;save();document.querySelectorAll('[data-avatar="'+pid+'"]').forEach(function(el){el.textContent=initials(v)})}}
+function addProject(pid){var p=pros.find(function(x){return x.id===pid});if(!p)return;p.projects.push({id:uid(),name:'Nuevo proyecto',chapters:[]});save();renderPros()}
+function removeProject(pid,projId){var p=pros.find(function(x){return x.id===pid});if(!p)return;p.projects=p.projects.filter(function(pr){return pr.id!==projId});save();renderPros()}
+function toggleProject(pid,projId){var b=document.getElementById('pb-'+projId);var c=document.getElementById('pc-'+projId);if(b){b.classList.toggle('open');if(c)c.classList.toggle('open')}}
+function upProjectName(pid,projId,v){var p=pros.find(function(x){return x.id===pid});if(!p)return;var pr=p.projects.find(function(x){return x.id===projId});if(pr){pr.name=v;save()}}
+function upPartida(pid,projId,chId,rid,f,v){var p=pros.find(function(x){return x.id===pid});if(!p)return;var pr=p.projects.find(function(x){return x.id===projId});if(!pr)return;var ch=pr.chapters&&pr.chapters.find(function(x){return x.id===chId});if(!ch)return;var r=ch.partidas.find(function(x){return x.id===rid});if(!r)return;r[f]=(f==='qty'||f==='price')?(parseFloat(v)||0):v;save()}
+function lineKey(pid,projId,chId,rid){return pid+'__'+projId+'__'+chId+'__'+rid}
+function getLine(k){if(!lines[k])lines[k]={included:true,pct:DEFAULT_PCT};return lines[k]}
+function toggleIncluded(k){var l=getLine(k);l.included=!l.included;save();renderConstructor()}
+function updatePct(k,v){var l=getLine(k);l.pct=parseFloat(v)||0;save();renderConstructor()}
+function updateNameInLine(pid,projId,chId,rid,v){var p=pros.find(function(x){return x.id===pid});if(!p)return;var pr=p.projects.find(function(x){return x.id===projId});if(!pr)return;var ch=pr.chapters&&pr.chapters.find(function(x){return x.id===chId});if(!ch)return;var r=ch.partidas.find(function(x){return x.id===rid});if(r){r.name=v;save()}}
+function handleDrop(e,pid,projId){e.preventDefault();var f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')extractPDF(pid,projId,f)}
+function handleFileSelect(inp,pid,projId){var f=inp.files[0];if(f)extractPDF(pid,projId,f)}
 
-// ── TABS ─────────────────────────────────────────────────────────────────
-function switchTab(i){
-  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
-  document.querySelectorAll('.view').forEach((v,idx)=>v.classList.toggle('active',idx===i));
-  if(i===1)renderConstructor();
-  if(i===2)renderPDF();
-}
-
-// ── PROS ─────────────────────────────────────────────────────────────────
-function addPro(){
-  pros.push({id:uid(),name:'',projects:[]});
-  save();renderPros();
-  setTimeout(()=>{const inputs=document.querySelectorAll('.pro-name-input');if(inputs.length)inputs[inputs.length-1].focus()},50);
-}
-function removePro(pid){
-  if(!confirm('¿Eliminar este profesional y todos sus proyectos?'))return;
-  pros=pros.filter(p=>p.id!==pid);
-  save();renderPros();
-}
-function upProName(pid,v){const p=pros.find(x=>x.id===pid);if(p){p.name=v;save();document.querySelectorAll(`[data-avatar="${pid}"]`).forEach(el=>el.textContent=initials(v))}}
-function addProject(pid){
-  const p=pros.find(x=>x.id===pid);if(!p)return;
-  const proj={id:uid(),name:'Nuevo proyecto',partidas:[]};
-  p.projects.push(proj);
-  save();renderPros();
-}
-function removeProject(pid,projId){
-  const p=pros.find(x=>x.id===pid);if(!p)return;
-  p.projects=p.projects.filter(pr=>pr.id!==projId);
-  save();renderPros();
-}
-function toggleProject(pid,projId){
-  const el=document.getElementById(`proj-body-${projId}`);
-  const ch=document.getElementById(`proj-chev-${projId}`);
-  if(!el)return;
-  el.classList.toggle('open');
-  if(ch)ch.classList.toggle('open');
-}
-function upProjectName(pid,projId,v){
-  const p=pros.find(x=>x.id===pid);if(!p)return;
-  const pr=p.projects.find(x=>x.id===projId);if(pr){pr.name=v;save()}
-}
-function upPartida(pid,projId,rid,f,v){
-  const p=pros.find(x=>x.id===pid);if(!p)return;
-  const pr=p.projects.find(x=>x.id===projId);if(!pr)return;
-  const r=pr.partidas.find(x=>x.id===rid);if(!r)return;
-  r[f]=(f==='qty'||f==='price')?(parseFloat(v)||0):v;
-  save();
-}
-
-// ── PDF EXTRACT ───────────────────────────────────────────────────────────
 async function extractPDF(pid,projId,file){
-  const key=cfg.key||'';
-  if(!key){alert('Introduce tu API key de Anthropic en Configuración.');toggleCfg();return;}
-  const stateEl=document.getElementById(`extract-state-${projId}`);
-  if(stateEl)stateEl.innerHTML=`<div class="extracting"><div class="spinner"></div>Claude está leyendo el PDF y extrayendo las partidas...</div>`;
-
-  const toB64=(f)=>new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f)});
-  const b64=await toB64(file);
-
-  const prompt=`Eres un experto en presupuestos de construcción y reforma en España.
-Analiza este presupuesto en PDF y extrae TODAS las partidas/líneas con precio.
-Para cada partida devuelve: descripción, unidad de medida, cantidad y precio unitario.
-Si no encuentras unidad o cantidad, usa "PA" y 1 respectivamente.
-Devuelve SOLO un JSON válido, sin texto adicional, con este formato exacto:
-{"partidas":[{"name":"descripción de la partida","ud":"m²","qty":1,"price":85.00},...]}
-Extrae todas las partidas, incluyendo las agrupadas bajo capítulos.`;
-
+  var key=cfg.key||'';
+  if(!key){alert('Introduce tu API key en Configuraci\u00f3n.');toggleCfg();return;}
+  var stateEl=document.getElementById('es-'+projId);
+  if(stateEl)stateEl.innerHTML='<div class="extracting"><div class="spinner"></div>Claude est\u00e1 leyendo el PDF y extrayendo cap\u00edtulos y partidas...</div>';
+  var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result.split(',')[1])};r.onerror=rej;r.readAsDataURL(file)});
+  var prompt='Eres un experto en presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nAnaliza este presupuesto en PDF y extrae su estructura completa con cap\u00edtulos y partidas.\nLos cap\u00edtulos son agrupaciones de trabajo (ej: Alba\u00f1iler\u00eda, Electricidad, Fontaner\u00eda, Derribos, Pintura...).\nLas partidas son las l\u00edneas individuales dentro de cada cap\u00edtulo.\n\nDevuelve SOLO un JSON v\u00e1lido, sin texto adicional, con este formato exacto:\n{"chapters":[\n  {"name":"Nombre del cap\u00edtulo","partidas":[\n    {"name":"descripci\u00f3n de la partida","ud":"m\u00b2","qty":1,"price":85.00},\n    ...\n  ]},\n  ...\n]}\n\nSi una partida no pertenece claramente a un cap\u00edtulo, p\u00f3nla en "General".\nSi no encuentras unidad o cantidad, usa "PA" y 1 respectivamente.\nExtrae TODAS las partidas con precio.';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:4000,
-        messages:[{role:'user',content:[
-          {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},
-          {type:'text',text:prompt}
-        ]}]
-      })
-    });
-    const data=await res.json();
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
+    var data=await res.json();
     if(data.error)throw new Error(data.error.message);
-    const text=data.content[0].text;
-    const clean=text.replace(/```json|```/g,'').trim();
-    const json=JSON.parse(clean);
-    const p=pros.find(x=>x.id===pid);
-    const pr=p&&p.projects.find(x=>x.id===projId);
+    var clean=data.content[0].text.replace(/```json|```/g,'').trim();
+    var json=JSON.parse(clean);
+    var p=pros.find(function(x){return x.id===pid});
+    var pr=p&&p.projects.find(function(x){return x.id===projId});
     if(pr){
-      pr.partidas=json.partidas.map(pt=>({id:uid(),name:pt.name||'',ud:pt.ud||'PA',qty:parseFloat(pt.qty)||1,price:parseFloat(pt.price)||0}));
+      pr.chapters=(json.chapters||[]).map(function(ch){return{id:uid(),name:ch.name||'General',partidas:(ch.partidas||[]).map(function(pt){return{id:uid(),name:pt.name||'',ud:pt.ud||'PA',qty:parseFloat(pt.qty)||1,price:parseFloat(pt.price)||0}})}});
       save();renderPros();
-      const body=document.getElementById(`proj-body-${projId}`);
-      const chev=document.getElementById(`proj-chev-${projId}`);
-      if(body){body.classList.add('open')}
-      if(chev){chev.classList.add('open')}
+      var b=document.getElementById('pb-'+projId);var c=document.getElementById('pc-'+projId);
+      if(b){b.classList.add('open')}if(c){c.classList.add('open')}
     }
-  }catch(e){
-    if(stateEl)stateEl.innerHTML=`<div style="padding:12px;color:var(--danger);font-size:12px">Error al extraer: ${esc(e.message)}</div>`;
-  }
+  }catch(e){if(stateEl)stateEl.innerHTML='<div style="padding:12px;color:var(--danger);font-size:12px">Error al extraer: '+esc(e.message)+'</div>'}
 }
 
-function handleDrop(e,pid,projId){
-  e.preventDefault();
-  const f=e.dataTransfer.files[0];
-  if(f&&f.type==='application/pdf')extractPDF(pid,projId,f);
-}
-function handleFileSelect(inp,pid,projId){
-  const f=inp.files[0];
-  if(f)extractPDF(pid,projId,f);
-}
-
-// ── RENDER PROS ───────────────────────────────────────────────────────────
 function renderPros(){
-  const el=document.getElementById('pro-list');
-  if(!pros.length){
-    el.innerHTML=`<div class="empty"><span class="empty-icon">👷</span>Añade tu primer profesional para empezar.</div>`;
-    return;
-  }
-  el.innerHTML=pros.map(p=>`
-    <div class="pro-card">
-      <div class="pro-card-head">
-        <div class="pro-avatar" data-avatar="${p.id}">${initials(p.name)}</div>
-        <input class="pro-name-input" value="${esc(p.name)}" placeholder="Nombre del profesional" oninput="upProName('${p.id}',this.value)">
-        <button class="btn sm" onclick="addProject('${p.id}')">+ Proyecto</button>
-        <button class="btn-del" onclick="removePro('${p.id}')" title="Eliminar profesional">×</button>
-      </div>
-      <div class="pro-card-body">
-        ${p.projects.length?`<div class="pro-projects">${p.projects.map(pr=>renderProject(p.id,pr)).join('')}</div>`
-        :`<div style="padding:8px 0;font-size:12px;color:var(--text-3)">Sin proyectos. Pulsa "+ Proyecto" para añadir uno.</div>`}
-      </div>
-    </div>`).join('');
+  var el=document.getElementById('pro-list');
+  if(!pros.length){el.innerHTML='<div class="empty"><span class="empty-icon">&#128119;</span>A\u00f1ade tu primer profesional para empezar.</div>';return;}
+  el.innerHTML=pros.map(function(p){
+    return '<div class="pro-card"><div class="pro-card-head"><div class="pro-avatar" data-avatar="'+p.id+'">'+initials(p.name)+'</div><input class="pro-name-input" value="'+esc(p.name)+'" placeholder="Nombre del profesional" oninput="upProName(\''+p.id+'\',this.value)"><button class="btn sm" onclick="addProject(\''+p.id+'\')">+ Proyecto</button><button class="btn-del" onclick="removePro(\''+p.id+'\')">&times;</button></div><div class="pro-card-body">'+(p.projects.length?'<div class="pro-projects">'+p.projects.map(function(pr){return renderProject(p.id,pr)}).join('')+'</div>':'<div style="padding:6px 0;font-size:12px;color:var(--text-3)">Sin proyectos. Pulsa &quot;+ Proyecto&quot; para a\u00f1adir uno.</div>')+'</div></div>';
+  }).join('');
 }
 
 function renderProject(pid,pr){
-  const count=pr.partidas.length;
-  const total=pr.partidas.reduce((s,r)=>s+r.qty*r.price,0);
-  return `<div class="project-row">
-    <div class="project-head" onclick="toggleProject('${pid}','${pr.id}')">
-      <span class="project-chevron" id="proj-chev-${pr.id}">▶</span>
-      <input style="flex:1;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--text);outline:none;cursor:pointer;font-family:'DM Sans',sans-serif"
-        value="${esc(pr.name)}" onclick="event.stopPropagation()" oninput="upProjectName('${pid}','${pr.id}',this.value)">
-      ${count?`<span class="project-badge">${count} partidas · ${fmt(total)}</span>`:''}
-      <button class="btn-del" onclick="event.stopPropagation();removeProject('${pid}','${pr.id}')" title="Eliminar proyecto">×</button>
-    </div>
-    <div class="project-body" id="proj-body-${pr.id}">
-      <div id="extract-state-${pr.id}">
-        <div class="drop-zone" 
-          ondragover="event.preventDefault();this.classList.add('drag')"
-          ondragleave="this.classList.remove('drag')"
-          ondrop="this.classList.remove('drag');handleDrop(event,'${pid}','${pr.id}')"
-          onclick="this.querySelector('input').click()">
-          <input type="file" accept="application/pdf" onchange="handleFileSelect(this,'${pid}','${pr.id}')">
-          <span class="drop-zone-icon">📄</span>
-          <p><strong>Sube el PDF</strong> del presupuesto o arrástralo aquí</p>
-          <p style="margin-top:4px;font-size:11px;color:var(--text-3)">Claude extraerá las partidas automáticamente</p>
-        </div>
-      </div>
-      ${count?`
-      <div class="partidas-wrap">
-        <table class="ptable">
-          <thead><tr><th>Descripción</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Precio ud.</th><th class="r">Subtotal</th></tr></thead>
-          <tbody>${pr.partidas.map(r=>`
-            <tr>
-              <td><input value="${esc(r.name)}" oninput="upPartida('${pid}','${pr.id}','${r.id}','name',this.value)" style="width:100%;min-width:200px"></td>
-              <td><input value="${esc(r.ud)}" class="r" style="width:44px" oninput="upPartida('${pid}','${pr.id}','${r.id}','ud',this.value)"></td>
-              <td><input value="${r.qty}" class="r" type="number" min="0" step="0.01" style="width:56px" oninput="upPartida('${pid}','${pr.id}','${r.id}','qty',this.value)"></td>
-              <td><input value="${r.price}" class="r" type="number" min="0" step="0.01" style="width:72px" oninput="upPartida('${pid}','${pr.id}','${r.id}','price',this.value)"></td>
-              <td class="r price">${fmt(r.qty*r.price)}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-        <div style="margin-top:10px">
-          <div class="drop-zone" style="padding:12px"
-            ondragover="event.preventDefault();this.classList.add('drag')"
-            ondragleave="this.classList.remove('drag')"
-            ondrop="this.classList.remove('drag');handleDrop(event,'${pid}','${pr.id}')"
-            onclick="this.querySelector('input').click()">
-            <input type="file" accept="application/pdf" onchange="handleFileSelect(this,'${pid}','${pr.id}')">
-            <p style="font-size:11px"><strong>Reemplazar PDF</strong> — subir nueva versión del presupuesto</p>
-          </div>
-        </div>
-      </div>`:''}
-    </div>
-  </div>`;
-}
-
-// ── CONSTRUCTOR ───────────────────────────────────────────────────────────
-function getLine(pid,projId,rid){
-  const k=`${pid}__${projId}__${rid}`;
-  if(!lines[k])lines[k]={included:true,pct:15};
-  return lines[k];
-}
-function toggleIncluded(pid,projId,rid){
-  const l=getLine(pid,projId,rid);l.included=!l.included;save();renderConstructor();
-}
-function updatePct(pid,projId,rid,v){
-  const l=getLine(pid,projId,rid);l.pct=parseFloat(v)||0;save();
-  const p=pros.find(x=>x.id===pid);
-  const pr=p&&p.projects.find(x=>x.id===projId);
-  const r=pr&&pr.partidas.find(x=>x.id===rid);
-  if(r){
-    const el=document.querySelector(`[data-final="${pid}${projId}${rid}"]`);
-    if(el)el.textContent=l.included?fmt(r.qty*r.price*(1+l.pct/100)):'—';
+  var totalP=pr.chapters?pr.chapters.reduce(function(s,ch){return s+ch.partidas.length},0):0;
+  var totalI=pr.chapters?pr.chapters.reduce(function(s,ch){return s+ch.partidas.reduce(function(ss,r){return ss+r.qty*r.price},0)},0):0;
+  var chaptersHtml='';
+  if(pr.chapters&&pr.chapters.length){
+    chaptersHtml='<div style="margin-top:12px">'+pr.chapters.map(function(ch){
+      return '<div class="ch-block"><div class="ch-label"><span>'+esc(ch.name)+'</span><span class="ch-label-tot">'+fmt(ch.partidas.reduce(function(s,r){return s+r.qty*r.price},0))+'</span></div><table class="ptable"><thead><tr><th>Descripci\u00f3n</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Precio ud.</th><th class="r">Subtotal</th></tr></thead><tbody>'+ch.partidas.map(function(r){return '<tr><td><input value="'+esc(r.name)+'" placeholder="Descripci\u00f3n" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'name\',this.value)"></td><td><input value="'+esc(r.ud)+'" style="width:44px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'ud\',this.value)"></td><td><input value="'+r.qty+'" class="r" type="number" min="0" step="0.01" style="width:56px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'qty\',this.value)"></td><td><input value="'+r.price+'" class="r" type="number" min="0" step="0.01" style="width:72px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'price\',this.value)"></td><td class="price">'+fmt(r.qty*r.price)+'</td></tr>'}).join('')+'</tbody></table></div>';
+    }).join('')+'<div style="margin-top:10px"><div class="drop-zone" style="padding:12px" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="this.classList.remove(\'drag\');handleDrop(event,\''+pid+'\',\''+pr.id+'\')" onclick="this.querySelector(\'input\').click()"><input type="file" accept="application/pdf" onchange="handleFileSelect(this,\''+pid+'\',\''+pr.id+'\')"><p style="font-size:11px"><strong>Reemplazar PDF</strong> \u2014 nueva versi\u00f3n del presupuesto</p></div></div></div>';
   }
-  renderTotals();
+  return '<div class="project-row"><div class="project-head" onclick="toggleProject(\''+pid+'\',\''+pr.id+'\')"><span class="project-chevron" id="pc-'+pr.id+'">\u25b6</span><input style="flex:1;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--text);outline:none;cursor:pointer;font-family:\'DM Sans\',sans-serif" value="'+esc(pr.name)+'" onclick="event.stopPropagation()" oninput="upProjectName(\''+pid+'\',\''+pr.id+'\',this.value)">'+(totalP?'<span class="project-badge">'+totalP+' partidas \u00b7 '+fmt(totalI)+'</span>':'')+'<button class="btn-del" onclick="event.stopPropagation();removeProject(\''+pid+'\',\''+pr.id+'\')">&times;</button></div><div class="project-body" id="pb-'+pr.id+'"><div id="es-'+pr.id+'"><div class="drop-zone" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="this.classList.remove(\'drag\');handleDrop(event,\''+pid+'\',\''+pr.id+'\')" onclick="this.querySelector(\'input\').click()"><input type="file" accept="application/pdf" onchange="handleFileSelect(this,\''+pid+'\',\''+pr.id+'\')"><span class="drop-zone-icon">&#128196;</span><p><strong>Sube el PDF</strong> del presupuesto o arr\u00e1stralo aqu\u00ed</p><p style="margin-top:4px;font-size:11px;color:var(--text-3)">Claude extraer\u00e1 cap\u00edtulos y partidas autom\u00e1ticamente</p></div></div>'+chaptersHtml+'</div></div>';
 }
-function acceptImproved(rid){
-  const im=improved[rid];if(!im)return;
-  pros.forEach(p=>p.projects.forEach(pr=>pr.partidas.forEach(r=>{if(r.id===rid)r.name=im.new})));
-  improved[rid]={...im,accepted:true};save();renderConstructor();
-}
-function discardImproved(rid){delete improved[rid];save();renderConstructor()}
 
 function renderConstructor(){
-  const el=document.getElementById('con-content');
-  const allPartidas=pros.flatMap(p=>p.projects.flatMap(pr=>pr.partidas.map(r=>({...r,pid:p.id,proName:p.name,projId:pr.id,projName:pr.name}))));
-  if(!allPartidas.length){
-    el.innerHTML=`<div class="empty"><span class="empty-icon">📋</span>Carga presupuestos PDF en el paso 1 para construir el tuyo aquí.</div>`;
-    document.getElementById('totals-bar').innerHTML='';
-    return;
-  }
-  let html='';
-  pros.forEach(p=>{
-    p.projects.forEach(pr=>{
-      if(!pr.partidas.length)return;
-      const proTot=pr.partidas.reduce((s,r)=>{const l=getLine(p.id,pr.id,r.id);return l.included?s+r.qty*r.price*(1+l.pct/100):s},0);
-      html+=`<div class="con-card">
-        <div class="con-card-head">
-          <div class="con-card-head-left">
-            <div class="con-card-pro">${esc(p.name||'Profesional')}</div>
-            <span class="con-card-project">${esc(pr.name)}</span>
-          </div>
-          <div class="con-card-total">${fmt(proTot)}</div>
-        </div>
-        <table class="ctable">
-          <thead><tr><th>Descripción</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Coste</th><th class="r">% honor.</th><th class="r">Mi precio</th><th class="r">Incl.</th></tr></thead>
-          <tbody>${pr.partidas.map(r=>{
-            const l=getLine(p.id,pr.id,r.id);
-            const base=r.qty*r.price;
-            const final=base*(1+l.pct/100);
-            const im=improved[r.id];
-            let nameCell='';
-            if(im&&!im.accepted&&im.new){
-              nameCell=`<span class="txt-orig">${esc(im.orig)}</span><span class="txt-new">${esc(im.new)}</span>
-                <div class="txt-actions">
-                  <button class="btn sm" style="background:var(--success-bg);color:var(--success);border-color:var(--success)" onclick="acceptImproved('${r.id}')">Aceptar</button>
-                  <button class="btn sm ghost" onclick="discardImproved('${r.id}')">Descartar</button>
-                </div>`;
-            } else if(im&&im.loading){
-              nameCell=`<span style="font-size:11px;color:var(--text-3);font-style:italic">Mejorando...</span>`;
-            } else {
-              nameCell=esc(r.name)||`<span style="color:var(--text-3)">Sin descripción</span>`;
-            }
-            return `<tr>
-              <td>${nameCell}</td>
-              <td style="color:var(--text-3);font-size:11px">${esc(r.ud)}</td>
-              <td class="r" style="color:var(--text-2)">${r.qty}</td>
-              <td class="r" style="color:var(--text-2)">${fmt(base)}</td>
-              <td class="r">
-                <div class="pct-wrap">
-                  <input type="number" class="pct-input" value="${l.pct}" min="0" step="0.5" ${!l.included?'disabled':''} onchange="updatePct('${p.id}','${pr.id}','${r.id}',this.value)">
-                  <span class="pct-sym">%</span>
-                </div>
-              </td>
-              <td class="price${!l.included?' off':''}" data-final="${p.id}${pr.id}${r.id}">${l.included?fmt(final):'—'}</td>
-              <td class="check-cell"><input type="checkbox" ${l.included?'checked':''} onchange="toggleIncluded('${p.id}','${pr.id}','${r.id}')"></td>
-            </tr>`;
-          }).join('')}</tbody>
-        </table>
-      </div>`;
+  var el=document.getElementById('con-content');
+  var hasAny=pros.some(function(p){return p.projects.some(function(pr){return pr.chapters&&pr.chapters.some(function(ch){return ch.partidas.length})})});
+  if(!hasAny){el.innerHTML='<div class="empty"><span class="empty-icon">&#128203;</span>Carga presupuestos PDF en el paso 1 para construir el tuyo aqu\u00ed.</div>';document.getElementById('totals-bar').innerHTML='';return;}
+  var html='';
+  pros.forEach(function(p){
+    p.projects.forEach(function(pr){
+      if(!pr.chapters||!pr.chapters.some(function(ch){return ch.partidas.length}))return;
+      var proTot=pr.chapters.reduce(function(s,ch){return s+ch.partidas.reduce(function(ss,r){var l=getLine(lineKey(p.id,pr.id,ch.id,r.id));return l.included?ss+r.qty*r.price*(1+l.pct/100):ss},0)},0);
+      html+='<div class="con-card"><div class="con-card-head"><div><span class="con-card-pro">'+esc(p.name||'Profesional')+'</span><span class="con-card-project">'+esc(pr.name)+'</span></div><div class="con-card-total">'+fmt(proTot)+'</div></div>';
+      pr.chapters.forEach(function(ch){
+        if(!ch.partidas.length)return;
+        var chTot=ch.partidas.reduce(function(s,r){var l=getLine(lineKey(p.id,pr.id,ch.id,r.id));return l.included?s+r.qty*r.price*(1+l.pct/100):s},0);
+        html+='<div class="con-ch"><div class="con-ch-title"><span>'+esc(ch.name)+'</span><div class="con-ch-title-right">'+fmt(chTot)+'</div></div><table class="ctable"><thead><tr><th>Descripci\u00f3n</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Coste</th><th class="r">% honor.</th><th class="r">Mi precio</th><th class="r" style="width:36px">Incl.</th></tr></thead><tbody>';
+        ch.partidas.forEach(function(r){
+          var k=lineKey(p.id,pr.id,ch.id,r.id);var l=getLine(k);
+          var base=r.qty*r.price;var final=base*(1+l.pct/100);
+          var im=improved[r.id];var nameCell='';
+          if(im&&!im.accepted&&im.new){
+            nameCell='<span class="txt-orig">'+esc(im.orig)+'</span><textarea class="name-edit" rows="2" onchange="updateNameInLine(\''+p.id+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',this.value)">'+esc(im.new)+'</textarea><div class="txt-actions"><button class="btn sm" style="background:var(--success-bg);color:var(--success);border-color:var(--success)" onclick="acceptImproved(\''+r.id+'\')">Aceptar</button><button class="btn sm ghost" onclick="discardImproved(\''+r.id+'\')">Descartar</button></div>';
+          }else if(im&&im.loading){
+            nameCell='<span style="font-size:11px;color:var(--text-3);font-style:italic">Mejorando...</span>';
+          }else{
+            nameCell='<textarea class="name-edit" rows="'+(r.name&&r.name.length>60?2:1)+'" onchange="updateNameInLine(\''+p.id+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',this.value)">'+esc(r.name||'')+'</textarea>';
+          }
+          html+='<tr><td style="min-width:200px">'+nameCell+'</td><td style="color:var(--text-3);font-size:11px">'+esc(r.ud)+'</td><td class="r" style="color:var(--text-2)">'+r.qty+'</td><td class="r" style="color:var(--text-2)">'+fmt(base)+'</td><td class="r"><div class="pct-wrap"><input type="number" class="pct-input" value="'+l.pct+'" min="0" step="0.5" '+(l.included?'':'disabled')+' onchange="updatePct(\''+k+'\',this.value)"><span class="pct-sym">%</span></div></td><td class="price'+(l.included?'':' off')+'">'+(l.included?fmt(final):'&mdash;')+'</td><td class="check-cell"><input type="checkbox" '+(l.included?'checked':'')+' onchange="toggleIncluded(\''+k+'\')"></td></tr>';
+        });
+        html+='</tbody></table></div>';
+      });
+      html+='</div>';
     });
   });
-  el.innerHTML=html||`<div class="empty"><span class="empty-icon">📋</span>Los proyectos cargados no tienen partidas todavía.</div>`;
+  el.innerHTML=html||'<div class="empty">Los proyectos cargados no tienen partidas todav\u00eda.</div>';
   renderTotals();
 }
 
 function renderTotals(){
-  let coste=0,precio=0;
-  pros.forEach(p=>p.projects.forEach(pr=>pr.partidas.forEach(r=>{
-    const l=getLine(p.id,pr.id,r.id);if(!l.included)return;
-    coste+=r.qty*r.price;precio+=r.qty*r.price*(1+l.pct/100);
-  })));
-  document.getElementById('totals-bar').innerHTML=coste?`
-    <div class="totals-bar">
-      <div class="tot-item"><div class="lbl">Coste profesionales</div><div class="val muted">${fmt(coste)}</div></div>
-      <div class="tot-divider"></div>
-      <div class="tot-item"><div class="lbl">Mi precio al cliente</div><div class="val">${fmt(precio)}</div></div>
-      <div class="tot-divider"></div>
-      <div class="tot-item"><div class="lbl">Mis honorarios</div><div class="val green">${fmt(precio-coste)}</div></div>
-    </div>`:'';
+  var coste=0,precio=0;
+  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var l=getLine(lineKey(p.id,pr.id,ch.id,r.id));if(!l.included)return;coste+=r.qty*r.price;precio+=r.qty*r.price*(1+l.pct/100)})})})});
+  document.getElementById('totals-bar').innerHTML=coste?'<div class="totals-bar"><div class="tot-item"><div class="lbl">Coste profesionales</div><div class="val muted">'+fmt(coste)+'</div></div><div class="tot-divider"></div><div class="tot-item"><div class="lbl">Mi precio al cliente</div><div class="val">'+fmt(precio)+'</div></div><div class="tot-divider"></div><div class="tot-item"><div class="lbl">Mis honorarios</div><div class="val orange">'+fmt(precio-coste)+'</div></div></div>':'';
 }
 
-// ── IA MEJORAR ────────────────────────────────────────────────────────────
+function acceptImproved(rid){var im=improved[rid];if(!im)return;pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){if(r.id===rid)r.name=im.new})})})});improved[rid]=Object.assign({},im,{accepted:true});save();renderConstructor()}
+function discardImproved(rid){delete improved[rid];save();renderConstructor()}
+
 async function mejorarTextos(){
-  const key=cfg.key||'';
-  if(!key){alert('Introduce tu API key de Anthropic en Configuración.');toggleCfg();return;}
-  const partidas=[];
-  pros.forEach(p=>p.projects.forEach(pr=>pr.partidas.forEach(r=>{if(r.name&&r.name.trim())partidas.push({id:r.id,name:r.name})})));
+  var key=cfg.key||'';
+  if(!key){alert('Introduce tu API key en Configuraci\u00f3n.');toggleCfg();return;}
+  var partidas=[];
+  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){if(r.name&&r.name.trim())partidas.push({id:r.id,name:r.name})})})})});
   if(!partidas.length){document.getElementById('ia-status').textContent='No hay descripciones que mejorar.';return;}
-  const btn=document.getElementById('btn-mejorar');
-  btn.disabled=true;btn.textContent='Mejorando...';
-  document.getElementById('ia-status').textContent='Claude está mejorando los textos...';
-  partidas.forEach(p=>{improved[p.id]={orig:p.name,new:'',loading:true,accepted:false}});
+  var btn=document.getElementById('btn-mejorar');btn.disabled=true;btn.textContent='Mejorando...';
+  document.getElementById('ia-status').textContent='Claude est\u00e1 mejorando los textos...';
+  partidas.forEach(function(p){improved[p.id]={orig:p.name,new:'',loading:true,accepted:false}});
   renderConstructor();
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:3000,
-        messages:[{role:'user',content:`Eres un experto en redacción de presupuestos de construcción y reforma en España.
-Corrige ortografía, puntuación y reescribe cada descripción de forma profesional, clara y concisa.
-Mantén el significado técnico exacto. No añadas información que no esté en el original.
-Devuelve SOLO un JSON válido sin texto adicional:
-{"partidas":[{"id":"xxx","name":"descripción mejorada"},...]}
-Partidas: ${JSON.stringify(partidas)}`}]
-      })
-    });
-    const data=await res.json();
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:'Eres un experto en redacci\u00f3n de presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nCorrige ortograf\u00eda, puntuaci\u00f3n y reescribe cada descripci\u00f3n de forma profesional, clara y concisa.\nMant\u00e9n el significado t\u00e9cnico exacto. No a\u00f1adas informaci\u00f3n que no est\u00e9 en el original.\nDevuelve SOLO un JSON v\u00e1lido sin texto adicional:\n{"partidas":[{"id":"xxx","name":"descripci\u00f3n mejorada"},...]}\nPartidas: '+JSON.stringify(partidas)}]})});
+    var data=await res.json();
     if(data.error)throw new Error(data.error.message);
-    const json=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
-    json.partidas.forEach(p=>{if(improved[p.id])improved[p.id]={...improved[p.id],new:p.name,loading:false}});
-    document.getElementById('ia-status').textContent=`${json.partidas.length} partidas mejoradas. Revisa y acepta los cambios.`;
+    var json=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    json.partidas.forEach(function(p){if(improved[p.id])improved[p.id]=Object.assign({},improved[p.id],{new:p.name,loading:false})});
+    document.getElementById('ia-status').textContent=json.partidas.length+' partidas mejoradas. Revisa y acepta.';
   }catch(e){
-    partidas.forEach(p=>{delete improved[p.id]});
+    partidas.forEach(function(p){delete improved[p.id]});
     document.getElementById('ia-status').textContent='Error: '+e.message;
   }
-  btn.disabled=false;btn.textContent='✦ Mejorar textos con IA';
+  btn.disabled=false;btn.textContent='\u2726 Mejorar textos con IA';
   save();renderConstructor();
 }
 
-// ── PDF ───────────────────────────────────────────────────────────────────
 function getIncluded(){
-  const out=[];
-  pros.forEach(p=>p.projects.forEach(pr=>pr.partidas.forEach(r=>{
-    const l=getLine(p.id,pr.id,r.id);if(!l.included)return;
-    out.push({...r,pid:p.id,proName:p.name,projName:pr.name,myPrice:r.qty*r.price*(1+l.pct/100),unitPrice:r.price*(1+l.pct/100)});
-  })));
+  var out=[];
+  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var l=getLine(lineKey(p.id,pr.id,ch.id,r.id));if(!l.included)return;out.push(Object.assign({},r,{pid:p.id,proName:p.name,projName:pr.name,chName:ch.name,myPrice:r.qty*r.price*(1+l.pct/100),unitPrice:r.price*(1+l.pct/100)}))})})})});
   return out;
 }
+
 function renderPDF(){
-  const cliente=document.getElementById('f-cliente')?.value||'—';
-  const num=document.getElementById('f-num')?.value||'—';
-  const fecha=document.getElementById('f-fecha')?.value||'—';
-  const inc=getIncluded();
-  const el=document.getElementById('pdf-doc');
-  if(!inc.length){el.innerHTML=`<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">Activa partidas en "Mi presupuesto" para generar el documento.</div>`;return;}
-  const byKey={};
-  inc.forEach(r=>{const k=`${r.pid}__${r.projName}`;if(!byKey[k])byKey[k]={proName:r.proName,projName:r.projName,rows:[]};byKey[k].rows.push(r)});
-  const base=inc.reduce((s,r)=>s+r.myPrice,0);
-  const iva=base*.21;
-  const logoHtml=cfg.logo?`<img src="${cfg.logo}" class="pdf-logo-img">`:`<div style="font-size:16px;font-weight:700;color:#111">${esc(cfg.empresa||'Mi Empresa')}</div>`;
-  const coInfo=[cfg.web,cfg.email,cfg.tel].filter(Boolean).join('<br>');
-  let html=`<div class="pdf-hdr">
-    <div>${logoHtml}</div>
-    <div class="pdf-co">${cfg.empresa?`<strong>${esc(cfg.empresa)}</strong>`:''}<span>${coInfo}</span></div>
-  </div>
-  <div class="pdf-meta">
-    <div class="pdf-client"><div class="lbl2">Cliente</div><strong>${esc(cliente)}</strong></div>
-    <div class="pdf-numblock"><div class="pdf-num">Presupuesto ${esc(num)}</div><div class="pdf-fecha">${esc(fecha)}</div></div>
-  </div>`;
-  Object.values(byKey).forEach(ch=>{
-    const chTot=ch.rows.reduce((s,r)=>s+r.myPrice,0);
-    html+=`<div class="pdf-ch"><span>${esc(ch.proName||ch.projName).toUpperCase()}</span><span>${fmtPDF(chTot)}</span></div>
-    <div class="pdf-row-head"><div>Descripción</div><div style="text-align:right">Ud.</div><div style="text-align:right">Cant.</div><div style="text-align:right">Precio ud.</div><div style="text-align:right">Total</div></div>`;
-    ch.rows.forEach(r=>{
-      html+=`<div class="pdf-row">
-        <div class="name">${esc(r.name||'Partida')}</div>
-        <div class="r">${esc(r.ud)}</div>
-        <div class="r">${r.qty}</div>
-        <div class="r">${fmtPDF(r.unitPrice)}</div>
-        <div class="r">${fmtPDF(r.myPrice)}</div>
-      </div>`;
+  var cliente=document.getElementById('f-cliente')&&document.getElementById('f-cliente').value||'\u2014';
+  var num=document.getElementById('f-num')&&document.getElementById('f-num').value||'\u2014';
+  var fecha=document.getElementById('f-fecha')&&document.getElementById('f-fecha').value||'\u2014';
+  var inc=getIncluded();var el=document.getElementById('pdf-doc');
+  if(!inc.length){el.innerHTML='<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">Activa partidas en &quot;Mi presupuesto&quot; para generar el documento.</div>';return;}
+  var byProj={};
+  inc.forEach(function(r){var pk=r.pid+'__'+r.projName;if(!byProj[pk])byProj[pk]={proName:r.proName,projName:r.projName,chapters:{}};if(!byProj[pk].chapters[r.chName])byProj[pk].chapters[r.chName]=[];byProj[pk].chapters[r.chName].push(r)});
+  var base=inc.reduce(function(s,r){return s+r.myPrice},0);var iva=base*.21;
+  var logoHtml=cfg.logo?'<img src="'+cfg.logo+'" class="pdf-logo-img">':'<div style="font-size:16px;font-weight:700;color:#111">'+esc(cfg.empresa||'Mi Empresa')+'</div>';
+  var coInfo=[cfg.web,cfg.email,cfg.tel].filter(Boolean).join('<br>');
+  var html='<div class="pdf-hdr"><div>'+logoHtml+'</div><div class="pdf-co">'+(cfg.empresa?'<strong>'+esc(cfg.empresa)+'</strong>':'')+'<span>'+coInfo+'</span></div></div><div class="pdf-meta"><div class="pdf-client"><div class="lbl2">Cliente</div><strong>'+esc(cliente)+'</strong></div><div class="pdf-numblock"><div class="pdf-num">Presupuesto '+esc(num)+'</div><div class="pdf-fecha">'+esc(fecha)+'</div></div></div>';
+  Object.values(byProj).forEach(function(proj){
+    var projTot=Object.values(proj.chapters).reduce(function(s,rows){return s+rows.reduce(function(ss,r){return ss+r.myPrice},0)},0);
+    html+='<div class="pdf-ch-block"><div class="pdf-ch"><span>'+esc(proj.proName||proj.projName).toUpperCase()+'</span><span>'+fmtP(projTot)+'</span></div>';
+    Object.entries(proj.chapters).forEach(function(entry){
+      var chName=entry[0],rows=entry[1];
+      var chTot=rows.reduce(function(s,r){return s+r.myPrice},0);
+      html+='<div class="pdf-subch"><span>'+esc(chName)+'</span><span>'+fmtP(chTot)+'</span></div><div class="pdf-row-head"><div>Descripci\u00f3n</div><div style="text-align:right">Ud.</div><div style="text-align:right">Cant.</div><div style="text-align:right">Precio ud.</div><div style="text-align:right">Total</div></div>';
+      rows.forEach(function(r){html+='<div class="pdf-row"><div class="name">'+esc(r.name||'Partida')+'</div><div class="r">'+esc(r.ud)+'</div><div class="r">'+r.qty+'</div><div class="r">'+fmtP(r.unitPrice)+'</div><div class="r">'+fmtP(r.myPrice)+'</div></div>'});
     });
+    html+='</div>';
   });
-  html+=`<div class="pdf-tots">
-    <div class="pdf-tot-row"><span class="pdf-tot-lbl">Base imponible</span><span class="pdf-tot-val">${fmtPDF(base)}</span></div>
-    <div class="pdf-tot-row"><span class="pdf-tot-lbl">IVA 21%</span><span class="pdf-tot-val">${fmtPDF(iva)}</span></div>
-    <div class="pdf-tot-row big"><span class="pdf-tot-lbl">TOTAL</span><span class="pdf-tot-val">${fmtPDF(base+iva)}</span></div>
-  </div>
-  <div class="pdf-note">IVA no incluido en precios unitarios. Validez del presupuesto: 30 días.</div>`;
+  html+='<div class="pdf-tots"><div class="pdf-tot-row"><span class="pdf-tot-lbl">Base imponible</span><span class="pdf-tot-val">'+fmtP(base)+'</span></div><div class="pdf-tot-row"><span class="pdf-tot-lbl">IVA 21%</span><span class="pdf-tot-val">'+fmtP(iva)+'</span></div><div class="pdf-tot-row big"><span class="pdf-tot-lbl">TOTAL</span><span class="pdf-tot-val">'+fmtP(base+iva)+'</span></div></div><div class="pdf-note">IVA no incluido en precios unitarios. Validez del presupuesto: 30 d\u00edas.</div>';
   el.innerHTML=html;
 }
-function fmtPDF(n){return Number(n).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+
+function fmtP(n){return Number(n).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' \u20ac'}
+
 function printPDF(){
-  const content=document.getElementById('pdf-doc').innerHTML;
-  const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Presupuesto</title>
-  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:32px;max-width:800px;margin:0 auto}
-  .pdf-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:2px solid #111;margin-bottom:22px}
-  .pdf-logo-img{max-height:44px;max-width:130px;object-fit:contain}
-  .pdf-co{text-align:right;font-size:11px;color:#555;line-height:1.7}.pdf-co strong{font-size:13px;color:#111;display:block}
-  .pdf-meta{display:flex;justify-content:space-between;margin-bottom:22px}
-  .lbl2{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:3px}
-  .pdf-client strong{font-size:15px;color:#111;display:block}.pdf-numblock{text-align:right}
-  .pdf-num{font-size:20px;font-weight:700;color:#111}.pdf-fecha{font-size:11px;color:#888;margin-top:2px}
-  .pdf-ch{background:#111;color:white;padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between;margin-top:16px}
-  .pdf-row-head{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:5px 10px;background:#f5f5f5;font-size:9px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em}
-  .pdf-row{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:6px 10px;border-bottom:0.5px solid #eee;font-size:11px;align-items:start}
-  .r{text-align:right;color:#333}.name{color:#111;line-height:1.4}
-  .pdf-tots{margin-top:20px;border-top:1.5px solid #111;padding-top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
-  .pdf-tot-row{display:flex;gap:28px;font-size:12px}.pdf-tot-row.big{font-size:15px;font-weight:700}
-  .pdf-tot-lbl{color:#666;min-width:110px;text-align:right}.pdf-tot-val{min-width:80px;text-align:right;color:#111}
-  .pdf-note{margin-top:16px;font-size:9px;color:#bbb;border-top:0.5px solid #eee;padding-top:8px}
-  @media print{body{padding:16px}}</style></head><body>${content}</body></html>`);
-  w.document.close();setTimeout(()=>w.print(),400);
+  var content=document.getElementById('pdf-doc').innerHTML;
+  var w=window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Presupuesto</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:32px;max-width:820px;margin:0 auto}.pdf-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:2px solid #111;margin-bottom:22px}.pdf-logo-img{max-height:44px;max-width:130px;object-fit:contain}.pdf-co{text-align:right;font-size:11px;color:#555;line-height:1.7}.pdf-co strong{font-size:13px;color:#111;display:block}.pdf-meta{display:flex;justify-content:space-between;margin-bottom:22px}.lbl2{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:3px}.pdf-client strong{font-size:15px;color:#111;display:block}.pdf-numblock{text-align:right}.pdf-num{font-size:20px;font-weight:700;color:#111}.pdf-fecha{font-size:11px;color:#888;margin-top:2px}.pdf-ch-block{margin-top:16px}.pdf-ch{background:#111;color:white;padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between}.pdf-subch{background:#f0f0f0;padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#444;display:flex;justify-content:space-between;margin-top:2px}.pdf-row-head{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:5px 10px;background:#f9f9f9;font-size:9px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em}.pdf-row{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:6px 10px;border-bottom:0.5px solid #eee;font-size:11px;align-items:start}.r{text-align:right;color:#333}.name{color:#111;line-height:1.4}.pdf-tots{margin-top:20px;border-top:1.5px solid #111;padding-top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:5px}.pdf-tot-row{display:flex;gap:28px;font-size:12px}.pdf-tot-row.big{font-size:15px;font-weight:700}.pdf-tot-lbl{color:#666;min-width:110px;text-align:right}.pdf-tot-val{min-width:80px;text-align:right;color:#111}.pdf-note{margin-top:16px;font-size:9px;color:#bbb;border-top:0.5px solid #eee;padding-top:8px}@media print{body{padding:16px}}</style></head><body>'+content+'</body></html>');
+  w.document.close();setTimeout(function(){w.print()},400);
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────
 document.getElementById('f-fecha')&&(document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0]);
 load();loadCfg();renderPros();
 </script>
