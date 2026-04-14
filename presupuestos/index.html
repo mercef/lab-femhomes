@@ -1,0 +1,524 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary)}
+.app{min-height:640px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.app-title{font-size:14px;font-weight:500}
+.tabs{display:flex;gap:0}
+.tab{padding:10px 16px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary)}
+.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.tab:hover:not(.active){color:var(--color-text-primary)}
+.btn-icon{background:none;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:6px 10px;cursor:pointer;font-size:13px;color:var(--color-text-secondary)}
+.btn-icon:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
+.view{display:none;padding:20px}
+.view.active{display:block}
+
+/* CONFIG PANEL */
+.config-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:100;display:none;align-items:flex-start;justify-content:flex-end;padding:10px}
+.config-overlay.open{display:flex}
+.config-panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px;width:360px;max-height:90vh;overflow-y:auto}
+.config-panel h3{font-size:14px;font-weight:500;margin-bottom:16px}
+.cfg-field{margin-bottom:12px}
+.cfg-field label{font-size:11px;color:var(--color-text-tertiary);display:block;margin-bottom:4px}
+.cfg-field input{width:100%;padding:6px 10px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary)}
+.logo-preview{width:80px;height:40px;object-fit:contain;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-top:6px;display:none}
+.api-note{font-size:11px;color:var(--color-text-tertiary);margin-top:4px}
+.btn{padding:7px 14px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-primary)}
+.btn:hover{background:var(--color-background-secondary)}
+.btn.primary{background:var(--color-text-primary);color:var(--color-background-primary);border-color:transparent}
+.btn.primary:hover{opacity:.85}
+.btn.success{background:var(--color-background-success);color:var(--color-text-success);border-color:var(--color-border-success)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.danger{color:var(--color-text-danger);border-color:var(--color-border-danger)}
+.btn.danger:hover{background:var(--color-background-danger)}
+
+/* PROS */
+.pro-list{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.pro-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.pro-card-head{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.pro-card-head input{flex:1;padding:5px 8px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+.pro-card-head input.narrow{max-width:150px}
+.pro-card-body{padding:12px 14px}
+.ptable{width:100%;border-collapse:collapse;font-size:13px}
+.ptable th{text-align:left;font-size:11px;font-weight:500;color:var(--color-text-secondary);padding:4px 6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.ptable th.r{text-align:right}
+.ptable td{padding:5px 6px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.ptable tr:last-child td{border-bottom:none}
+.ptable input{width:100%;padding:4px 6px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary)}
+.ptable input.r{text-align:right}
+.ptable td.sub{text-align:right;font-weight:500;white-space:nowrap;color:var(--color-text-primary)}
+.btn-del{background:none;border:none;cursor:pointer;color:var(--color-text-tertiary);font-size:16px;padding:2px 4px;border-radius:4px;line-height:1}
+.btn-del:hover{color:var(--color-text-danger);background:var(--color-background-danger)}
+.pro-foot{display:flex;gap:8px;margin-top:10px;align-items:center}
+.add-pro{display:flex;align-items:center;gap:8px;padding:10px 14px;border:0.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);cursor:pointer;font-size:13px;color:var(--color-text-secondary);background:none;width:100%}
+.add-pro:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.empty-card{padding:28px;text-align:center;color:var(--color-text-tertiary);font-size:13px;border:0.5px dashed var(--color-border-tertiary);border-radius:var(--border-radius-lg)}
+
+/* CONSTRUCTOR */
+.con-head{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.field label{font-size:11px;color:var(--color-text-tertiary);display:block;margin-bottom:4px}
+.field input{width:100%;padding:6px 10px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary)}
+.con-toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+.ctable{width:100%;border-collapse:collapse;font-size:13px}
+.ctable th{text-align:left;font-size:11px;font-weight:500;color:var(--color-text-secondary);padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);white-space:nowrap}
+.ctable th.r{text-align:right}
+.ctable td{padding:7px 8px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.ctable tr.ch-row td{background:var(--color-background-secondary);font-size:11px;font-weight:500;letter-spacing:.05em;color:var(--color-text-secondary);text-transform:uppercase;padding:6px 8px}
+.ctable tr.ch-row td.cht{text-align:right;color:var(--color-text-primary)}
+.ctable td.r{text-align:right}
+.pct-input{width:60px;padding:4px 6px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);text-align:right}
+.pct-input:disabled{opacity:.3}
+.price-out{text-align:right;font-weight:500;white-space:nowrap}
+.price-out.off{color:var(--color-text-tertiary);font-weight:400}
+.pro-badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:20px;background:var(--color-background-info);color:var(--color-text-info);margin-left:6px}
+.totbar{display:flex;gap:20px;padding:12px 0 0;border-top:0.5px solid var(--color-border-tertiary);margin-top:4px;flex-wrap:wrap}
+.tot-item .lbl{font-size:11px;color:var(--color-text-secondary)}
+.tot-item .val{font-size:15px;font-weight:500}
+.tot-item .val.g{color:var(--color-text-success)}
+.tot-item .val.m{color:var(--color-text-tertiary);font-size:13px}
+
+/* texto mejorado */
+.txt-orig{color:var(--color-text-secondary);font-size:12px;text-decoration:line-through;display:block;margin-bottom:2px}
+.txt-new{color:var(--color-text-primary)}
+.txt-actions{display:flex;gap:4px;margin-top:4px}
+.loading-cell{color:var(--color-text-tertiary);font-size:12px;font-style:italic}
+
+/* PDF PREVIEW */
+.pdf-actions{display:flex;gap:8px;margin-bottom:16px}
+#pdf-preview{background:white;color:#111;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:32px;font-family:Arial,sans-serif;font-size:12px;line-height:1.5}
+.pdf-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #1a1a1a}
+.pdf-logo{max-height:48px;max-width:140px;object-fit:contain}
+.pdf-company{text-align:right;font-size:11px;color:#444}
+.pdf-company strong{font-size:13px;color:#111;display:block;margin-bottom:2px}
+.pdf-meta{display:flex;justify-content:space-between;margin-bottom:20px}
+.pdf-client-block{}
+.pdf-client-block .lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.pdf-client-block strong{font-size:14px;display:block}
+.pdf-num-block{text-align:right}
+.pdf-num-block .num{font-size:18px;font-weight:700;color:#1a1a1a}
+.pdf-num-block .fecha{font-size:11px;color:#888;margin-top:2px}
+.pdf-ch-title{background:#1a1a1a;color:white;padding:6px 10px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;margin-top:14px}
+.pdf-row{display:grid;grid-template-columns:1fr 48px 48px 80px 80px;gap:6px;padding:6px 10px;border-bottom:0.5px solid #eee;align-items:center;font-size:11px}
+.pdf-row.head{background:#f5f5f5;font-weight:700;font-size:10px;color:#555}
+.pdf-row-name{color:#111}
+.pdf-row-r{text-align:right;color:#111}
+.pdf-totals{margin-top:20px;border-top:2px solid #1a1a1a;padding-top:12px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.pdf-tot-row{display:flex;gap:32px;font-size:12px}
+.pdf-tot-row.big{font-size:15px;font-weight:700}
+.pdf-tot-lbl{color:#555;min-width:120px;text-align:right}
+.pdf-tot-val{min-width:80px;text-align:right;color:#111}
+.pdf-footer-note{margin-top:16px;font-size:10px;color:#aaa;border-top:0.5px solid #eee;padding-top:8px}
+</style>
+
+<div class="app" id="app" style="position:relative">
+
+  <!-- CONFIG OVERLAY -->
+  <div class="config-overlay" id="cfg-overlay" onclick="closeCfgIfBg(event)">
+    <div class="config-panel" onclick="event.stopPropagation()">
+      <h3>Configuración</h3>
+      <div class="cfg-field">
+        <label>Logo (imagen)</label>
+        <input type="file" accept="image/*" onchange="uploadLogo(this)">
+        <img id="logo-preview" class="logo-preview">
+      </div>
+      <div class="cfg-field"><label>Nombre de empresa</label><input id="cfg-empresa" placeholder="Mi Empresa S.L." oninput="saveCfg()"></div>
+      <div class="cfg-field"><label>Web</label><input id="cfg-web" placeholder="www.miempresa.com" oninput="saveCfg()"></div>
+      <div class="cfg-field"><label>Email</label><input id="cfg-email" placeholder="info@miempresa.com" oninput="saveCfg()"></div>
+      <div class="cfg-field"><label>Teléfono</label><input id="cfg-tel" placeholder="+34 600 000 000" oninput="saveCfg()"></div>
+      <div class="cfg-field">
+        <label>API Key de Anthropic</label>
+        <input id="cfg-key" type="password" placeholder="sk-ant-..." oninput="saveCfg()">
+        <div class="api-note">Se guarda solo en tu navegador. Nunca se envía a ningún servidor propio.</div>
+      </div>
+      <div style="margin-top:16px;display:flex;justify-content:flex-end">
+        <button class="btn primary" onclick="closeCfg()">Guardar y cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="app-title">Constructor de presupuestos</span>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(0)">1 · Profesionales</div>
+        <div class="tab" onclick="switchTab(1)">2 · Mi presupuesto</div>
+        <div class="tab" onclick="switchTab(2)">3 · Vista cliente</div>
+      </div>
+    </div>
+    <button class="btn-icon" onclick="openCfg()" title="Configuración">⚙ Configuración</button>
+  </div>
+
+  <!-- VIEW 1 -->
+  <div class="view active" id="v0">
+    <div class="pro-list" id="pro-list"></div>
+    <button class="add-pro" onclick="addPro()">+ Añadir profesional</button>
+  </div>
+
+  <!-- VIEW 2 -->
+  <div class="view" id="v1">
+    <div class="con-head">
+      <div class="field"><label>Cliente</label><input type="text" id="f-cliente" placeholder="Nombre del cliente" oninput="syncHeader()"></div>
+      <div class="field"><label>Nº presupuesto</label><input type="text" id="f-num" placeholder="E261470" oninput="syncHeader()"></div>
+      <div class="field"><label>Fecha</label><input type="date" id="f-fecha" oninput="syncHeader()"></div>
+    </div>
+    <div class="con-toolbar">
+      <button class="btn primary" id="btn-mejorar" onclick="mejorarTextos()">✦ Mejorar textos con IA</button>
+      <span id="ia-status" style="font-size:12px;color:var(--color-text-tertiary)"></span>
+    </div>
+    <div id="con-content"></div>
+    <div class="totbar" id="totbar"></div>
+  </div>
+
+  <!-- VIEW 3 -->
+  <div class="view" id="v2">
+    <div class="pdf-actions">
+      <button class="btn primary" onclick="printPDF()">Exportar PDF</button>
+    </div>
+    <div id="pdf-preview"></div>
+  </div>
+</div>
+
+<script>
+let pros=[], lines={}, improved={}, cfg={};
+
+function uid(){return Math.random().toString(36).slice(2,8)}
+function fmt(n){return Number(n).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' \u20ac'}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+
+// CONFIG
+function loadCfg(){
+  try{cfg=JSON.parse(localStorage.getItem('ppto_cfg')||'{}')}catch(e){cfg={}}
+  if(cfg.empresa) document.getElementById('cfg-empresa').value=cfg.empresa;
+  if(cfg.web) document.getElementById('cfg-web').value=cfg.web;
+  if(cfg.email) document.getElementById('cfg-email').value=cfg.email;
+  if(cfg.tel) document.getElementById('cfg-tel').value=cfg.tel;
+  if(cfg.key) document.getElementById('cfg-key').value=cfg.key;
+  if(cfg.logo){const img=document.getElementById('logo-preview');img.src=cfg.logo;img.style.display='block';}
+}
+function saveCfg(){
+  cfg.empresa=document.getElementById('cfg-empresa').value;
+  cfg.web=document.getElementById('cfg-web').value;
+  cfg.email=document.getElementById('cfg-email').value;
+  cfg.tel=document.getElementById('cfg-tel').value;
+  cfg.key=document.getElementById('cfg-key').value;
+  localStorage.setItem('ppto_cfg',JSON.stringify(cfg));
+}
+function uploadLogo(inp){
+  const f=inp.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    cfg.logo=e.target.result;
+    const img=document.getElementById('logo-preview');
+    img.src=cfg.logo; img.style.display='block';
+    saveCfg();
+  };
+  r.readAsDataURL(f);
+}
+function openCfg(){document.getElementById('cfg-overlay').classList.add('open')}
+function closeCfg(){document.getElementById('cfg-overlay').classList.remove('open')}
+function closeCfgIfBg(e){if(e.target===document.getElementById('cfg-overlay'))closeCfg()}
+
+// TABS
+function switchTab(i){
+  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+  document.querySelectorAll('.view').forEach((v,idx)=>v.classList.toggle('active',idx===i));
+  if(i===1)renderConstructor();
+  if(i===2)renderPDF();
+}
+
+// PROS
+function addPro(){pros.push({id:uid(),name:'',specialty:'',partidas:[]});renderPros()}
+function removePro(pid){pros=pros.filter(p=>p.id!==pid);delete lines[pid];renderPros()}
+function addPartida(pid){
+  const p=pros.find(x=>x.id===pid); if(!p)return;
+  const r={id:uid(),name:'',ud:'ud',qty:1,price:0};
+  p.partidas.push(r);
+  if(!lines[pid])lines[pid]={};
+  lines[pid][r.id]={included:true,pct:15};
+  renderPros();
+}
+function removePartida(pid,rid){
+  const p=pros.find(x=>x.id===pid); if(!p)return;
+  p.partidas=p.partidas.filter(r=>r.id!==rid);
+  if(lines[pid])delete lines[pid][rid];
+  delete improved[rid];
+  renderPros();
+}
+function upPro(pid,f,v){const p=pros.find(x=>x.id===pid);if(p)p[f]=v}
+function upPartida(pid,rid,f,v){
+  const p=pros.find(x=>x.id===pid); if(!p)return;
+  const r=p.partidas.find(x=>x.id===rid); if(!r)return;
+  r[f]=(f==='qty'||f==='price')?(parseFloat(v)||0):v;
+  const el=document.querySelector(`[data-sub="${rid}"]`);
+  if(el)el.textContent=fmt(r.qty*r.price);
+}
+function renderPros(){
+  const el=document.getElementById('pro-list');
+  if(!pros.length){el.innerHTML='<div class="empty-card">Aún no has añadido ningún profesional.</div>';return;}
+  el.innerHTML=pros.map(p=>`
+    <div class="pro-card">
+      <div class="pro-card-head">
+        <input value="${esc(p.name)}" placeholder="Nombre del profesional" oninput="upPro('${p.id}','name',this.value)" style="flex:1">
+        <input value="${esc(p.specialty)}" placeholder="Especialidad (ej. electricista)" class="narrow" oninput="upPro('${p.id}','specialty',this.value)">
+        <button class="btn sm danger" onclick="removePro('${p.id}')">Eliminar</button>
+      </div>
+      <div class="pro-card-body">
+        ${p.partidas.length?`
+        <table class="ptable">
+          <thead><tr><th>Descripción</th><th style="width:55px">Ud.</th><th style="width:65px" class="r">Cant.</th><th style="width:85px" class="r">Precio ud.</th><th style="width:85px" class="r">Subtotal</th><th style="width:28px"></th></tr></thead>
+          <tbody>${p.partidas.map(r=>`
+            <tr>
+              <td><input value="${esc(r.name)}" placeholder="Descripción de la partida" oninput="upPartida('${p.id}','${r.id}','name',this.value)"></td>
+              <td><input value="${esc(r.ud)}" style="width:50px" oninput="upPartida('${p.id}','${r.id}','ud',this.value)"></td>
+              <td><input value="${r.qty}" class="r" type="number" min="0" step="0.01" oninput="upPartida('${p.id}','${r.id}','qty',this.value)"></td>
+              <td><input value="${r.price}" class="r" type="number" min="0" step="0.01" oninput="upPartida('${p.id}','${r.id}','price',this.value)"></td>
+              <td class="sub" data-sub="${r.id}">${fmt(r.qty*r.price)}</td>
+              <td><button class="btn-del" onclick="removePartida('${p.id}','${r.id}')">×</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`:`<p style="font-size:13px;color:var(--color-text-tertiary);padding:4px 0 8px">Sin partidas todavía.</p>`}
+        <div class="pro-foot">
+          <button class="btn sm" onclick="addPartida('${p.id}')">+ Añadir partida</button>
+          ${p.partidas.length?`<span style="font-size:12px;color:var(--color-text-tertiary);margin-left:8px">Total: <strong style="color:var(--color-text-primary)">${fmt(p.partidas.reduce((s,r)=>s+r.qty*r.price,0))}</strong></span>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// CONSTRUCTOR
+function getLine(pid,rid){
+  if(!lines[pid])lines[pid]={};
+  if(!lines[pid][rid])lines[pid][rid]={included:true,pct:15};
+  return lines[pid][rid];
+}
+function toggleIncluded(pid,rid){const l=getLine(pid,rid);l.included=!l.included;renderConstructor()}
+function updatePct(pid,rid,v){
+  const l=getLine(pid,rid); l.pct=parseFloat(v)||0;
+  const p=pros.find(x=>x.id===pid);
+  const r=p&&p.partidas.find(x=>x.id===rid);
+  if(r){
+    const el=document.querySelector(`[data-final="${rid}"]`);
+    if(el)el.textContent=l.included?fmt(r.qty*r.price*(1+l.pct/100)):'—';
+  }
+  updateTotbar();
+}
+function acceptImproved(rid){
+  const p=improved[rid]; if(!p)return;
+  pros.forEach(pro=>pro.partidas.forEach(r=>{if(r.id===rid)r.name=p.new}));
+  improved[rid]={...p,accepted:true};
+  renderConstructor();
+}
+function discardImproved(rid){
+  delete improved[rid];
+  renderConstructor();
+}
+
+function renderConstructor(){
+  const el=document.getElementById('con-content');
+  const all=pros.flatMap(p=>p.partidas.map(r=>({...r,pid:p.id,proName:p.name,proSpec:p.specialty})));
+  if(!all.length){el.innerHTML='<div class="empty-card">Añade profesionales y partidas en el paso 1.</div>';document.getElementById('totbar').innerHTML='';return;}
+  let html=`<table class="ctable"><thead><tr>
+    <th>Partida</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Coste</th><th class="r">% honor.</th><th class="r">Mi precio</th><th style="width:36px;text-align:center">Incl.</th>
+  </tr></thead><tbody>`;
+  pros.forEach(p=>{
+    if(!p.partidas.length)return;
+    const proTot=p.partidas.reduce((s,r)=>{const l=getLine(p.id,r.id);return l.included?s+r.qty*r.price*(1+l.pct/100):s},0);
+    html+=`<tr class="ch-row"><td colspan="5">${esc(p.name||'Profesional sin nombre')}${p.specialty?`<span class="pro-badge">${esc(p.specialty)}</span>`:''}</td><td class="cht">${fmt(proTot)}</td><td></td></tr>`;
+    p.partidas.forEach(r=>{
+      const l=getLine(p.id,r.id);
+      const base=r.qty*r.price;
+      const final=base*(1+l.pct/100);
+      const imp=improved[r.id];
+      let nameCell='';
+      if(imp&&!imp.accepted){
+        nameCell=`<span class="txt-orig">${esc(imp.orig)}</span><span class="txt-new">${esc(imp.new)}</span>
+          <div class="txt-actions">
+            <button class="btn sm success" onclick="acceptImproved('${r.id}')">Aceptar</button>
+            <button class="btn sm" onclick="discardImproved('${r.id}')">Descartar</button>
+          </div>`;
+      } else if(imp&&imp.loading){
+        nameCell=`<span class="loading-cell">Mejorando...</span>`;
+      } else {
+        nameCell=esc(r.name)||'<span style="color:var(--color-text-tertiary)">Sin descripción</span>';
+      }
+      html+=`<tr>
+        <td>${nameCell}</td>
+        <td style="color:var(--color-text-tertiary);font-size:12px">${esc(r.ud)}</td>
+        <td class="r" style="color:var(--color-text-secondary)">${r.qty}</td>
+        <td class="r" style="color:var(--color-text-secondary)">${fmt(base)}</td>
+        <td class="r"><input type="number" class="pct-input" value="${l.pct}" min="0" step="0.5" ${!l.included?'disabled':''} onchange="updatePct('${p.id}','${r.id}',this.value)"> <span style="font-size:11px;color:var(--color-text-tertiary)">%</span></td>
+        <td class="price-out${!l.included?' off':''}" data-final="${r.id}">${l.included?fmt(final):'—'}</td>
+        <td style="text-align:center"><input type="checkbox" ${l.included?'checked':''} onchange="toggleIncluded('${p.id}','${r.id}')"></td>
+      </tr>`;
+    });
+  });
+  html+='</tbody></table>';
+  el.innerHTML=html;
+  updateTotbar();
+}
+
+function updateTotbar(){
+  let coste=0,precio=0;
+  pros.forEach(p=>p.partidas.forEach(r=>{
+    const l=getLine(p.id,r.id); if(!l.included)return;
+    const base=r.qty*r.price; coste+=base; precio+=base*(1+l.pct/100);
+  }));
+  document.getElementById('totbar').innerHTML=`
+    <div class="tot-item"><div class="lbl">Coste profesionales</div><div class="val m">${fmt(coste)}</div></div>
+    <div class="tot-item"><div class="lbl">Mi precio al cliente</div><div class="val">${fmt(precio)}</div></div>
+    <div class="tot-item"><div class="lbl">Mis honorarios</div><div class="val g">${fmt(precio-coste)}</div></div>`;
+}
+
+// IA — MEJORAR TEXTOS
+async function mejorarTextos(){
+  const key=cfg.key||document.getElementById('cfg-key').value;
+  if(!key){alert('Introduce tu API key de Anthropic en Configuración.');openCfg();return;}
+  const partidas=[];
+  pros.forEach(p=>p.partidas.forEach(r=>{if(r.name&&r.name.trim())partidas.push({id:r.id,name:r.name})}));
+  if(!partidas.length){document.getElementById('ia-status').textContent='No hay descripciones que mejorar.';return;}
+
+  const btn=document.getElementById('btn-mejorar');
+  btn.disabled=true; btn.textContent='Mejorando...';
+  document.getElementById('ia-status').textContent='Llamando a Claude...';
+
+  partidas.forEach(p=>{improved[p.id]={orig:p.name,new:'',loading:true,accepted:false}});
+  renderConstructor();
+
+  const prompt=`Eres un experto en redacción de presupuestos de construcción y reforma en España. 
+Corrige la ortografía y puntuación, y reescribe cada descripción de partida de forma profesional, clara y concisa, en español. 
+Mantén el significado técnico exacto. No añadas información que no esté en el original.
+Devuelve SOLO un JSON válido con este formato exacto, sin texto adicional:
+{"partidas":[{"id":"xxx","name":"descripción mejorada"},...]}
+
+Partidas a mejorar:
+${JSON.stringify(partidas)}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    if(data.error){throw new Error(data.error.message)}
+    const text=data.content[0].text;
+    const json=JSON.parse(text);
+    json.partidas.forEach(p=>{
+      if(improved[p.id]){improved[p.id]={...improved[p.id],new:p.name,loading:false}}
+    });
+    document.getElementById('ia-status').textContent=`${json.partidas.length} partidas mejoradas. Revisa y acepta los cambios.`;
+  }catch(e){
+    partidas.forEach(p=>{delete improved[p.id]});
+    document.getElementById('ia-status').textContent='Error: '+e.message;
+  }
+  btn.disabled=false; btn.textContent='✦ Mejorar textos con IA';
+  renderConstructor();
+}
+
+// PDF
+function syncHeader(){}
+function getIncluded(){
+  const out=[];
+  pros.forEach(p=>p.partidas.forEach(r=>{
+    const l=getLine(p.id,r.id); if(!l.included)return;
+    out.push({...r,pid:p.id,proName:p.name,proSpec:p.specialty,myPrice:r.qty*r.price*(1+l.pct/100),unitPrice:r.price*(1+l.pct/100)});
+  }));
+  return out;
+}
+function renderPDF(){
+  const cliente=document.getElementById('f-cliente')?.value||'—';
+  const num=document.getElementById('f-num')?.value||'—';
+  const fecha=document.getElementById('f-fecha')?.value||'—';
+  const inc=getIncluded();
+  const el=document.getElementById('pdf-preview');
+  if(!inc.length){el.innerHTML='<div style="padding:24px;text-align:center;color:#aaa">Activa partidas en "Mi presupuesto" para generar el documento.</div>';return;}
+
+  const byPro={};
+  inc.forEach(r=>{const k=r.pid;if(!byPro[k])byPro[k]={proName:r.proName,proSpec:r.proSpec,rows:[]};byPro[k].rows.push(r)});
+  const base=inc.reduce((s,r)=>s+r.myPrice,0);
+  const iva=base*0.21;
+
+  const logoHtml=cfg.logo?`<img src="${cfg.logo}" class="pdf-logo">`:'<div style="font-size:18px;font-weight:700;color:#1a1a1a">'+(cfg.empresa||'Mi Empresa')+'</div>';
+  const company=[cfg.empresa,cfg.web,cfg.email,cfg.tel].filter(Boolean).join('<br>');
+
+  let html=`
+  <div class="pdf-header">
+    <div>${logoHtml}</div>
+    <div class="pdf-company">${company?`<strong>${esc(cfg.empresa||'')}</strong>${esc(cfg.web||'')}${cfg.web?'<br>':''}${esc(cfg.email||'')}${cfg.email?'<br>':''}${esc(cfg.tel||'')}`:''}</div>
+  </div>
+  <div class="pdf-meta">
+    <div class="pdf-client-block">
+      <div class="lbl">Cliente</div>
+      <strong>${esc(cliente)}</strong>
+    </div>
+    <div class="pdf-num-block">
+      <div class="num">Presupuesto ${esc(num)}</div>
+      <div class="fecha">${esc(fecha)}</div>
+    </div>
+  </div>`;
+
+  Object.values(byPro).forEach(ch=>{
+    const chTot=ch.rows.reduce((s,r)=>s+r.myPrice,0);
+    html+=`<div class="pdf-ch-title"><span>${esc(ch.proSpec||ch.proName||'Trabajos').toUpperCase()}</span><span>${fmtPDF(chTot)}</span></div>`;
+    html+=`<div class="pdf-row head"><div>Descripción</div><div class="pdf-row-r">Ud.</div><div class="pdf-row-r">Cant.</div><div class="pdf-row-r">Precio ud.</div><div class="pdf-row-r">Total</div></div>`;
+    ch.rows.forEach(r=>{
+      html+=`<div class="pdf-row">
+        <div class="pdf-row-name">${esc(r.name||'Partida')}</div>
+        <div class="pdf-row-r">${esc(r.ud)}</div>
+        <div class="pdf-row-r">${r.qty}</div>
+        <div class="pdf-row-r">${fmtPDF(r.unitPrice)}</div>
+        <div class="pdf-row-r">${fmtPDF(r.myPrice)}</div>
+      </div>`;
+    });
+  });
+
+  html+=`<div class="pdf-totals">
+    <div class="pdf-tot-row"><span class="pdf-tot-lbl">Base imponible</span><span class="pdf-tot-val">${fmtPDF(base)}</span></div>
+    <div class="pdf-tot-row"><span class="pdf-tot-lbl">IVA 21%</span><span class="pdf-tot-val">${fmtPDF(iva)}</span></div>
+    <div class="pdf-tot-row big"><span class="pdf-tot-lbl">TOTAL</span><span class="pdf-tot-val">${fmtPDF(base+iva)}</span></div>
+  </div>
+  <div class="pdf-footer-note">IVA no incluido en precios unitarios. Validez del presupuesto: 30 días.</div>`;
+
+  el.innerHTML=html;
+}
+function fmtPDF(n){return Number(n).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' \u20ac'}
+
+function printPDF(){
+  const content=document.getElementById('pdf-preview').innerHTML;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Presupuesto</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:32px;max-width:800px;margin:0 auto}
+    .pdf-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #1a1a1a}
+    .pdf-logo{max-height:48px;max-width:140px;object-fit:contain}
+    .pdf-company{text-align:right;font-size:11px;color:#444;line-height:1.6}
+    .pdf-company strong{font-size:13px;color:#111;display:block;margin-bottom:2px}
+    .pdf-meta{display:flex;justify-content:space-between;margin-bottom:20px}
+    .lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+    .pdf-num-block{text-align:right}
+    .num{font-size:18px;font-weight:700;color:#1a1a1a}
+    .fecha{font-size:11px;color:#888;margin-top:2px}
+    .pdf-ch-title{background:#1a1a1a;color:white;padding:6px 10px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;margin-top:14px}
+    .pdf-row{display:grid;grid-template-columns:1fr 48px 48px 80px 80px;gap:6px;padding:6px 10px;border-bottom:0.5px solid #eee;align-items:center;font-size:11px}
+    .pdf-row.head{background:#f5f5f5;font-weight:700;font-size:10px;color:#555}
+    .pdf-row-r{text-align:right}
+    .pdf-totals{margin-top:20px;border-top:2px solid #1a1a1a;padding-top:12px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+    .pdf-tot-row{display:flex;gap:32px;font-size:12px}
+    .pdf-tot-row.big{font-size:15px;font-weight:700}
+    .pdf-tot-lbl{color:#555;min-width:120px;text-align:right}
+    .pdf-tot-val{min-width:80px;text-align:right}
+    .pdf-footer-note{margin-top:16px;font-size:10px;color:#aaa;border-top:0.5px solid #eee;padding-top:8px}
+    @media print{body{padding:16px}}
+  </style></head><body>${content}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+}
+
+document.getElementById('f-fecha')&&(document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0]);
+loadCfg();
+renderPros();
+</script>
