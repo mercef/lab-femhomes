@@ -213,6 +213,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
     </div>
     <div id="con-content"></div>
     <div id="totals-bar"></div>
+    <div id="comentario-wrap" style="margin-top:12px;display:none">
+      <div class="con-header" style="padding:14px 20px">
+        <label style="font-size:10px;font-weight:500;color:#A8A29E;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">Comentario final (visible en el PDF)</label>
+        <textarea id="f-comentario" rows="3" style="width:100%;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;border:0.5px solid #E8E4DE;border-radius:7px;background:#FAFAF8;color:#1C1917;outline:none;resize:vertical;line-height:1.5" placeholder="Ej: Este presupuesto no incluye IVA. Validez 30 d\u00edas. Cualquier trabajo adicional se presupuestar\u00e1 aparte..."></textarea>
+      </div>
+    </div>
   </div>
 
   <div class="view" id="v2">
@@ -403,6 +409,8 @@ function renderTotals(){
   var coste=0,precio=0;
   pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var l=getLine(lineKey(p.id,pr.id,ch.id,r.id));if(!l.included)return;coste+=r.qty*r.price;precio+=r.qty*r.price*(1+l.pct/100)})})})});
   document.getElementById('totals-bar').innerHTML=coste?'<div class="totals-bar"><div class="tot-item"><div class="lbl">Coste profesionales</div><div class="val muted">'+fmt(coste)+'</div></div><div class="tot-divider"></div><div class="tot-item"><div class="lbl">Mi precio al cliente</div><div class="val">'+fmt(precio)+'</div></div><div class="tot-divider"></div><div class="tot-item"><div class="lbl">Mis honorarios</div><div class="val orange">'+fmt(precio-coste)+'</div></div></div>':'';
+  var wrap=document.getElementById('comentario-wrap');
+  if(wrap)wrap.style.display=coste?'block':'none';
 }
 
 function acceptImproved(rid,k){var im=improved[rid];if(!im)return;var l=getLine(k);l.myName=im.new;improved[rid]=Object.assign({},im,{accepted:true});save();renderConstructor()}
@@ -515,6 +523,12 @@ function renderPDF(){
       html+='</table><div style="margin-bottom:12px"></div>';
     });
   });
+
+  // COMENTARIO FINAL
+  var comentario=document.getElementById('f-comentario')&&document.getElementById('f-comentario').value||'';
+  if(comentario){
+    html+='<div style="margin-top:16px;padding:12px 14px;background:#FEF0EB;border-radius:6px;border-left:3px solid '+OG+';font-size:11px;color:#1C1917;line-height:1.6">'+esc(comentario).replace(/\n/g,'<br>')+'</div>';
+  }
 
   // TOTALS
   html+='<div style="border-top:2px solid '+OG+';margin-top:12px;padding-top:14px">';
