@@ -1,4 +1,9 @@
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fem Homes — Presupuestos</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -188,7 +193,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
 .empty-icon{font-size:28px;margin-bottom:8px;display:block;opacity:.4}
 </style>
-
+</head>
+<body>
 <div class="shell">
 
   <!-- HEADER -->
@@ -723,3 +729,5 @@ function printPDF(){
 document.getElementById('f-fecha')&&(document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0]);
 load();loadCfg();renderPros();
 </script>
+</body>
+</html>
