@@ -11,7 +11,7 @@
   --bg:#F7F5F2;--white:#FFFFFF;--surface:#FAFAF8;
   --border:#E8E4DE;--border-strong:#D4CEC6;
   --text:#1C1917;--text-2:#6B6560;--text-3:#A8A29E;
-  --accent:#E8724A;--accent-light:#FEF0EB;--accent-dim:rgba(232,114,74,0.1);
+  --accent:#E8724A;--accent-light:#FEF0EB;--accent-dim:rgba(232,114,74,0.08);
   --danger:#DC2626;--danger-bg:#FEF2F2;
   --success:#16A34A;--success-bg:#F0FDF4;
   --radius:12px;--radius-sm:7px;--radius-lg:16px;
@@ -29,12 +29,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .cfg-panel.open{display:block}
 .cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
 .cfg-field label{font-size:11px;font-weight:500;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px}
-.cfg-field input{width:100%;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
-.cfg-field input:focus{border-color:var(--accent);background:var(--white)}
+.cfg-field input,.cfg-field textarea{width:100%;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+.cfg-field input:focus,.cfg-field textarea:focus{border-color:var(--accent);background:var(--white)}
 .cfg-field input[type=password]{letter-spacing:.1em}
+.cfg-field textarea{resize:vertical;line-height:1.5}
 .cfg-logo-preview{height:40px;margin-top:8px;border-radius:var(--radius-sm);display:none;border:0.5px solid var(--border)}
 .cfg-note{font-size:11px;color:var(--text-3);margin-top:5px}
-.cfg-section{font-family:'Fraunces',serif;font-size:13px;font-weight:400;color:var(--text-2);padding-bottom:10px;border-bottom:0.5px solid var(--border)}
+.cfg-section{font-family:'Fraunces',serif;font-size:13px;font-weight:400;color:var(--text-2);padding-bottom:10px;border-bottom:0.5px solid var(--border);margin-bottom:0}
+.cfg-section-gap{margin-top:20px}
 .tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:24px}
 .tab{padding:10px 18px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-2);margin-bottom:-0.5px;transition:all .15s}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
@@ -141,36 +143,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .pdf-wrap{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden}
 .pdf-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid var(--border);background:var(--surface)}
 .pdf-toolbar h3{font-family:'Fraunces',serif;font-size:15px;font-weight:400;color:var(--text-2)}
-#pdf-doc{padding:36px;font-family:'DM Sans',sans-serif;font-size:12px;color:#111;background:white}
-.pdf-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:2px solid #111;margin-bottom:22px}
-.pdf-logo-img{max-height:44px;max-width:130px;object-fit:contain}
-.pdf-co{text-align:right;font-size:11px;color:#555;line-height:1.7}
-.pdf-co strong{font-size:13px;color:#111;display:block}
-.pdf-meta{display:flex;justify-content:space-between;margin-bottom:22px}
-.pdf-client .lbl2{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:3px}
-.pdf-client strong{font-size:15px;color:#111;display:block}
-.pdf-numblock{text-align:right}
-.pdf-num{font-size:20px;font-weight:700;color:#111}
-.pdf-fecha{font-size:11px;color:#888;margin-top:2px}
-.pdf-ch-block{margin-top:16px}
-.pdf-ch{background:#111;color:white;padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between}
-.pdf-subch{background:#f0f0f0;padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#444;display:flex;justify-content:space-between;margin-top:2px}
-.pdf-row-head{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:5px 10px;background:#f9f9f9;font-size:9px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em}
-.pdf-row{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:6px 10px;border-bottom:0.5px solid #eee;font-size:11px;align-items:start}
-.pdf-row .r{text-align:right;color:#333}
-.pdf-row .name{color:#111;line-height:1.4}
-.pdf-tots{margin-top:20px;border-top:1.5px solid #111;padding-top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
-.pdf-tot-row{display:flex;gap:28px;font-size:12px}
-.pdf-tot-row.big{font-size:15px;font-weight:700}
-.pdf-tot-lbl{color:#666;min-width:110px;text-align:right}
-.pdf-tot-val{min-width:80px;text-align:right;color:#111}
-.pdf-note{margin-top:16px;font-size:9px;color:#bbb;border-top:0.5px solid #eee;padding-top:8px}
+#pdf-doc{padding:36px;font-family:'DM Sans',sans-serif;font-size:12px;color:#1C1917;background:white}
 .empty{padding:32px;text-align:center;color:var(--text-3);font-size:13px}
 .empty-icon{font-size:28px;margin-bottom:8px;display:block;opacity:.4}
 </style>
 </head>
 <body>
-
 <div class="shell">
   <div class="app-header">
     <div class="app-title">Fem Homes <span>Presupuestos</span></div>
@@ -179,7 +157,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
   <div class="cfg-panel" id="cfg-panel">
     <div class="cfg-section">Empresa</div>
-    <div class="cfg-grid">
+    <div class="cfg-grid" style="margin-top:16px">
       <div class="cfg-field" style="grid-column:1/-1">
         <label>Logo</label>
         <input type="file" id="cfg-logo-input" accept="image/*" onchange="uploadLogo(this)">
@@ -190,13 +168,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div class="cfg-field"><label>Web</label><input id="cfg-web" placeholder="www.miempresa.com" oninput="saveCfg()"></div>
       <div class="cfg-field"><label>Email</label><input id="cfg-email" placeholder="info@miempresa.com" oninput="saveCfg()"></div>
       <div class="cfg-field"><label>Tel&eacute;fono</label><input id="cfg-tel" placeholder="+34 600 000 000" oninput="saveCfg()"></div>
+      <div class="cfg-field" style="grid-column:1/-1"><label>N&uacute;mero de cuenta bancaria</label><input id="cfg-cuenta" placeholder="ES00 0000 0000 0000 0000 0000" oninput="saveCfg()"></div>
+      <div class="cfg-field" style="grid-column:1/-1">
+        <label>Condiciones generales del presupuesto</label>
+        <textarea id="cfg-condiciones" rows="6" placeholder="Escribe aqu&iacute; las condiciones generales que aparecer&aacute;n al pie del presupuesto..." oninput="saveCfg()"></textarea>
+      </div>
+    </div>
+    <div class="cfg-section cfg-section-gap">API</div>
+    <div class="cfg-grid" style="margin-top:16px">
       <div class="cfg-field" style="grid-column:1/-1">
         <label>API Key de Anthropic</label>
         <input id="cfg-key" type="password" placeholder="sk-ant-..." oninput="saveCfg()">
         <div class="cfg-note">Se guarda solo en tu navegador. Nunca se env&iacute;a a ning&uacute;n servidor propio.</div>
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+    <div style="display:flex;justify-content:flex-end;margin-top:20px">
       <button class="btn primary" onclick="toggleCfg()">Cerrar</button>
     </div>
   </div>
@@ -243,17 +229,46 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 <script>
 var pros=[],lines={},improved={},cfg={};
 var DEFAULT_PCT=10;
+var ORANGE='#E8724A';
+
 function uid(){return Math.random().toString(36).slice(2,8)}
 function fmt(n){return Number(n).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' \u20ac'}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function initials(n){return (n||'?').trim().charAt(0).toUpperCase()}
+
 function save(){try{localStorage.setItem('fhl_pros3',JSON.stringify(pros));localStorage.setItem('fhl_lines3',JSON.stringify(lines));localStorage.setItem('fhl_imp3',JSON.stringify(improved))}catch(e){}}
 function load(){try{var p=localStorage.getItem('fhl_pros3');if(p)pros=JSON.parse(p);var l=localStorage.getItem('fhl_lines3');if(l)lines=JSON.parse(l);var im=localStorage.getItem('fhl_imp3');if(im)improved=JSON.parse(im)}catch(e){}}
-function loadCfg(){try{cfg=JSON.parse(localStorage.getItem('fhl_cfg')||'{}')}catch(e){cfg={}}if(cfg.empresa)document.getElementById('cfg-empresa').value=cfg.empresa;if(cfg.web)document.getElementById('cfg-web').value=cfg.web;if(cfg.email)document.getElementById('cfg-email').value=cfg.email;if(cfg.tel)document.getElementById('cfg-tel').value=cfg.tel;if(cfg.key)document.getElementById('cfg-key').value=cfg.key;if(cfg.logo){var i=document.getElementById('cfg-logo-preview');i.src=cfg.logo;i.style.display='block'}}
-function saveCfg(){cfg.empresa=document.getElementById('cfg-empresa').value;cfg.web=document.getElementById('cfg-web').value;cfg.email=document.getElementById('cfg-email').value;cfg.tel=document.getElementById('cfg-tel').value;cfg.key=document.getElementById('cfg-key').value;localStorage.setItem('fhl_cfg',JSON.stringify(cfg))}
+
+function loadCfg(){
+  try{cfg=JSON.parse(localStorage.getItem('fhl_cfg2')||'{}')}catch(e){cfg={}}
+  if(cfg.empresa)document.getElementById('cfg-empresa').value=cfg.empresa;
+  if(cfg.web)document.getElementById('cfg-web').value=cfg.web;
+  if(cfg.email)document.getElementById('cfg-email').value=cfg.email;
+  if(cfg.tel)document.getElementById('cfg-tel').value=cfg.tel;
+  if(cfg.cuenta)document.getElementById('cfg-cuenta').value=cfg.cuenta;
+  if(cfg.condiciones)document.getElementById('cfg-condiciones').value=cfg.condiciones;
+  if(cfg.key)document.getElementById('cfg-key').value=cfg.key;
+  if(cfg.logo){var i=document.getElementById('cfg-logo-preview');i.src=cfg.logo;i.style.display='block'}
+}
+function saveCfg(){
+  cfg.empresa=document.getElementById('cfg-empresa').value;
+  cfg.web=document.getElementById('cfg-web').value;
+  cfg.email=document.getElementById('cfg-email').value;
+  cfg.tel=document.getElementById('cfg-tel').value;
+  cfg.cuenta=document.getElementById('cfg-cuenta').value;
+  cfg.condiciones=document.getElementById('cfg-condiciones').value;
+  cfg.key=document.getElementById('cfg-key').value;
+  localStorage.setItem('fhl_cfg2',JSON.stringify(cfg));
+}
 function uploadLogo(inp){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){cfg.logo=e.target.result;var i=document.getElementById('cfg-logo-preview');i.src=cfg.logo;i.style.display='block';saveCfg()};r.readAsDataURL(f)}
 function toggleCfg(){document.getElementById('cfg-panel').classList.toggle('open')}
-function switchTab(i){document.querySelectorAll('.tab').forEach(function(t,idx){t.classList.toggle('active',idx===i)});document.querySelectorAll('.view').forEach(function(v,idx){v.classList.toggle('active',idx===i)});if(i===1)renderConstructor();if(i===2)renderPDF()}
+
+function switchTab(i){
+  document.querySelectorAll('.tab').forEach(function(t,idx){t.classList.toggle('active',idx===i)});
+  document.querySelectorAll('.view').forEach(function(v,idx){v.classList.toggle('active',idx===i)});
+  if(i===1)renderConstructor();if(i===2)renderPDF();
+}
+
 function addPro(){pros.push({id:uid(),name:'',projects:[]});save();renderPros();setTimeout(function(){var ins=document.querySelectorAll('.pro-name-input');if(ins.length)ins[ins.length-1].focus()},50)}
 function removePro(pid){if(!confirm('Eliminar este profesional y todos sus proyectos?'))return;pros=pros.filter(function(p){return p.id!==pid});save();renderPros()}
 function upProName(pid,v){var p=pros.find(function(x){return x.id===pid});if(p){p.name=v;save();document.querySelectorAll('[data-avatar="'+pid+'"]').forEach(function(el){el.textContent=initials(v)})}}
@@ -276,7 +291,7 @@ async function extractPDF(pid,projId,file){
   var stateEl=document.getElementById('es-'+projId);
   if(stateEl)stateEl.innerHTML='<div class="extracting"><div class="spinner"></div>Claude est\u00e1 leyendo el PDF y extrayendo cap\u00edtulos y partidas...</div>';
   var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result.split(',')[1])};r.onerror=rej;r.readAsDataURL(file)});
-  var prompt='Eres un experto en presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nAnaliza este presupuesto en PDF y extrae su estructura completa con cap\u00edtulos y partidas.\nLos cap\u00edtulos son agrupaciones de trabajo (ej: Alba\u00f1iler\u00eda, Electricidad, Fontaner\u00eda, Derribos, Pintura...).\nLas partidas son las l\u00edneas individuales dentro de cada cap\u00edtulo.\n\nDevuelve SOLO un JSON v\u00e1lido, sin texto adicional, con este formato exacto:\n{"chapters":[\n  {"name":"Nombre del cap\u00edtulo","partidas":[\n    {"name":"descripci\u00f3n de la partida","ud":"m\u00b2","qty":1,"price":85.00},\n    ...\n  ]},\n  ...\n]}\n\nSi una partida no pertenece claramente a un cap\u00edtulo, p\u00f3nla en "General".\nSi no encuentras unidad o cantidad, usa "PA" y 1 respectivamente.\nExtrae TODAS las partidas con precio.';
+  var prompt='Eres un experto en presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nAnaliza este presupuesto en PDF y extrae su estructura completa con cap\u00edtulos y partidas.\nLos cap\u00edtulos son agrupaciones de trabajo (ej: Alba\u00f1iler\u00eda, Electricidad, Fontaner\u00eda, Derribos, Pintura...).\nLas partidas son las l\u00edneas individuales dentro de cada cap\u00edtulo.\n\nDevuelve SOLO un JSON v\u00e1lido, sin texto adicional:\n{"chapters":[{"name":"Nombre del cap\u00edtulo","partidas":[{"name":"descripci\u00f3n","ud":"m\u00b2","qty":1,"price":85.00}]}]}\n\nSi una partida no pertenece a un cap\u00edtulo claro, p\u00f3nla en "General".\nSi no encuentras unidad o cantidad usa "PA" y 1. Extrae TODAS las partidas con precio.';
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
     var data=await res.json();
@@ -289,16 +304,19 @@ async function extractPDF(pid,projId,file){
       pr.chapters=(json.chapters||[]).map(function(ch){return{id:uid(),name:ch.name||'General',partidas:(ch.partidas||[]).map(function(pt){return{id:uid(),name:pt.name||'',ud:pt.ud||'PA',qty:parseFloat(pt.qty)||1,price:parseFloat(pt.price)||0}})}});
       save();renderPros();
       var b=document.getElementById('pb-'+projId);var c=document.getElementById('pc-'+projId);
-      if(b){b.classList.add('open')}if(c){c.classList.add('open')}
+      if(b)b.classList.add('open');if(c)c.classList.add('open');
     }
-  }catch(e){if(stateEl)stateEl.innerHTML='<div style="padding:12px;color:var(--danger);font-size:12px">Error al extraer: '+esc(e.message)+'</div>'}
+  }catch(e){if(stateEl)stateEl.innerHTML='<div style="padding:12px;color:#DC2626;font-size:12px">Error al extraer: '+esc(e.message)+'</div>'}
 }
 
 function renderPros(){
   var el=document.getElementById('pro-list');
   if(!pros.length){el.innerHTML='<div class="empty"><span class="empty-icon">&#128119;</span>A\u00f1ade tu primer profesional para empezar.</div>';return;}
   el.innerHTML=pros.map(function(p){
-    return '<div class="pro-card"><div class="pro-card-head"><div class="pro-avatar" data-avatar="'+p.id+'">'+initials(p.name)+'</div><input class="pro-name-input" value="'+esc(p.name)+'" placeholder="Nombre del profesional" oninput="upProName(\''+p.id+'\',this.value)"><button class="btn sm" onclick="addProject(\''+p.id+'\')">+ Proyecto</button><button class="btn-del" onclick="removePro(\''+p.id+'\')">&times;</button></div><div class="pro-card-body">'+(p.projects.length?'<div class="pro-projects">'+p.projects.map(function(pr){return renderProject(p.id,pr)}).join('')+'</div>':'<div style="padding:6px 0;font-size:12px;color:var(--text-3)">Sin proyectos. Pulsa &quot;+ Proyecto&quot; para a\u00f1adir uno.</div>')+'</div></div>';
+    var projectsHtml=p.projects.length
+      ?'<div class="pro-projects">'+p.projects.map(function(pr){return renderProject(p.id,pr)}).join('')+'</div>'
+      :'<div style="padding:6px 0;font-size:12px;color:#A8A29E">Sin proyectos. Pulsa &quot;+ Proyecto&quot; para a\u00f1adir uno.</div>';
+    return '<div class="pro-card"><div class="pro-card-head"><div class="pro-avatar" data-avatar="'+p.id+'">'+initials(p.name)+'</div><input class="pro-name-input" value="'+esc(p.name)+'" placeholder="Nombre del profesional" oninput="upProName(\''+p.id+'\',this.value)"><button class="btn sm" onclick="addProject(\''+p.id+'\')">+ Proyecto</button><button class="btn-del" onclick="removePro(\''+p.id+'\')">&times;</button></div><div class="pro-card-body">'+projectsHtml+'</div></div>';
   }).join('');
 }
 
@@ -307,11 +325,15 @@ function renderProject(pid,pr){
   var totalI=pr.chapters?pr.chapters.reduce(function(s,ch){return s+ch.partidas.reduce(function(ss,r){return ss+r.qty*r.price},0)},0):0;
   var chaptersHtml='';
   if(pr.chapters&&pr.chapters.length){
-    chaptersHtml='<div style="margin-top:12px">'+pr.chapters.map(function(ch){
-      return '<div class="ch-block"><div class="ch-label"><span>'+esc(ch.name)+'</span><span class="ch-label-tot">'+fmt(ch.partidas.reduce(function(s,r){return s+r.qty*r.price},0))+'</span></div><table class="ptable"><thead><tr><th>Descripci\u00f3n</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Precio ud.</th><th class="r">Subtotal</th></tr></thead><tbody>'+ch.partidas.map(function(r){return '<tr><td><input value="'+esc(r.name)+'" placeholder="Descripci\u00f3n" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'name\',this.value)"></td><td><input value="'+esc(r.ud)+'" style="width:44px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'ud\',this.value)"></td><td><input value="'+r.qty+'" class="r" type="number" min="0" step="0.01" style="width:56px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'qty\',this.value)"></td><td><input value="'+r.price+'" class="r" type="number" min="0" step="0.01" style="width:72px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'price\',this.value)"></td><td class="price">'+fmt(r.qty*r.price)+'</td></tr>'}).join('')+'</tbody></table></div>';
-    }).join('')+'<div style="margin-top:10px"><div class="drop-zone" style="padding:12px" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="this.classList.remove(\'drag\');handleDrop(event,\''+pid+'\',\''+pr.id+'\')" onclick="this.querySelector(\'input\').click()"><input type="file" accept="application/pdf" onchange="handleFileSelect(this,\''+pid+'\',\''+pr.id+'\')"><p style="font-size:11px"><strong>Reemplazar PDF</strong> \u2014 nueva versi\u00f3n del presupuesto</p></div></div></div>';
+    var chBlocks=pr.chapters.map(function(ch){
+      var rows=ch.partidas.map(function(r){
+        return '<tr><td><input value="'+esc(r.name)+'" placeholder="Descripci\u00f3n" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'name\',this.value)"></td><td><input value="'+esc(r.ud)+'" style="width:44px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'ud\',this.value)"></td><td><input value="'+r.qty+'" class="r" type="number" min="0" step="0.01" style="width:56px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'qty\',this.value)"></td><td><input value="'+r.price+'" class="r" type="number" min="0" step="0.01" style="width:72px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'price\',this.value)"></td><td class="price">'+fmt(r.qty*r.price)+'</td></tr>';
+      }).join('');
+      return '<div class="ch-block"><div class="ch-label"><span>'+esc(ch.name)+'</span><span class="ch-label-tot">'+fmt(ch.partidas.reduce(function(s,r){return s+r.qty*r.price},0))+'</span></div><table class="ptable"><thead><tr><th>Descripci\u00f3n</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Precio ud.</th><th class="r">Subtotal</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    }).join('');
+    chaptersHtml='<div style="margin-top:12px">'+chBlocks+'<div style="margin-top:10px"><div class="drop-zone" style="padding:12px" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="this.classList.remove(\'drag\');handleDrop(event,\''+pid+'\',\''+pr.id+'\')" onclick="this.querySelector(\'input\').click()"><input type="file" accept="application/pdf" onchange="handleFileSelect(this,\''+pid+'\',\''+pr.id+'\')"><p style="font-size:11px"><strong>Reemplazar PDF</strong> &mdash; nueva versi\u00f3n del presupuesto</p></div></div></div>';
   }
-  return '<div class="project-row"><div class="project-head" onclick="toggleProject(\''+pid+'\',\''+pr.id+'\')"><span class="project-chevron" id="pc-'+pr.id+'">\u25b6</span><input style="flex:1;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--text);outline:none;cursor:pointer;font-family:\'DM Sans\',sans-serif" value="'+esc(pr.name)+'" onclick="event.stopPropagation()" oninput="upProjectName(\''+pid+'\',\''+pr.id+'\',this.value)">'+(totalP?'<span class="project-badge">'+totalP+' partidas \u00b7 '+fmt(totalI)+'</span>':'')+'<button class="btn-del" onclick="event.stopPropagation();removeProject(\''+pid+'\',\''+pr.id+'\')">&times;</button></div><div class="project-body" id="pb-'+pr.id+'"><div id="es-'+pr.id+'"><div class="drop-zone" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="this.classList.remove(\'drag\');handleDrop(event,\''+pid+'\',\''+pr.id+'\')" onclick="this.querySelector(\'input\').click()"><input type="file" accept="application/pdf" onchange="handleFileSelect(this,\''+pid+'\',\''+pr.id+'\')"><span class="drop-zone-icon">&#128196;</span><p><strong>Sube el PDF</strong> del presupuesto o arr\u00e1stralo aqu\u00ed</p><p style="margin-top:4px;font-size:11px;color:var(--text-3)">Claude extraer\u00e1 cap\u00edtulos y partidas autom\u00e1ticamente</p></div></div>'+chaptersHtml+'</div></div>';
+  return '<div class="project-row"><div class="project-head" onclick="toggleProject(\''+pid+'\',\''+pr.id+'\')"><span class="project-chevron" id="pc-'+pr.id+'">\u25b6</span><input style="flex:1;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--text);outline:none;cursor:pointer;font-family:\'DM Sans\',sans-serif" value="'+esc(pr.name)+'" onclick="event.stopPropagation()" oninput="upProjectName(\''+pid+'\',\''+pr.id+'\',this.value)">'+(totalP?'<span class="project-badge">'+totalP+' partidas &middot; '+fmt(totalI)+'</span>':'')+'<button class="btn-del" onclick="event.stopPropagation();removeProject(\''+pid+'\',\''+pr.id+'\')">&times;</button></div><div class="project-body" id="pb-'+pr.id+'"><div id="es-'+pr.id+'"><div class="drop-zone" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="this.classList.remove(\'drag\');handleDrop(event,\''+pid+'\',\''+pr.id+'\')" onclick="this.querySelector(\'input\').click()"><input type="file" accept="application/pdf" onchange="handleFileSelect(this,\''+pid+'\',\''+pr.id+'\')"><span class="drop-zone-icon">&#128196;</span><p><strong>Sube el PDF</strong> del presupuesto o arr\u00e1stralo aqu\u00ed</p><p style="margin-top:4px;font-size:11px;color:#A8A29E">Claude extraer\u00e1 cap\u00edtulos y partidas autom\u00e1ticamente</p></div></div>'+chaptersHtml+'</div></div>';
 }
 
 function renderConstructor(){
@@ -333,13 +355,13 @@ function renderConstructor(){
           var base=r.qty*r.price;var final=base*(1+l.pct/100);
           var im=improved[r.id];var nameCell='';
           if(im&&!im.accepted&&im.new){
-            nameCell='<span class="txt-orig">'+esc(im.orig)+'</span><textarea class="name-edit" rows="2" onchange="updateNameInLine(\''+p.id+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',this.value)">'+esc(im.new)+'</textarea><div class="txt-actions"><button class="btn sm" style="background:var(--success-bg);color:var(--success);border-color:var(--success)" onclick="acceptImproved(\''+r.id+'\')">Aceptar</button><button class="btn sm ghost" onclick="discardImproved(\''+r.id+'\')">Descartar</button></div>';
+            nameCell='<span class="txt-orig">'+esc(im.orig)+'</span><textarea class="name-edit" rows="2" onchange="updateNameInLine(\''+p.id+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',this.value)">'+esc(im.new)+'</textarea><div class="txt-actions"><button class="btn sm" style="background:#F0FDF4;color:#16A34A;border-color:#16A34A" onclick="acceptImproved(\''+r.id+'\')">Aceptar</button><button class="btn sm ghost" onclick="discardImproved(\''+r.id+'\')">Descartar</button></div>';
           }else if(im&&im.loading){
-            nameCell='<span style="font-size:11px;color:var(--text-3);font-style:italic">Mejorando...</span>';
+            nameCell='<span style="font-size:11px;color:#A8A29E;font-style:italic">Mejorando...</span>';
           }else{
             nameCell='<textarea class="name-edit" rows="'+(r.name&&r.name.length>60?2:1)+'" onchange="updateNameInLine(\''+p.id+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',this.value)">'+esc(r.name||'')+'</textarea>';
           }
-          html+='<tr><td style="min-width:200px">'+nameCell+'</td><td style="color:var(--text-3);font-size:11px">'+esc(r.ud)+'</td><td class="r" style="color:var(--text-2)">'+r.qty+'</td><td class="r" style="color:var(--text-2)">'+fmt(base)+'</td><td class="r"><div class="pct-wrap"><input type="number" class="pct-input" value="'+l.pct+'" min="0" step="0.5" '+(l.included?'':'disabled')+' onchange="updatePct(\''+k+'\',this.value)"><span class="pct-sym">%</span></div></td><td class="price'+(l.included?'':' off')+'">'+(l.included?fmt(final):'&mdash;')+'</td><td class="check-cell"><input type="checkbox" '+(l.included?'checked':'')+' onchange="toggleIncluded(\''+k+'\')"></td></tr>';
+          html+='<tr><td style="min-width:200px">'+nameCell+'</td><td style="color:#A8A29E;font-size:11px">'+esc(r.ud)+'</td><td class="r" style="color:#6B6560">'+r.qty+'</td><td class="r" style="color:#6B6560">'+fmt(base)+'</td><td class="r"><div class="pct-wrap"><input type="number" class="pct-input" value="'+l.pct+'" min="0" step="0.5" '+(l.included?'':'disabled')+' onchange="updatePct(\''+k+'\',this.value)"><span class="pct-sym">%</span></div></td><td class="price'+(l.included?'':' off')+'">'+(l.included?fmt(final):'&mdash;')+'</td><td class="check-cell"><input type="checkbox" '+(l.included?'checked':'')+' onchange="toggleIncluded(\''+k+'\')"></td></tr>';
         });
         html+='</tbody></table></div>';
       });
@@ -376,10 +398,7 @@ async function mejorarTextos(){
     var json=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
     json.partidas.forEach(function(p){if(improved[p.id])improved[p.id]=Object.assign({},improved[p.id],{new:p.name,loading:false})});
     document.getElementById('ia-status').textContent=json.partidas.length+' partidas mejoradas. Revisa y acepta.';
-  }catch(e){
-    partidas.forEach(function(p){delete improved[p.id]});
-    document.getElementById('ia-status').textContent='Error: '+e.message;
-  }
+  }catch(e){partidas.forEach(function(p){delete improved[p.id]});document.getElementById('ia-status').textContent='Error: '+e.message;}
   btn.disabled=false;btn.textContent='\u2726 Mejorar textos con IA';
   save();renderConstructor();
 }
@@ -394,26 +413,103 @@ function renderPDF(){
   var cliente=document.getElementById('f-cliente')&&document.getElementById('f-cliente').value||'\u2014';
   var num=document.getElementById('f-num')&&document.getElementById('f-num').value||'\u2014';
   var fecha=document.getElementById('f-fecha')&&document.getElementById('f-fecha').value||'\u2014';
-  var inc=getIncluded();var el=document.getElementById('pdf-doc');
+  var inc=getIncluded();
+  var el=document.getElementById('pdf-doc');
   if(!inc.length){el.innerHTML='<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">Activa partidas en &quot;Mi presupuesto&quot; para generar el documento.</div>';return;}
+
   var byProj={};
-  inc.forEach(function(r){var pk=r.pid+'__'+r.projName;if(!byProj[pk])byProj[pk]={proName:r.proName,projName:r.projName,chapters:{}};if(!byProj[pk].chapters[r.chName])byProj[pk].chapters[r.chName]=[];byProj[pk].chapters[r.chName].push(r)});
-  var base=inc.reduce(function(s,r){return s+r.myPrice},0);var iva=base*.21;
-  var logoHtml=cfg.logo?'<img src="'+cfg.logo+'" class="pdf-logo-img">':'<div style="font-size:16px;font-weight:700;color:#111">'+esc(cfg.empresa||'Mi Empresa')+'</div>';
-  var coInfo=[cfg.web,cfg.email,cfg.tel].filter(Boolean).join('<br>');
-  var html='<div class="pdf-hdr"><div>'+logoHtml+'</div><div class="pdf-co">'+(cfg.empresa?'<strong>'+esc(cfg.empresa)+'</strong>':'')+'<span>'+coInfo+'</span></div></div><div class="pdf-meta"><div class="pdf-client"><div class="lbl2">Cliente</div><strong>'+esc(cliente)+'</strong></div><div class="pdf-numblock"><div class="pdf-num">Presupuesto '+esc(num)+'</div><div class="pdf-fecha">'+esc(fecha)+'</div></div></div>';
+  inc.forEach(function(r){
+    var pk=r.pid+'__'+r.projName;
+    if(!byProj[pk])byProj[pk]={proName:r.proName,projName:r.projName,chapters:{}};
+    if(!byProj[pk].chapters[r.chName])byProj[pk].chapters[r.chName]=[];
+    byProj[pk].chapters[r.chName].push(r);
+  });
+
+  var base=inc.reduce(function(s,r){return s+r.myPrice},0);
+  var iva=base*0.21;
+  var logoHtml=cfg.logo?'<img src="'+cfg.logo+'" style="max-height:52px;max-width:150px;object-fit:contain">':'';
+  var empresa=cfg.empresa||'Fem Homes';
+  var coInfo=[cfg.web,cfg.email,cfg.tel].filter(Boolean).join(' &nbsp;|&nbsp; ');
+
+  var OG=ORANGE;
+
+  var html='';
+
+  // HEADER
+  html+='<table style="width:100%;border-collapse:collapse;margin-bottom:28px"><tr>';
+  html+='<td style="vertical-align:top">'+logoHtml+'<div style="font-family:Georgia,serif;font-size:20px;font-weight:400;color:'+OG+';margin-top:'+(cfg.logo?'8px':'0')+'">'+esc(empresa)+'</div>';
+  if(coInfo)html+='<div style="font-size:10px;color:#888;margin-top:4px">'+coInfo+'</div>';
+  html+='</td>';
+  html+='<td style="vertical-align:top;text-align:right">';
+  html+='<div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Presupuesto</div>';
+  html+='<div style="font-size:22px;font-weight:700;color:#1C1917">'+esc(num)+'</div>';
+  html+='<div style="font-size:11px;color:#888;margin-top:4px">'+esc(fecha)+'</div>';
+  html+='<div style="margin-top:10px;font-size:11px;color:#555"><span style="color:#999;font-size:10px;text-transform:uppercase;letter-spacing:.06em">Cliente</span><br><strong style="font-size:14px;color:#1C1917">'+esc(cliente)+'</strong></div>';
+  html+='</td></tr></table>';
+
+  // DIVIDER
+  html+='<div style="border-top:2px solid '+OG+';margin-bottom:20px"></div>';
+
+  // CHAPTERS
   Object.values(byProj).forEach(function(proj){
     var projTot=Object.values(proj.chapters).reduce(function(s,rows){return s+rows.reduce(function(ss,r){return ss+r.myPrice},0)},0);
-    html+='<div class="pdf-ch-block"><div class="pdf-ch"><span>'+esc(proj.proName||proj.projName).toUpperCase()+'</span><span>'+fmtP(projTot)+'</span></div>';
+
+    // Pro row
+    html+='<table style="width:100%;border-collapse:collapse;margin-bottom:4px"><tr>';
+    html+='<td style="font-size:12px;font-weight:700;color:'+OG+';padding:6px 0;text-transform:uppercase;letter-spacing:.06em">'+esc(proj.proName||proj.projName)+'</td>';
+    html+='<td style="text-align:right;font-size:12px;font-weight:700;color:'+OG+'">'+fmtP(projTot)+'</td>';
+    html+='</tr></table>';
+
     Object.entries(proj.chapters).forEach(function(entry){
       var chName=entry[0],rows=entry[1];
       var chTot=rows.reduce(function(s,r){return s+r.myPrice},0);
-      html+='<div class="pdf-subch"><span>'+esc(chName)+'</span><span>'+fmtP(chTot)+'</span></div><div class="pdf-row-head"><div>Descripci\u00f3n</div><div style="text-align:right">Ud.</div><div style="text-align:right">Cant.</div><div style="text-align:right">Precio ud.</div><div style="text-align:right">Total</div></div>';
-      rows.forEach(function(r){html+='<div class="pdf-row"><div class="name">'+esc(r.name||'Partida')+'</div><div class="r">'+esc(r.ud)+'</div><div class="r">'+r.qty+'</div><div class="r">'+fmtP(r.unitPrice)+'</div><div class="r">'+fmtP(r.myPrice)+'</div></div>'});
+
+      // Chapter header row — light orange bg
+      html+='<table style="width:100%;border-collapse:collapse;margin-bottom:0">';
+      html+='<tr style="background:rgba(232,114,74,0.08)">';
+      html+='<td style="padding:6px 8px;font-size:11px;font-weight:700;color:'+OG+';text-transform:uppercase;letter-spacing:.06em;border-top:0.5px solid rgba(232,114,74,0.2)">'+esc(chName)+'</td>';
+      html+='<td style="padding:6px 8px;text-align:right;font-size:11px;font-weight:700;color:'+OG+';border-top:0.5px solid rgba(232,114,74,0.2)" colspan="4">'+fmtP(chTot)+'</td>';
+      html+='</tr>';
+
+      // Column headers
+      html+='<tr style="background:#F7F5F2"><td style="padding:5px 8px;font-size:9px;font-weight:700;color:#A8A29E;text-transform:uppercase;letter-spacing:.06em">Descripci\u00f3n</td><td style="padding:5px 8px;font-size:9px;font-weight:700;color:#A8A29E;text-transform:uppercase;letter-spacing:.06em;text-align:right;width:40px">Ud.</td><td style="padding:5px 8px;font-size:9px;font-weight:700;color:#A8A29E;text-transform:uppercase;letter-spacing:.06em;text-align:right;width:44px">Cant.</td><td style="padding:5px 8px;font-size:9px;font-weight:700;color:#A8A29E;text-transform:uppercase;letter-spacing:.06em;text-align:right;width:80px">Precio ud.</td><td style="padding:5px 8px;font-size:9px;font-weight:700;color:#A8A29E;text-transform:uppercase;letter-spacing:.06em;text-align:right;width:80px">Total</td></tr>';
+
+      // Partida rows
+      rows.forEach(function(r,i){
+        var bg=i%2===0?'#fff':'#FAFAF8';
+        html+='<tr style="background:'+bg+';border-bottom:0.5px solid #F0EDE8">';
+        html+='<td style="padding:6px 8px;font-size:11px;color:#1C1917;line-height:1.4">'+esc(r.name||'Partida')+'</td>';
+        html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+esc(r.ud)+'</td>';
+        html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+r.qty+'</td>';
+        html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+fmtP(r.unitPrice)+'</td>';
+        html+='<td style="padding:6px 8px;font-size:11px;color:#1C1917;text-align:right;font-weight:500">'+fmtP(r.myPrice)+'</td>';
+        html+='</tr>';
+      });
+      html+='</table><div style="margin-bottom:12px"></div>';
     });
-    html+='</div>';
   });
-  html+='<div class="pdf-tots"><div class="pdf-tot-row"><span class="pdf-tot-lbl">Base imponible</span><span class="pdf-tot-val">'+fmtP(base)+'</span></div><div class="pdf-tot-row"><span class="pdf-tot-lbl">IVA 21%</span><span class="pdf-tot-val">'+fmtP(iva)+'</span></div><div class="pdf-tot-row big"><span class="pdf-tot-lbl">TOTAL</span><span class="pdf-tot-val">'+fmtP(base+iva)+'</span></div></div><div class="pdf-note">IVA no incluido en precios unitarios. Validez del presupuesto: 30 d\u00edas.</div>';
+
+  // TOTALS
+  html+='<div style="border-top:2px solid '+OG+';margin-top:12px;padding-top:14px">';
+  html+='<table style="width:100%;border-collapse:collapse"><tr>';
+  html+='<td style="font-size:11px;color:#888">IVA no incluido en precios unitarios.</td>';
+  html+='<td style="text-align:right;min-width:280px">';
+  html+='<table style="border-collapse:collapse;float:right">';
+  html+='<tr><td style="padding:3px 0;font-size:12px;color:#6B6560;padding-right:24px">Base imponible</td><td style="padding:3px 0;font-size:12px;color:#1C1917;text-align:right;min-width:90px">'+fmtP(base)+'</td></tr>';
+  html+='<tr><td style="padding:3px 0;font-size:12px;color:#6B6560;padding-right:24px">IVA 21%</td><td style="padding:3px 0;font-size:12px;color:#1C1917;text-align:right">'+fmtP(iva)+'</td></tr>';
+  html+='<tr style="border-top:0.5px solid #D4CEC6"><td style="padding:6px 0 0;font-size:14px;font-weight:700;color:'+OG+';padding-right:24px">TOTAL</td><td style="padding:6px 0 0;font-size:14px;font-weight:700;color:'+OG+';text-align:right">'+fmtP(base+iva)+'</td></tr>';
+  html+='</table></td></tr></table></div>';
+
+  // CUENTA Y CONDICIONES
+  if(cfg.cuenta){
+    html+='<div style="margin-top:20px;padding:12px 14px;background:#F7F5F2;border-radius:6px;font-size:11px;color:#6B6560">';
+    html+='<span style="font-weight:600;color:#1C1917">Transferencia bancaria: </span>'+esc(cfg.cuenta);
+    html+='</div>';
+  }
+  if(cfg.condiciones){
+    html+='<div style="margin-top:14px;font-size:10px;color:#A8A29E;line-height:1.6;border-top:0.5px solid #E8E4DE;padding-top:12px">'+esc(cfg.condiciones).replace(/\n/g,'<br>')+'</div>';
+  }
+
   el.innerHTML=html;
 }
 
@@ -422,7 +518,7 @@ function fmtP(n){return Number(n).toLocaleString('es-ES',{minimumFractionDigits:
 function printPDF(){
   var content=document.getElementById('pdf-doc').innerHTML;
   var w=window.open('','_blank');
-  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Presupuesto</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:32px;max-width:820px;margin:0 auto}.pdf-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:2px solid #111;margin-bottom:22px}.pdf-logo-img{max-height:44px;max-width:130px;object-fit:contain}.pdf-co{text-align:right;font-size:11px;color:#555;line-height:1.7}.pdf-co strong{font-size:13px;color:#111;display:block}.pdf-meta{display:flex;justify-content:space-between;margin-bottom:22px}.lbl2{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:3px}.pdf-client strong{font-size:15px;color:#111;display:block}.pdf-numblock{text-align:right}.pdf-num{font-size:20px;font-weight:700;color:#111}.pdf-fecha{font-size:11px;color:#888;margin-top:2px}.pdf-ch-block{margin-top:16px}.pdf-ch{background:#111;color:white;padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;justify-content:space-between}.pdf-subch{background:#f0f0f0;padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#444;display:flex;justify-content:space-between;margin-top:2px}.pdf-row-head{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:5px 10px;background:#f9f9f9;font-size:9px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em}.pdf-row{display:grid;grid-template-columns:1fr 44px 44px 76px 80px;gap:4px;padding:6px 10px;border-bottom:0.5px solid #eee;font-size:11px;align-items:start}.r{text-align:right;color:#333}.name{color:#111;line-height:1.4}.pdf-tots{margin-top:20px;border-top:1.5px solid #111;padding-top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:5px}.pdf-tot-row{display:flex;gap:28px;font-size:12px}.pdf-tot-row.big{font-size:15px;font-weight:700}.pdf-tot-lbl{color:#666;min-width:110px;text-align:right}.pdf-tot-val{min-width:80px;text-align:right;color:#111}.pdf-note{margin-top:16px;font-size:9px;color:#bbb;border-top:0.5px solid #eee;padding-top:8px}@media print{body{padding:16px}}</style></head><body>'+content+'</body></html>');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Presupuesto</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:12px;color:#1C1917;padding:32px;max-width:820px;margin:0 auto}table{border-collapse:collapse}@media print{body{padding:16px}}</style></head><body>'+content+'</body></html>');
   w.document.close();setTimeout(function(){w.print()},400);
 }
 
