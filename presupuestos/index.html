@@ -278,10 +278,12 @@ function toggleProject(pid,projId){var b=document.getElementById('pb-'+projId);v
 function upProjectName(pid,projId,v){var p=pros.find(function(x){return x.id===pid});if(!p)return;var pr=p.projects.find(function(x){return x.id===projId});if(pr){pr.name=v;save()}}
 function upPartida(pid,projId,chId,rid,f,v){var p=pros.find(function(x){return x.id===pid});if(!p)return;var pr=p.projects.find(function(x){return x.id===projId});if(!pr)return;var ch=pr.chapters&&pr.chapters.find(function(x){return x.id===chId});if(!ch)return;var r=ch.partidas.find(function(x){return x.id===rid});if(!r)return;r[f]=(f==='qty'||f==='price')?(parseFloat(v)||0):v;save()}
 function lineKey(pid,projId,chId,rid){return pid+'__'+projId+'__'+chId+'__'+rid}
-function getLine(k){if(!lines[k])lines[k]={included:true,pct:DEFAULT_PCT,myName:null};return lines[k]}
+function getLine(k){if(!lines[k])lines[k]={included:true,pct:DEFAULT_PCT,myName:null,myDesc:null,inclDesc:true};return lines[k]}
 function toggleIncluded(k){var l=getLine(k);l.included=!l.included;save();renderConstructor()}
 function updatePct(k,v){var l=getLine(k);l.pct=parseFloat(v)||0;save();renderConstructor()}
 function updateNameInLine(k,v){var l=getLine(k);l.myName=v;save()}
+function updateDescInLine(k,v){var l=getLine(k);l.myDesc=v;save()}
+function toggleInclDesc(k){var l=getLine(k);l.inclDesc=!l.inclDesc;save();renderConstructor()}
 function handleDrop(e,pid,projId){e.preventDefault();var f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')extractPDF(pid,projId,f)}
 function handleFileSelect(inp,pid,projId){var f=inp.files[0];if(f)extractPDF(pid,projId,f)}
 
@@ -289,11 +291,11 @@ async function extractPDF(pid,projId,file){
   var key=cfg.key||'';
   if(!key){alert('Introduce tu API key en Configuraci\u00f3n.');toggleCfg();return;}
   var stateEl=document.getElementById('es-'+projId);
-  if(stateEl)stateEl.innerHTML='<div class="extracting"><div class="spinner"></div>Claude est\u00e1 leyendo el PDF y extrayendo cap\u00edtulos y partidas...</div>';
+  if(stateEl)stateEl.innerHTML='<div class="extracting"><div class="spinner"></div>Claude est\u00e1 leyendo el PDF y extrayendo cap\u00edtulos, partidas y descripciones...</div>';
   var b64=await new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result.split(',')[1])};r.onerror=rej;r.readAsDataURL(file)});
-  var prompt='Eres un experto en presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nAnaliza este presupuesto en PDF y extrae su estructura completa con cap\u00edtulos y partidas.\nLos cap\u00edtulos son agrupaciones de trabajo (ej: Alba\u00f1iler\u00eda, Electricidad, Fontaner\u00eda, Derribos, Pintura...).\nLas partidas son las l\u00edneas individuales dentro de cada cap\u00edtulo.\n\nDevuelve SOLO un JSON v\u00e1lido, sin texto adicional:\n{"chapters":[{"name":"Nombre del cap\u00edtulo","partidas":[{"name":"descripci\u00f3n","ud":"m\u00b2","qty":1,"price":85.00}]}]}\n\nSi una partida no pertenece a un cap\u00edtulo claro, p\u00f3nla en "General".\nSi no encuentras unidad o cantidad usa "PA" y 1. Extrae TODAS las partidas con precio.';
+  var prompt='Eres un experto en presupuestos de construcci\u00f3n y reforma en Espa\u00f1a.\nAnaliza este presupuesto PDF y extrae su estructura completa en 3 niveles:\n\n1. CAP\u00cdTULOS: agrupaciones principales (Alba\u00f1iler\u00eda, Electricidad, Fontaner\u00eda, Derribos, Pintura, Pladur...)\n2. PARTIDAS: cada l\u00ednea con precio unitario, cantidad y total dentro de un cap\u00edtulo\n3. DESCRIPCI\u00d3N: todas las l\u00edneas de texto sin precio que aparecen debajo de una partida (son el detalle de esa partida). Unc\u00e9talas en un solo texto separado por saltos de l\u00ednea.\n\nIMPORTANTE:\n- Extrae TODAS las partidas, tengan o no descripci\u00f3n debajo\n- Las l\u00edneas de texto puro sin precio son siempre descripci\u00f3n de la partida anterior\n- Si no hay precio, cantidad o unidad, usa price:0, qty:1, ud:"PA"\n- Si una partida no tiene cap\u00edtulo claro, ponla en "General"\n\nDevuelve SOLO un JSON v\u00e1lido sin texto adicional:\n{"chapters":[{"name":"Nombre cap\u00edtulo","partidas":[{"name":"t\u00edtulo de la partida","ud":"m\u00b2","qty":1,"price":85.00,"description":"texto descriptivo completo de la partida, puede ser varias l\u00edneas"}]}]}';
   try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:6000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
     var data=await res.json();
     if(data.error)throw new Error(data.error.message);
     var clean=data.content[0].text.replace(/```json|```/g,'').trim();
@@ -301,7 +303,7 @@ async function extractPDF(pid,projId,file){
     var p=pros.find(function(x){return x.id===pid});
     var pr=p&&p.projects.find(function(x){return x.id===projId});
     if(pr){
-      pr.chapters=(json.chapters||[]).map(function(ch){return{id:uid(),name:ch.name||'General',partidas:(ch.partidas||[]).map(function(pt){return{id:uid(),name:pt.name||'',ud:pt.ud||'PA',qty:parseFloat(pt.qty)||1,price:parseFloat(pt.price)||0}})}});
+      pr.chapters=(json.chapters||[]).map(function(ch){return{id:uid(),name:ch.name||'General',partidas:(ch.partidas||[]).map(function(pt){return{id:uid(),name:pt.name||'',ud:pt.ud||'PA',qty:parseFloat(pt.qty)||1,price:parseFloat(pt.price)||0,description:pt.description||''}})}});
       save();renderPros();
       var b=document.getElementById('pb-'+projId);var c=document.getElementById('pc-'+projId);
       if(b)b.classList.add('open');if(c)c.classList.add('open');
@@ -327,7 +329,7 @@ function renderProject(pid,pr){
   if(pr.chapters&&pr.chapters.length){
     var chBlocks=pr.chapters.map(function(ch){
       var rows=ch.partidas.map(function(r){
-        return '<tr><td><input value="'+esc(r.name)+'" placeholder="Descripci\u00f3n" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'name\',this.value)"></td><td><input value="'+esc(r.ud)+'" style="width:44px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'ud\',this.value)"></td><td><input value="'+r.qty+'" class="r" type="number" min="0" step="0.01" style="width:56px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'qty\',this.value)"></td><td><input value="'+r.price+'" class="r" type="number" min="0" step="0.01" style="width:72px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'price\',this.value)"></td><td class="price">'+fmt(r.qty*r.price)+'</td></tr>';
+        return '<tr><td><input value="'+esc(r.name)+'" placeholder="T\u00edtulo" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'name\',this.value)" style="font-weight:500"><br><textarea style="width:100%;font-size:11px;color:#6B6560;border:0.5px solid transparent;border-radius:4px;background:transparent;resize:none;font-family:\'DM Sans\',sans-serif;margin-top:3px;padding:2px 4px;outline:none;line-height:1.4" rows="2" placeholder="Descripci\u00f3n (opcional)" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'description\',this.value)">'+esc(r.description||'')+'</textarea></td><td><input value="'+esc(r.ud)+'" style="width:44px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'ud\',this.value)"></td><td><input value="'+r.qty+'" class="r" type="number" min="0" step="0.01" style="width:56px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'qty\',this.value)"></td><td><input value="'+r.price+'" class="r" type="number" min="0" step="0.01" style="width:72px" oninput="upPartida(\''+pid+'\',\''+pr.id+'\',\''+ch.id+'\',\''+r.id+'\',\'price\',this.value)"></td><td class="price">'+fmt(r.qty*r.price)+'</td></tr>';
       }).join('');
       return '<div class="ch-block"><div class="ch-label"><span>'+esc(ch.name)+'</span><span class="ch-label-tot">'+fmt(ch.partidas.reduce(function(s,r){return s+r.qty*r.price},0))+'</span></div><table class="ptable"><thead><tr><th>Descripci\u00f3n</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Precio ud.</th><th class="r">Subtotal</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
     }).join('');
@@ -355,15 +357,24 @@ function renderConstructor(){
           var base=r.qty*r.price;var final=base*(1+l.pct/100);
           var im=improved[r.id];
           var displayName=l.myName!==null&&l.myName!==undefined?l.myName:r.name;
+          var displayDesc=l.myDesc!==null&&l.myDesc!==undefined?l.myDesc:(r.description||'');
+          var inclDesc=l.inclDesc!==false;
           var nameCell='';
           if(im&&!im.accepted&&im.new){
             nameCell='<div style="font-size:10px;color:#A8A29E;margin-bottom:3px;font-style:italic">Original: '+esc(r.name)+'</div><textarea class="name-edit" rows="2" onchange="updateNameInLine(\''+k+'\',this.value)">'+esc(im.new)+'</textarea><div class="txt-actions"><button class="btn sm" style="background:#F0FDF4;color:#16A34A;border-color:#16A34A" onclick="acceptImproved(\''+r.id+'\',\''+k+'\')">Aceptar</button><button class="btn sm ghost" onclick="discardImproved(\''+r.id+'\')">Descartar</button></div>';
           }else if(im&&im.loading){
             nameCell='<div style="font-size:10px;color:#A8A29E;margin-bottom:3px;font-style:italic">Original: '+esc(r.name)+'</div><span style="font-size:11px;color:#A8A29E;font-style:italic">Mejorando...</span>';
           }else{
-            nameCell=(l.myName!==null&&l.myName!==undefined&&l.myName!==r.name?'<div style="font-size:10px;color:#A8A29E;margin-bottom:3px;font-style:italic">Original: '+esc(r.name)+'</div>':'')+'<textarea class="name-edit" rows="'+(displayName&&displayName.length>60?2:1)+'" onchange="updateNameInLine(\''+k+'\',this.value)">'+esc(displayName)+'</textarea>';
+            nameCell=(l.myName!==null&&l.myName!==undefined&&l.myName!==r.name?'<div style="font-size:10px;color:#A8A29E;margin-bottom:2px;font-style:italic">Original: '+esc(r.name)+'</div>':'')+'<textarea class="name-edit" style="font-weight:500" rows="'+(displayName&&displayName.length>60?2:1)+'" onchange="updateNameInLine(\''+k+'\',this.value)">'+esc(displayName)+'</textarea>';
           }
-          html+='<tr><td style="min-width:200px">'+nameCell+'</td><td style="color:#A8A29E;font-size:11px">'+esc(r.ud)+'</td><td class="r" style="color:#6B6560">'+r.qty+'</td><td class="r" style="color:#6B6560">'+fmt(base)+'</td><td class="r"><div class="pct-wrap"><input type="number" class="pct-input" value="'+l.pct+'" min="0" step="0.5" '+(l.included?'':'disabled')+' onchange="updatePct(\''+k+'\',this.value)"><span class="pct-sym">%</span></div></td><td class="price'+(l.included?'':' off')+'">'+(l.included?fmt(final):'&mdash;')+'</td><td class="check-cell"><input type="checkbox" '+(l.included?'checked':'')+' onchange="toggleIncluded(\''+k+'\')"></td></tr>';
+          var descCell='';
+          if(r.description){
+            descCell='<div style="margin-top:4px;display:flex;align-items:flex-start;gap:6px">'
+              +'<input type="checkbox" '+(inclDesc?'checked':'')+' title="Incluir descripci\u00f3n en mi presupuesto" style="margin-top:3px;accent-color:#E8724A;cursor:pointer;flex-shrink:0" onchange="toggleInclDesc(\''+k+'\')">'
+              +'<textarea class="name-edit" style="font-size:11px;color:#6B6560;'+(inclDesc?'':'opacity:.4;')+'" rows="'+(displayDesc&&displayDesc.length>80?3:2)+'" placeholder="Descripci\u00f3n..." onchange="updateDescInLine(\''+k+'\',this.value)">'+esc(displayDesc)+'</textarea>'
+              +'</div>';
+          }
+          html+='<tr><td style="min-width:200px">'+nameCell+descCell+'</td><td style="color:#A8A29E;font-size:11px;vertical-align:top;padding-top:10px">'+esc(r.ud)+'</td><td class="r" style="color:#6B6560;vertical-align:top;padding-top:10px">'+r.qty+'</td><td class="r" style="color:#6B6560;vertical-align:top;padding-top:10px">'+fmt(base)+'</td><td class="r" style="vertical-align:top;padding-top:8px"><div class="pct-wrap"><input type="number" class="pct-input" value="'+l.pct+'" min="0" step="0.5" '+(l.included?'':'disabled')+' onchange="updatePct(\''+k+'\',this.value)"><span class="pct-sym">%</span></div></td><td class="price'+(l.included?'':' off')+'" style="vertical-align:top;padding-top:10px">'+(l.included?fmt(final):'&mdash;')+'</td><td class="check-cell" style="vertical-align:top;padding-top:10px"><input type="checkbox" '+(l.included?'checked':'')+' onchange="toggleIncluded(\''+k+'\')"></td></tr>';
         });
         html+='</tbody></table></div>';
       });
@@ -407,7 +418,7 @@ async function mejorarTextos(){
 
 function getIncluded(){
   var out=[];
-  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var k=lineKey(p.id,pr.id,ch.id,r.id);var l=getLine(k);if(!l.included)return;var displayName=(l.myName!==null&&l.myName!==undefined)?l.myName:r.name;out.push(Object.assign({},r,{pid:p.id,proName:p.name,projName:pr.name,chName:ch.name,myPrice:r.qty*r.price*(1+l.pct/100),unitPrice:r.price*(1+l.pct/100),displayName:displayName}))})})})});
+  pros.forEach(function(p){p.projects.forEach(function(pr){(pr.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var k=lineKey(p.id,pr.id,ch.id,r.id);var l=getLine(k);if(!l.included)return;var displayName=(l.myName!==null&&l.myName!==undefined)?l.myName:r.name;var displayDesc=(l.myDesc!==null&&l.myDesc!==undefined)?l.myDesc:(r.description||'');var inclDesc=l.inclDesc!==false;out.push(Object.assign({},r,{pid:p.id,proName:p.name,projName:pr.name,chName:ch.name,myPrice:r.qty*r.price*(1+l.pct/100),unitPrice:r.price*(1+l.pct/100),displayName:displayName,displayDesc:inclDesc?displayDesc:''}))})})})});
   return out;
 }
 
@@ -480,7 +491,7 @@ function renderPDF(){
       rows.forEach(function(r,i){
         var bg=i%2===0?'#fff':'#FAFAF8';
         html+='<tr style="background:'+bg+';border-bottom:0.5px solid #F0EDE8">';
-        html+='<td style="padding:6px 8px;font-size:11px;color:#1C1917;line-height:1.4">'+esc(r.displayName||r.name||'Partida')+'</td>';
+        html+='<td style="padding:6px 8px;font-size:11px;color:#1C1917;line-height:1.4">'+esc(r.displayName||r.name||'Partida')+(r.displayDesc?'<div style="font-size:10px;color:#6B6560;margin-top:3px;line-height:1.5">'+esc(r.displayDesc).replace(/\n/g,'<br>')+'</div>':'')+'</td>';
         html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+esc(r.ud)+'</td>';
         html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+r.qty+'</td>';
         html+='<td style="padding:6px 8px;font-size:11px;color:#6B6560;text-align:right">'+fmtP(r.unitPrice)+'</td>';
