@@ -217,11 +217,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
       <div><label class="fl">Fecha</label><input class="fi" type="date" id="f-fecha"></div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <button class="btn pr" id="btn-mejorar" onclick="mejorarTextos()">&#10022; Mejorar textos con IA</button>
+
+  <!-- TOOLBAR ROW 1: acciones principales -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
     <button class="btn" onclick="addManualLine()">+ A&ntilde;adir l&iacute;nea</button>
+    <div style="width:0.5px;background:var(--border);height:22px;flex-shrink:0"></div>
+    <!-- IA -->
+    <button class="btn" id="btn-ia-mode" onclick="toggleIaMode()" title="Activar selecci&oacute;n de textos a mejorar">&#10022; Seleccionar textos</button>
+    <button class="btn pr" id="btn-mejorar" onclick="mejorarTextos()" style="display:none">Mejorar selecci&oacute;n con IA</button>
+    <button class="btn gh" id="btn-ia-cancel" onclick="cancelIaMode()" style="display:none">Cancelar</button>
     <span style="font-size:12px;color:var(--text-2);font-style:italic" id="ia-status"></span>
+    <div style="flex:1"></div>
+    <!-- % global -->
+    <div style="display:flex;align-items:center;gap:6px;background:var(--white);border:0.5px solid var(--border);border-radius:var(--rsm);padding:5px 10px;box-shadow:var(--sh)">
+      <span style="font-size:11px;color:var(--text-2)">% global:</span>
+      <input type="number" id="global-pct" value="10" min="0" step="0.5" style="width:52px;padding:3px 5px;font-size:12px;border:0.5px solid var(--border);border-radius:3px;text-align:right;outline:none;font-family:'DM Sans',sans-serif" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      <span style="font-size:11px;color:var(--text-3)">%</span>
+      <button class="btn sm pr" onclick="applyGlobalPct()" title="Aplicar a todas las partidas incluidas">Aplicar a todas</button>
+    </div>
   </div>
+
+  <!-- TOOLBAR ROW 2: versiones -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn sm" onclick="saveVersion()" title="Guardar versi&oacute;n del estado actual">&#128190; Guardar versi&oacute;n</button>
+    <div id="versions-list" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
+  </div>
+
   <div id="con-content"></div>
   <div id="totals-bar"></div>
   <div id="comment-box" style="display:none;background:var(--white);border:0.5px solid var(--border);border-radius:var(--rlg);box-shadow:var(--sh);padding:13px 16px;margin-top:10px">
@@ -283,6 +304,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 var projects=[],activeProjectId=null;
 var lines={},improved={},manualLines=[],cfg={};
 var db={cats:[],partidas:[]},dbSel={},dbActiveCat=null;
+var versions=[],iaSelected={};
 var DEFAULT_PCT=10,OG='#E8724A';
 
 function uid(){return Math.random().toString(36).slice(2,9)}
@@ -299,6 +321,7 @@ function save(){
     localStorage.setItem('fhl_imp5',JSON.stringify(improved));
     localStorage.setItem('fhl_manual5',JSON.stringify(manualLines));
     localStorage.setItem('fhl_db5',JSON.stringify(db));
+    localStorage.setItem('fhl_versions',JSON.stringify(versions));
   }catch(e){}
 }
 function load(){
@@ -308,6 +331,7 @@ function load(){
     var im=localStorage.getItem('fhl_imp5');if(im)improved=JSON.parse(im);
     var ml=localStorage.getItem('fhl_manual5');if(ml)manualLines=JSON.parse(ml);
     var d=localStorage.getItem('fhl_db5');if(d)db=JSON.parse(d);
+    var v=localStorage.getItem('fhl_versions');if(v)versions=JSON.parse(v);
   }catch(e){}
 }
 
@@ -599,7 +623,8 @@ function renderConstructor(){
 }
 
 function renderConRows(projId,proId,ch){
-  var html='<table class="contable"><thead><tr><th>Descripci\u00f3n</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Precio</th><th class="r">%</th><th class="r">Mi precio</th><th style="width:28px;text-align:center">Inc.</th></tr></thead><tbody>';
+  var iaCol=iaMode?'<th style="width:26px;text-align:center" title="Seleccionar para mejorar con IA">IA</th>':'';
+  var html='<table class="contable"><thead><tr>'+iaCol+'<th>Descripci\u00f3n</th><th>Ud.</th><th class="r">Cant.</th><th class="r">Precio</th><th class="r">%</th><th class="r">Mi precio</th><th style="width:28px;text-align:center">Inc.</th></tr></thead><tbody>';
   ch.partidas.forEach(function(r){
     var k=lineKey(projId,proId,ch.id,r.id);var l=getLine(k);
     var effQ=l.qty!==null?l.qty:r.qty;
@@ -624,7 +649,10 @@ function renderConRows(projId,proId,ch){
         +'<input type="checkbox" '+(id2?'checked':'')+' style="margin-top:3px;accent-color:var(--accent);cursor:pointer;flex-shrink:0" onchange="toggleInclDesc(\''+k+'\')" title="Incluir en PDF">'
         +'<textarea class="de" rows="'+(dd&&dd.length>80?2:1)+'" style="'+(id2?'':'opacity:.35')+'" onchange="updateDescInLine(\''+k+'\',this.value)">'+esc(dd)+'</textarea></div>';
     }
-    html+='<tr>';
+    var iaCell=iaMode?'<td style="text-align:center;vertical-align:top;padding-top:8px"><input type="checkbox" class="ckinp" style="accent-color:var(--accent)" '+(iaSelected[r.id]?'checked':'')+' onchange="toggleIaSel(\''+r.id+'\')" title="Seleccionar para mejorar"></td>':'';
+    var rowBg=iaMode&&iaSelected[r.id]?'background:rgba(232,114,74,0.06);':'';
+    html+='<tr style="'+rowBg+'">';
+    html+=iaCell;
     html+='<td style="min-width:190px">'+nc+dc+'</td>';
     html+='<td style="color:var(--text-3);font-size:11px;vertical-align:top;padding-top:8px">'+esc(r.ud)+'</td>';
     html+='<td class="r" style="vertical-align:top;padding-top:6px"><input class="ie r" type="number" style="width:52px" value="'+effQ+'" onchange="updateQty(\''+k+'\',this.value)"></td>';
@@ -652,20 +680,104 @@ function renderTotals(){
 async function mejorarTextos(){
   var key=cfg.key||'';if(!key){alert('API key no configurada.');toggleCfg();return;}
   var parts=[];
-  projects.forEach(function(proj){(proj.pros||[]).forEach(function(pro){(pro.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){if(r.name&&r.name.trim()){var k=lineKey(proj.id,pro.id,ch.id,r.id);parts.push({id:r.id,key:k,name:r.name})}})})})});
-  if(!parts.length){document.getElementById('ia-status').textContent='No hay textos.';return;}
+  projects.forEach(function(proj){(proj.pros||[]).forEach(function(pro){(pro.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){if(r.name&&r.name.trim()){var k=lineKey(proj.id,pro.id,ch.id,r.id);if(!iaMode||iaSelected[r.id])parts.push({id:r.id,key:k,name:r.name})}})})})});
+  if(!parts.length){document.getElementById('ia-status').textContent=iaMode?'Selecciona al menos una partida.':'No hay textos.';return;}
   var btn=document.getElementById('btn-mejorar');btn.disabled=true;btn.textContent='Mejorando...';
-  document.getElementById('ia-status').textContent='Mejorando...';
+  document.getElementById('ia-status').textContent='Mejorando '+parts.length+' partidas...';
   parts.forEach(function(p){improved[p.id]={orig:p.name,new:'',loading:true,accepted:false,key:p.key}});
   renderConstructor();
   try{
     var res=await apiCall([{role:'user',content:'Reescribe cada descripci\u00f3n de forma profesional y concisa para presupuestos de construcci\u00f3n en Espa\u00f1a. Mant\u00e9n el significado t\u00e9cnico.\nDevuelve SOLO JSON: {"partidas":[{"id":"xxx","name":"mejorada"}]}\nPartidas: '+JSON.stringify(parts.map(function(p){return{id:p.id,name:p.name}}))}],3000);
     var json=JSON.parse(res.replace(/```json|```/g,'').trim());
     json.partidas.forEach(function(p){if(improved[p.id])improved[p.id]=Object.assign({},improved[p.id],{new:p.name,loading:false})});
-    document.getElementById('ia-status').textContent=json.partidas.length+' mejoradas.';
+    document.getElementById('ia-status').textContent=json.partidas.length+' mejoradas. Revisa y acepta.';
   }catch(e){parts.forEach(function(p){delete improved[p.id]});document.getElementById('ia-status').textContent='Error: '+e.message;}
-  btn.disabled=false;btn.textContent='\u2726 Mejorar textos con IA';
+  btn.disabled=false;btn.textContent='Mejorar selecci\u00f3n con IA';
+  iaMode=false;iaSelected={};
+  document.getElementById('btn-ia-mode').style.display='inline-flex';
+  document.getElementById('btn-mejorar').style.display='none';
+  document.getElementById('btn-ia-cancel').style.display='none';
   save();renderConstructor();
+}
+
+// ── VERSIONS ─────────────────────────────────────────────────────────
+function saveVersion(){
+  var name=prompt('Nombre de esta versi\u00f3n (opcional):','');
+  if(name===null)return; // cancelled
+  var snap={
+    id:uid(),
+    name:name||new Date().toLocaleString('es-ES'),
+    date:new Date().toISOString(),
+    projects:JSON.parse(JSON.stringify(projects)),
+    lines:JSON.parse(JSON.stringify(lines)),
+    manualLines:JSON.parse(JSON.stringify(manualLines)),
+    improved:JSON.parse(JSON.stringify(improved))
+  };
+  versions.push(snap);
+  if(versions.length>20)versions=versions.slice(-20); // keep last 20
+  save();renderVersions();
+}
+function restoreVersion(id){
+  var v=versions.find(function(x){return x.id===id});
+  if(!v)return;
+  if(!confirm('Restaurar la versi\u00f3n "'+v.name+'"?\nEl estado actual se perder\u00e1 (gu\u00e1rdalo antes si quieres conservarlo).'))return;
+  projects=JSON.parse(JSON.stringify(v.projects));
+  lines=JSON.parse(JSON.stringify(v.lines));
+  manualLines=JSON.parse(JSON.stringify(v.manualLines));
+  improved=JSON.parse(JSON.stringify(v.improved||{}));
+  save();renderProjects();renderProjectDetail();renderConstructor();renderVersions();
+}
+function deleteVersion(id){
+  versions=versions.filter(function(x){return x.id!==id});
+  save();renderVersions();
+}
+function renderVersions(){
+  var el=document.getElementById('versions-list');if(!el)return;
+  if(!versions.length){el.innerHTML='<span style="font-size:11px;color:var(--text-3)">Sin versiones guardadas</span>';return;}
+  el.innerHTML=versions.slice().reverse().map(function(v){
+    var d=new Date(v.date);
+    var label=v.name||(d.toLocaleDateString('es-ES')+' '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}));
+    return '<div style="display:flex;align-items:center;gap:4px;background:var(--white);border:0.5px solid var(--border);border-radius:var(--rsm);padding:3px 8px;box-shadow:var(--sh)">'
+      +'<button onclick="restoreVersion(\''+v.id+'\')" style="font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;font-family:\'DM Sans\',sans-serif" title="Restaurar esta versi\u00f3n">'+esc(label)+'</button>'
+      +'<button class="bdel" style="font-size:11px" onclick="deleteVersion(\''+v.id+'\')">&times;</button>'
+      +'</div>';
+  }).join('');
+}
+
+// ── IA SELECTION MODE ─────────────────────────────────────────────────
+var iaMode=false;
+function toggleIaMode(){
+  iaMode=true;iaSelected={};
+  document.getElementById('btn-ia-mode').style.display='none';
+  document.getElementById('btn-mejorar').style.display='inline-flex';
+  document.getElementById('btn-ia-cancel').style.display='inline-flex';
+  document.getElementById('ia-status').textContent='Selecciona las partidas que quieres mejorar';
+  renderConstructor();
+}
+function cancelIaMode(){
+  iaMode=false;iaSelected={};
+  document.getElementById('btn-ia-mode').style.display='inline-flex';
+  document.getElementById('btn-mejorar').style.display='none';
+  document.getElementById('btn-ia-cancel').style.display='none';
+  document.getElementById('ia-status').textContent='';
+  renderConstructor();
+}
+function toggleIaSel(rid){
+  if(iaSelected[rid])delete iaSelected[rid];else iaSelected[rid]=true;
+  var n=Object.keys(iaSelected).length;
+  document.getElementById('ia-status').textContent=n?n+' partidas seleccionadas':'Selecciona las partidas que quieres mejorar';
+}
+
+// ── GLOBAL PCT ────────────────────────────────────────────────────────
+function applyGlobalPct(){
+  var pct=parseFloat(document.getElementById('global-pct').value);
+  if(isNaN(pct)||pct<0){alert('Introduce un porcentaje v\u00e1lido.');return;}
+  var count=0;
+  projects.forEach(function(proj){(proj.pros||[]).forEach(function(pro){(pro.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var k=lineKey(proj.id,pro.id,ch.id,r.id);var l=getLine(k);if(l.included){l.pct=pct;count++}})})})});
+  manualLines.forEach(function(l){if(l.included){l.pct=pct;count++}});
+  save();renderConstructor();
+  document.getElementById('ia-status').textContent=pct+'% aplicado a '+count+' partidas.';
+  setTimeout(function(){var s=document.getElementById('ia-status');if(s&&s.textContent.includes('aplicado'))s.textContent=''},3000);
 }
 
 // ── DATABASE (tab 4) ──────────────────────────────────────────────────
@@ -896,7 +1008,7 @@ function safeParseJSON(raw){
 
 // ── INIT ─────────────────────────────────────────────────────────────
 document.getElementById('f-fecha')&&(document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0]);
-load();loadCfg();renderProjects();renderProjectDetail();renderDb();
+load();loadCfg();renderProjects();renderProjectDetail();renderDb();renderVersions();
 </script>
 </body>
 </html>
