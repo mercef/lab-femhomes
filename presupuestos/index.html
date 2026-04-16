@@ -597,17 +597,21 @@ function removeManual(id){manualLines=manualLines.filter(function(x){return x.id
 
 function renderConstructor(){
   var el=document.getElementById('con-content');
-  var hasProj=projects.some(function(p){return(p.pros||[]).some(function(pr){return(pr.chapters||[]).some(function(ch){return ch.partidas.length})})});
+  // Solo el proyecto activo (o todos si no hay ninguno seleccionado)
+  var activeProjList=activeProjectId
+    ?projects.filter(function(p){return p.id===activeProjectId})
+    :projects;
+  var hasProj=activeProjList.some(function(p){return(p.pros||[]).some(function(pr){return(pr.chapters||[]).some(function(ch){return ch.partidas.length})})});
   var hasMn=manualLines.length>0;
   if(!hasProj&&!hasMn){
-    el.innerHTML='<div class="empty"><span class="empty-icon">&#128203;</span>Importa PDFs en el paso 1, a\u00f1ade partidas desde la base de datos, o pulsa &quot;+ A\u00f1adir l\u00ednea&quot;.</div>';
+    el.innerHTML='<div class="empty"><span class="empty-icon">&#128203;</span>'+(activeProjectId?'El proyecto activo no tiene partidas. Importa un PDF en la pesta\u00f1a Proyectos o a\u00f1ade l\u00edneas manuales.':'Selecciona un proyecto o a\u00f1ade l\u00edneas manuales.')+'</div>';
     document.getElementById('totals-bar').innerHTML='';
     document.getElementById('comment-box').style.display='none';
     return;
   }
   var html='';
-  // From projects
-  projects.forEach(function(proj){
+  // From active project only
+  activeProjList.forEach(function(proj){
     (proj.pros||[]).forEach(function(pro){
       if(!(pro.chapters||[]).some(function(ch){return ch.partidas.length}))return;
       var proTot=pro.chapters.reduce(function(s,ch){return s+ch.partidas.reduce(function(ss,r){var l=getLine(lineKey(proj.id,pro.id,ch.id,r.id));if(!l.included)return ss;var q=l.qty!==null?l.qty:r.qty;var p2=l.price!==null?l.price:r.price;return ss+q*p2*(1+l.pct/100)},0)},0);
@@ -694,7 +698,8 @@ function renderConRows(projId,proId,ch){
 
 function renderTotals(){
   var coste=0,precio=0;
-  projects.forEach(function(proj){(proj.pros||[]).forEach(function(pro){(pro.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var l=getLine(lineKey(proj.id,pro.id,ch.id,r.id));if(!l.included)return;var q=l.qty!==null?l.qty:r.qty;var p2=l.price!==null?l.price:r.price;coste+=q*p2;precio+=q*p2*(1+l.pct/100)})})})});
+  var activeProjList=activeProjectId?projects.filter(function(p){return p.id===activeProjectId}):projects;
+  activeProjList.forEach(function(proj){(proj.pros||[]).forEach(function(pro){(pro.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var l=getLine(lineKey(proj.id,pro.id,ch.id,r.id));if(!l.included)return;var q=l.qty!==null?l.qty:r.qty;var p2=l.price!==null?l.price:r.price;coste+=q*p2;precio+=q*p2*(1+l.pct/100)})})})});
   manualLines.forEach(function(l){if(!l.included)return;coste+=l.qty*l.price;precio+=l.qty*l.price*(1+l.pct/100)});
   var tb=document.getElementById('totals-bar');
   var cb=document.getElementById('comment-box');
@@ -930,7 +935,8 @@ function renderDb(){
 // ── PDF ───────────────────────────────────────────────────────────────
 function getIncluded(){
   var out=[];
-  projects.forEach(function(proj){(proj.pros||[]).forEach(function(pro){(pro.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var k=lineKey(proj.id,pro.id,ch.id,r.id);var l=getLine(k);if(!l.included)return;var effQ=l.qty!==null?l.qty:r.qty;var effP=l.price!==null?l.price:r.price;var dn=l.myName!==null?l.myName:r.name;var dd=l.myDesc!==null?l.myDesc:(r.description||'');var id2=l.inclDesc!==false;out.push({name:dn,description:id2?dd:'',ud:r.ud,effQty:effQ,effPrice:effP,unitPrice:effP*(1+l.pct/100),myPrice:effQ*effP*(1+l.pct/100),proName:pro.id==='__db__'?'Cat\u00e1logo propio':pro.name,projName:proj.name,chName:ch.name,src:'proj'})})})})});
+  var activeProjList=activeProjectId?projects.filter(function(p){return p.id===activeProjectId}):projects;
+  activeProjList.forEach(function(proj){(proj.pros||[]).forEach(function(pro){(pro.chapters||[]).forEach(function(ch){ch.partidas.forEach(function(r){var k=lineKey(proj.id,pro.id,ch.id,r.id);var l=getLine(k);if(!l.included)return;var effQ=l.qty!==null?l.qty:r.qty;var effP=l.price!==null?l.price:r.price;var dn=l.myName!==null?l.myName:r.name;var dd=l.myDesc!==null?l.myDesc:(r.description||'');var id2=l.inclDesc!==false;out.push({name:dn,description:id2?dd:'',ud:r.ud,effQty:effQ,effPrice:effP,unitPrice:effP*(1+l.pct/100),myPrice:effQ*effP*(1+l.pct/100),proName:pro.id==='__db__'?'Cat\u00e1logo propio':pro.name,projName:proj.name,chName:ch.name,src:'proj'})})})})});
   manualLines.forEach(function(l){if(!l.included)return;out.push({name:l.name,description:l.description||'',ud:l.ud,effQty:l.qty,effPrice:l.price,unitPrice:l.price*(1+l.pct/100),myPrice:l.qty*l.price*(1+l.pct/100),proName:'L\u00edneas manuales',projName:'',chName:'Manual',src:'manual'})});
   return out;
 }
