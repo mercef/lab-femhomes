@@ -211,7 +211,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 <div class="view" id="v1">
   <div class="card" style="padding:16px;margin-bottom:14px">
     <div style="font-family:'Fraunces',serif;font-size:14px;color:var(--text-2);margin-bottom:11px">Datos del presupuesto</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+      <div>
+        <label class="fl">Proyecto activo</label>
+        <select class="fi" id="f-proyecto" onchange="selectProjectFromBudget(this.value)" style="cursor:pointer">
+          <option value="">— Sin proyecto —</option>
+        </select>
+      </div>
       <div><label class="fl">Cliente</label><input class="fi" type="text" id="f-cliente"></div>
       <div><label class="fl">N&ordm; presupuesto</label><input class="fi" type="text" id="f-num" placeholder="E261470"></div>
       <div><label class="fl">Fecha</label><input class="fi" type="date" id="f-fecha"></div>
@@ -352,7 +358,7 @@ function toggleCfg(){document.getElementById('cfgp').classList.toggle('open')}
 function switchTab(i){
   document.querySelectorAll('.tab').forEach(function(t,idx){t.classList.toggle('active',idx===i)});
   document.querySelectorAll('.view').forEach(function(v,idx){v.classList.toggle('active',idx===i)});
-  if(i===1)renderConstructor();
+  if(i===1){syncProjectSelector();renderConstructor();}
   if(i===2)renderPDF();
   if(i===3)renderDb();
 }
@@ -364,13 +370,13 @@ function addProject(){
   var proj={id:uid(),name:'Nuevo proyecto',client:'',date:new Date().toISOString().split('T')[0],pros:[],savedPDFs:[]};
   projects.push(proj);
   activeProjectId=proj.id;
-  save();renderProjects();renderProjectDetail();
+  save();renderProjects();renderProjectDetail();syncProjectSelector();
 }
 function removeProject(id){
   if(!confirm('Eliminar este proyecto?'))return;
   projects=projects.filter(function(p){return p.id!==id});
   if(activeProjectId===id)activeProjectId=projects.length?projects[0].id:null;
-  save();renderProjects();renderProjectDetail();
+  save();renderProjects();renderProjectDetail();syncProjectSelector();
 }
 function selectProject(id){
   activeProjectId=id;
@@ -544,6 +550,27 @@ function addDbSelToProject(projId){
   });
   save();renderProjectDetail();
   alert(sel.length+' partidas a\u00f1adidas al proyecto.');
+}
+
+// ── PROJECT SELECTOR (tab 2) ──────────────────────────────────────────
+function selectProjectFromBudget(id){
+  activeProjectId=id||null;
+  renderProjects();
+  syncProjectSelector();
+  renderConstructor();
+}
+function syncProjectSelector(){
+  var sel=document.getElementById('f-proyecto');if(!sel)return;
+  sel.innerHTML='<option value="">— Sin proyecto —</option>';
+  projects.forEach(function(p){
+    var opt=document.createElement('option');
+    opt.value=p.id;opt.textContent=p.name+(p.client?' \u2014 '+p.client:'');
+    if(p.id===activeProjectId)opt.selected=true;
+    sel.appendChild(opt);
+  });
+  var proj=getActiveProject();
+  var fc=document.getElementById('f-cliente');
+  if(proj&&proj.client&&fc&&!fc.value)fc.value=proj.client;
 }
 
 // ── CONSTRUCTOR (tab 2) ───────────────────────────────────────────────
@@ -1008,7 +1035,7 @@ function safeParseJSON(raw){
 
 // ── INIT ─────────────────────────────────────────────────────────────
 document.getElementById('f-fecha')&&(document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0]);
-load();loadCfg();renderProjects();renderProjectDetail();renderDb();renderVersions();
+load();loadCfg();renderProjects();renderProjectDetail();renderDb();renderVersions();syncProjectSelector();
 </script>
 </body>
 </html>
