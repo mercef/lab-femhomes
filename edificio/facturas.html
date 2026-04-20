@@ -91,6 +91,14 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
 .modal-body{padding:20px;}
 .modal-desc{font-size:13px;color:var(--gray);line-height:1.6;margin-bottom:16px;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.extra-line-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+.extra-line-row input{font-family:'Archivo',sans-serif;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--border-s);border-radius:6px;padding:7px 10px;}
+.extra-line-row input.el-text{flex:1;}
+.extra-line-row input.el-amt{width:130px;}
+.extra-line-del{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;flex-shrink:0;padding:0 4px;line-height:1;}
+.extra-line-del:hover{color:var(--red);}
+.pdf-extra-row td{padding:10px 16px;font-size:12px;border-bottom:1px solid #f0ede8;color:#1a1a18;}
+.pdf-extra-row td:last-child{text-align:right;font-weight:500;}
 
 /* SETUP SCREEN */
 .setup-screen{display:none;position:fixed;inset:0;background:var(--paper);z-index:400;align-items:center;justify-content:center;flex-direction:column;}
@@ -130,10 +138,10 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
 .pdf-table td{padding:13px 16px;font-size:13px;border-bottom:1px solid #ede8e0;color:#1a1a18;}
 .pdf-table td:last-child{text-align:right;font-weight:500;}
 .pdf-table tbody tr:last-child td{border-bottom:none;}
-.pdf-concepto-row td{background:#faf7f2;border-left:3px solid #c49a6c;font-style:italic;color:#3d2410;padding:14px 16px!important;font-size:12px;line-height:1.6;border-bottom:1px solid #e8e2d8!important;}
-.pdf-total-row{background:#f5f0e8;}
-.pdf-total-row td{padding:20px 16px!important;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem!important;font-weight:700!important;border-top:2px solid #c49a6c!important;border-bottom:none!important;}
-.pdf-total-row td:last-child{color:#8b5e3c;font-size:1.5rem!important;}
+.pdf-concepto-row td{background:#faf7f2;border-left:3px solid #c49a6c;color:#3d2410;padding:14px 16px!important;font-size:12px;line-height:1.6;border-bottom:1px solid #e8e2d8!important;}
+.pdf-empty-row td{padding:10px 16px!important;border-bottom:1px solid #f5f2ee!important;}
+.pdf-total-row td{padding:16px 16px!important;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem!important;font-weight:400!important;border-top:2px solid #c49a6c!important;border-bottom:none!important;}
+.pdf-total-row td:last-child{color:#8b5e3c;font-size:1.5rem!important;font-weight:400!important;}
 .pdf-spacer{flex:1;}
 .pdf-footer{padding:20px 40px 28px;display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #e8e2d8;}
 .pdf-pago-label{font-size:9px;font-weight:600;color:#8b5e3c;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;}
@@ -220,7 +228,14 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
   <div class="form-card">
     <div class="form-section-title">Concepto e importes</div>
     <div class="grid full">
-      <div class="field"><label>Concepto</label><textarea id="inv-concepto" placeholder="Alquiler mensual correspondiente al mes de…"></textarea></div>
+      <div class="field"><label>Concepto principal</label><textarea id="inv-concepto" placeholder="Alquiler mensual correspondiente al mes de…"></textarea></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.07em;">Líneas adicionales</span>
+        <button class="btn sm" onclick="addExtraLine()" type="button">+ Añadir línea</button>
+      </div>
+      <div id="extra-lines"></div>
     </div>
     <div class="grid three">
       <div class="field"><label>Base imponible (€)</label><input type="number" id="inv-base" step="0.01" placeholder="0,00" oninput="calcTotals()"/></div>
@@ -259,8 +274,9 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
     </div>
     <div class="modal-body">
       <div class="modal-desc">Puedes ajustar el número de factura actual. El siguiente número generado será el que introduzcas aquí.</div>
-      <div class="field"><label>Número actual (próxima factura)</label><input type="text" id="config-num" placeholder="2026/001"/></div>
-      <div class="modal-desc" style="margin-top:12px;color:#c0392b;font-size:12px;">⚠ Zona de datos — eliminar historial borra todas las facturas guardadas.</div>
+      <div class="field" style="margin-bottom:12px;"><label>Número actual (próxima factura)</label><input type="text" id="config-num" placeholder="2026/001"/></div>
+      <div class="field" style="margin-bottom:12px;"><label>Forma de pago predeterminada</label><textarea id="config-pago" style="height:64px;resize:none;" placeholder="Domiciliación BANCO DE SANTANDER&#10;ES19 0049 4762..."></textarea></div>
+      <div class="modal-desc" style="margin-top:4px;color:#c0392b;font-size:12px;">⚠ Zona de datos — eliminar historial borra todas las facturas guardadas.</div>
       <div class="modal-actions">
         <button class="btn danger" onclick="clearAll()">Eliminar historial</button>
         <button class="btn" onclick="closeConfig()">Cancelar</button>
@@ -294,8 +310,27 @@ const EMISOR={nombre:'JUAN ANTONIO PONS-SERÉS AMAT',dir:'Passeig Sant Joan 97 a
 const MONTHS_ES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const MONTHS_LONG=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-let invoices=[];
-let nextNum='';
+let extraLineCount=0;
+function addExtraLine(text='',amt=''){
+  extraLineCount++;
+  const id=extraLineCount;
+  const row=document.createElement('div');
+  row.className='extra-line-row';
+  row.id='el-'+id;
+  row.innerHTML=`<input type="text" class="el-text" placeholder="Descripción de la línea…" value="${text}"/><input type="number" class="el-amt" placeholder="0,00" step="0.01" value="${amt}"/><button class="extra-line-del" onclick="removeExtraLine(${id})" type="button">×</button>`;
+  document.getElementById('extra-lines').appendChild(row);
+}
+function removeExtraLine(id){
+  const el=document.getElementById('el-'+id);
+  if(el)el.remove();
+}
+function getExtraLines(){
+  const rows=document.getElementById('extra-lines').querySelectorAll('.extra-line-row');
+  return Array.from(rows).map(row=>{
+    const inputs=row.querySelectorAll('input');
+    return{text:inputs[0].value.trim(),amt:inputs[1].value};
+  }).filter(l=>l.text||l.amt);
+}
 let currentPreview=null;
 
 try{invoices=JSON.parse(localStorage.getItem('psj97_invoices')||'[]');}catch(e){}
@@ -367,7 +402,7 @@ function fillFromUnit(){
   document.getElementById('inv-cif').value=opt.dataset.cif||'';
   document.getElementById('inv-dir').value=opt.dataset.dir||'';
   document.getElementById('inv-base').value=opt.dataset.base||'';
-  document.getElementById('inv-pago').value=opt.dataset.pago||'';
+  document.getElementById('inv-pago').value=opt.dataset.pago||getDefaultPago();
   const mo=new Date().getMonth();
   const yr=new Date().getFullYear();
   document.getElementById('inv-concepto').value=`Alquiler mensual correspondiente al mes de ${MONTHS_ES[mo]} de ${yr}.`;
@@ -406,6 +441,7 @@ function collectInv(){
     cif:document.getElementById('inv-cif').value,
     dir:document.getElementById('inv-dir').value,
     concepto:document.getElementById('inv-concepto').value,
+    extraLines:getExtraLines(),
     base,ivaPct:pct,ivaAmt,total,
     pago:document.getElementById('inv-pago').value,
   };
@@ -445,6 +481,9 @@ function buildPDFHTML(inv){
       </thead>
       <tbody>
         ${inv.concepto?`<tr class="pdf-concepto-row"><td colspan="2">${inv.concepto}</td></tr>`:''}
+        ${(inv.extraLines||[]).map(l=>`<tr class="pdf-extra-row"><td>${l.text||''}</td><td>${l.amt?parseFloat(l.amt).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €':''}</td></tr>`).join('')}
+        <tr class="pdf-empty-row"><td colspan="2"></td></tr>
+        <tr class="pdf-empty-row"><td colspan="2"></td></tr>
         <tr><td>Base imponible</td><td>${fmtN(inv.base)}</td></tr>
         <tr><td>IVA ${inv.ivaPct}%</td><td>${fmtN(inv.ivaAmt)}</td></tr>
       </tbody>
@@ -490,10 +529,12 @@ function resetForm(){
   document.getElementById('inv-nombre').value='';
   document.getElementById('inv-cif').value='';
   document.getElementById('inv-dir').value='';
+  document.getElementById('extra-lines').innerHTML='';
+  extraLineCount=0;
   document.getElementById('inv-concepto').value='';
   document.getElementById('inv-base').value='';
   document.getElementById('inv-iva-amt').value='';
-  document.getElementById('inv-pago').value='';
+  document.getElementById('inv-pago').value=getDefaultPago();
   document.getElementById('t-base').textContent='—';
   document.getElementById('t-iva').textContent='—';
   document.getElementById('t-total').textContent='—';
@@ -572,7 +613,14 @@ function printPreview(){
     .pdf-table td{padding:13px 16px;font-size:13px;border-bottom:1px solid #ede8e0;color:#1a1a18;}
     .pdf-table td:last-child{text-align:right;font-weight:500;}
     .pdf-table tbody tr:last-child td{border-bottom:none;}
-    .pdf-concepto-row td{background:#faf7f2;border-left:3px solid #c49a6c;font-style:italic;color:#3d2410;padding:14px 16px!important;font-size:12px;line-height:1.6;border-bottom:1px solid #e8e2d8!important;text-align:left!important;font-weight:400!important;}
+    .pdf-concepto-row td{background:#faf7f2;border-left:3px solid #c49a6c;color:#3d2410;padding:14px 16px!important;font-size:12px;line-height:1.6;border-bottom:1px solid #e8e2d8!important;text-align:left!important;font-weight:400!important;}
+    .pdf-empty-row td{padding:10px 16px!important;border-bottom:1px solid #f5f2ee!important;}
+    .pdf-extra-row td{padding:10px 16px;font-size:12px;border-bottom:1px solid #f0ede8;color:#1a1a18;}
+    .pdf-extra-row td:last-child{text-align:right;font-weight:500;}
+    .pdf-empty-row td{padding:10px 16px!important;border-bottom:1px solid #f5f2ee!important;}
+    .pdf-total-row{background:#f5f0e8;}
+    .pdf-total-row td{padding:16px 16px!important;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem!important;font-weight:400!important;border-top:2px solid #c49a6c!important;border-bottom:none!important;}
+    .pdf-total-row td:last-child{color:#8b5e3c;font-size:1.5rem!important;font-weight:400!important;}
     .pdf-total-row{background:#f5f0e8;}
     .pdf-total-row td{padding:20px 16px!important;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem!important;font-weight:700!important;border-top:2px solid #c49a6c!important;border-bottom:none!important;}
     .pdf-total-row td:last-child{color:#8b5e3c;font-size:1.5rem!important;}
@@ -591,6 +639,7 @@ function closePreview(){document.getElementById('preview-modal').classList.remov
 
 function openConfig(){
   document.getElementById('config-num').value=nextNum;
+  document.getElementById('config-pago').value=localStorage.getItem('psj97_default_pago')||'';
   document.getElementById('config-modal').classList.add('open');
 }
 function closeConfig(){document.getElementById('config-modal').classList.remove('open');}
@@ -599,8 +648,11 @@ function saveConfig(){
   if(!val){alert('Introduce un número válido.');return;}
   saveNextNum(val);
   document.getElementById('next-num-display').textContent=val;
+  const pago=document.getElementById('config-pago').value.trim();
+  try{localStorage.setItem('psj97_default_pago',pago);}catch(e){}
   closeConfig();
 }
+function getDefaultPago(){return localStorage.getItem('psj97_default_pago')||'';}
 function clearAll(){
   if(!confirm('¿Eliminar todas las facturas del historial? Esta acción no se puede deshacer.'))return;
   invoices=[];saveInvoices();renderHistorial();closeConfig();
