@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inquilinos · PSJ 97</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#1a1a18;--paper:#f5f2ec;--paper2:#ede9e0;
+  --terra:#8b5e3c;--terra-l:#c49a6c;--terra-p:#f0e6d8;
+  --green:#3a6b3a;--green-l:#e8f2e8;
+  --amber:#b8860b;--amber-l:#fef9e7;
+  --red:#c0392b;--red-l:#fdecea;
+  --gray:#888;--gray-l:#f0ede8;
+  --border:rgba(26,26,24,0.12);--border-s:rgba(26,26,24,0.25);
+  --r:8px;--shadow:0 2px 16px rgba(0,0,0,0.08);
+}
+html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--paper);color:var(--ink);}
+.bg{position:fixed;inset:0;background-image:url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=60');background-size:cover;background-position:center top;opacity:0.05;pointer-events:none;z-index:0;}
+.app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:2rem 2rem 4rem;}
+
+/* HEADER */
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border-s);flex-wrap:wrap;gap:1rem;}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--gray);text-decoration:none;letter-spacing:0.05em;padding:5px 0;margin-bottom:0.75rem;transition:color 0.15s;}
+.back-btn:hover{color:var(--terra);}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:600;letter-spacing:0.04em;}
+.page-sub{font-size:12px;color:var(--gray);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+.header-right{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+
+/* BUTTONS */
+.btn{font-family:'Archivo',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:6px;border:1px solid var(--border-s);background:var(--paper);color:var(--ink);cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;text-decoration:none;}
+.btn:hover{background:var(--terra-p);border-color:var(--terra);color:var(--terra);}
+.btn.primary{background:var(--ink);color:white;border-color:var(--ink);}
+.btn.primary:hover{background:#333;}
+.btn.danger{color:var(--red);}
+.btn.danger:hover{background:var(--red-l);border-color:var(--red);}
+.btn.sm{font-size:11px;padding:5px 10px;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:320px 1fr;gap:1.5rem;align-items:start;}
+
+/* SIDEBAR — LISTA */
+.sidebar{background:white;border:1px solid var(--border-s);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.sidebar-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--ink);}
+.sidebar-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:600;color:white;letter-spacing:0.04em;}
+.sidebar-count{font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:0.05em;}
+.sidebar-filters{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;}
+.filter-btn{font-family:'Archivo',sans-serif;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border-s);background:var(--paper);color:var(--gray);cursor:pointer;transition:all 0.15s;}
+.filter-btn.active{background:var(--ink);color:white;border-color:var(--ink);}
+.filter-year{font-family:'Archivo',sans-serif;font-size:11px;padding:4px 8px;border-radius:20px;border:1px solid var(--border-s);background:var(--paper);color:var(--ink);cursor:pointer;}
+.sidebar-search{padding:8px 12px;border-bottom:1px solid var(--border);}
+.sidebar-search input{width:100%;font-family:'Archivo',sans-serif;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--border-s);border-radius:6px;padding:6px 10px;}
+.sidebar-search input:focus{outline:none;border-color:var(--terra);}
+.sidebar-list{max-height:65vh;overflow-y:auto;}
+.inq-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.inq-row:hover{background:var(--paper);}
+.inq-row.active{background:var(--terra-p);border-left:3px solid var(--terra);}
+.inq-row.active .inq-local{color:var(--terra);}
+.inq-avatar{width:36px;height:36px;border-radius:50%;background:var(--paper2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--terra);flex-shrink:0;}
+.inq-avatar.past{background:var(--gray-l);color:var(--gray);}
+.inq-info{flex:1;min-width:0;}
+.inq-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inq-local{font-size:11px;color:var(--gray);margin-top:1px;}
+.inq-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-activo{background:var(--green);}
+.dot-inactivo{background:#ccc;}
+.empty-list{padding:2rem;text-align:center;color:var(--gray);font-size:13px;}
+
+/* FICHA */
+.ficha{background:white;border:1px solid var(--border-s);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.ficha-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;color:var(--gray);font-size:14px;gap:12px;}
+.ficha-empty-icon{font-size:2.5rem;opacity:0.3;}
+.ficha-head{background:var(--ink);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.ficha-head-left{display:flex;align-items:center;gap:12px;}
+.ficha-avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:white;flex-shrink:0;}
+.ficha-title{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:600;color:white;letter-spacing:0.03em;}
+.ficha-local{font-size:12px;color:rgba(255,255,255,0.55);margin-top:2px;}
+.ficha-head-right{display:flex;gap:8px;align-items:center;}
+.status-badge{font-size:10px;font-weight:600;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:0.07em;}
+.status-activo{background:var(--green-l);color:var(--green);}
+.status-inactivo{background:var(--gray-l);color:var(--gray);}
+.ficha-body{padding:20px;}
+.ficha-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.ftab{font-family:'Archivo',sans-serif;font-size:12px;font-weight:500;color:var(--gray);background:none;border:none;border-bottom:2px solid transparent;padding:8px 16px;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;transition:all 0.15s;margin-bottom:-1px;}
+.ftab:hover{color:var(--ink);}
+.ftab.active{color:var(--terra);border-bottom-color:var(--terra);}
+.ftab-content{display:none;}
+.ftab-content.active{display:block;}
+.grid{display:grid;gap:14px;margin-bottom:14px;}
+.grid.two{grid-template-columns:1fr 1fr;}
+.grid.three{grid-template-columns:1fr 1fr 1fr;}
+.grid.full{grid-template-columns:1fr;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;font-family:'Archivo',sans-serif;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--border-s);border-radius:6px;padding:8px 12px;transition:border-color 0.15s;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--terra);background:white;}
+.field textarea{height:80px;resize:vertical;}
+.section-title{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.ficha-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.saved-msg{font-size:12px;color:var(--green);font-weight:500;display:none;align-items:center;gap:4px;}
+
+/* HISTORIAL TAB */
+.hist-entry{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.hist-entry:last-child{border-bottom:none;}
+.hist-local{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;min-width:80px;color:var(--terra);}
+.hist-info{flex:1;}
+.hist-dates{font-size:12px;color:var(--gray);}
+.hist-renta{font-size:13px;font-weight:500;}
+.hist-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em;}
+.tag-activo{background:var(--green-l);color:var(--green);}
+.tag-inactivo{background:var(--gray-l);color:var(--gray);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:white;border-radius:12px;width:100%;max-width:460px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.18);}
+.modal-head{background:var(--ink);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+.modal-head-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:600;color:white;letter-spacing:0.03em;}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:rgba(255,255,255,0.5);}
+.modal-close:hover{color:white;}
+.modal-body{padding:20px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar-list{max-height:40vh;}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="app">
+
+<div class="page-header">
+  <div>
+    <a href="./index.html" class="back-btn">← Panel edificio</a>
+    <div class="page-title">Inquilinos</div>
+    <div class="page-sub">Paseo Sant Joan 97 · Base de datos</div>
+  </div>
+  <div class="header-right">
+    <button class="btn primary" onclick="openNewModal()">+ Nuevo inquilino</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <span class="sidebar-title">Directorio</span>
+      <span class="sidebar-count" id="sidebar-count">—</span>
+    </div>
+    <div class="sidebar-filters">
+      <button class="filter-btn active" data-filter="todos" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" data-filter="activo" onclick="setFilter('activo',this)">Activos</button>
+      <button class="filter-btn" data-filter="inactivo" onclick="setFilter('inactivo',this)">Histórico</button>
+      <select class="filter-year" id="filter-year" onchange="renderList()">
+        <option value="">Todos los años</option>
+      </select>
+    </div>
+    <div class="sidebar-search">
+      <input type="text" id="search-input" placeholder="Buscar inquilino…" oninput="renderList()"/>
+    </div>
+    <div class="sidebar-list" id="sidebar-list"></div>
+  </div>
+
+  <!-- FICHA -->
+  <div class="ficha" id="ficha">
+    <div class="ficha-empty">
+      <div class="ficha-empty-icon">◻</div>
+      <div>Selecciona un inquilino para ver su ficha</div>
+      <button class="btn primary" onclick="openNewModal()">+ Nuevo inquilino</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- MODAL NUEVO -->
+<div class="modal-overlay" id="new-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-head-title">Nuevo inquilino</span>
+      <button class="modal-close" onclick="closeNewModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid full" style="margin-bottom:10px;">
+        <div class="field"><label>Nombre / Razón social</label><input type="text" id="new-nombre" placeholder="Empresa o persona"/></div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label>CIF / NIF</label><input type="text" id="new-cif" placeholder="B12345678"/></div>
+        <div class="field"><label>Local asignado</label>
+          <select id="new-local">
+            <option value="">— Sin asignar —</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label>Estado</label>
+          <select id="new-status">
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo / Histórico</option>
+          </select>
+        </div>
+        <div class="field"><label>Año de entrada</label><input type="number" id="new-year" placeholder="2024"/></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeNewModal()">Cancelar</button>
+        <button class="btn primary" onclick="createInquilino()">Crear inquilino</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+if(localStorage.getItem('fhl_auth')!=='true'){window.location.href='../';}
+
+const LOCALES=['LOCAL - Pl.Baja','Entlo. A','Entlo. B','Entlo. 3º','Entlo. 4º','1º1ª','1º2ª','1º3ª','1º4ª','2º1ª','2º2ª','2º3ª','2º4ª','3º1ª','3º2ª','3º3ª','3º4ª','4º1ª','4º2ª','4º3ª','4º4ª','5º1ª','5º2ª','5º3ª','5º4ª','6º1ª','6º2ª','6º3ª','6º4ª','ATICO'];
+
+let inquilinos=[];
+let currentFilter='todos';
+let currentId=null;
+
+function loadInquilinos(){
+  try{
+    const saved=localStorage.getItem('psj97_inquilinos');
+    if(saved){inquilinos=JSON.parse(saved);return;}
+  }catch(e){}
+  // Seed from building data
+  let bdata={};
+  try{bdata=JSON.parse(localStorage.getItem('psj97_v2')||'{}');}catch(e){}
+  const defaults={"LOCAL - Pl.Baja":{nombre:"FORM STUDIO PILATES CLUB SL",cif:"B21643051",dir:"Passeig Sant Joan 97 LOCAL, 08009 Barcelona",telefono:"657372892",mail:"formstudiopilatesclub@gmail.com",alq_sin_iva:"4092",inicio:"2025-03-18",fin:"2031-03-17",pago:"Domiciliación Banco de Santander ES1900494762692717016257"},"Entlo. A":{nombre:"COEXIA SL",cif:"",dir:"",telefono:"",mail:"mespinosa@coexia.com",alq_sin_iva:"850",inicio:"2025-07-01",fin:"2028-06-30",pago:""},"Entlo. B":{nombre:"ANA TARRIDA FELIP",cif:"",dir:"",telefono:"",mail:"annatarridafelip@gmail.com",alq_sin_iva:"1100",inicio:"2026-01-01",fin:"2030-12-31",pago:""},"Entlo. 3º":{nombre:"TOOLTESTER SL",cif:"",dir:"",telefono:"",mail:"robert@tooltester.net",alq_sin_iva:"2400",inicio:"2026-03-01",fin:"2031-02-28",pago:""},"1º2ª":{nombre:"ZOE - LUCY",cif:"",dir:"",telefono:"687033017",mail:"zoe@fisiopluspilates.com",alq_sin_iva:"1002.36",inicio:"2024-01-01",fin:"2026-12-31",pago:""},"1º3ª":{nombre:"JAVIER MONTILLA BELLIDO",cif:"",dir:"",telefono:"",mail:"montiosteo@gmail.com",alq_sin_iva:"950",inicio:"2026-01-01",fin:"2031-12-31",pago:""},"1º4ª":{nombre:"RICARDO BERENGUER",cif:"",dir:"",telefono:"629685875",mail:"berenguer@bellgest.com",alq_sin_iva:"1100",inicio:"2025-08-01",fin:"2030-07-31",pago:""},"2º1ª":{nombre:"FMMC",cif:"",dir:"",telefono:"600465943",mail:"mantenimentfmmc@fmmc.cat",alq_sin_iva:"1685.4",inicio:"2024-03-01",fin:"2027-02-28",pago:""},"2º3ª":{nombre:"JUAN ANTONIO BELLIDO",cif:"",dir:"",telefono:"625790885",mail:"jbellidot@gmail.com",alq_sin_iva:"950",inicio:"2025-05-01",fin:"2028-04-30",pago:""},"2º4ª":{nombre:"DIMITRA DOUMPIOTI",cif:"",dir:"",telefono:"669165916",mail:"d_doumpioti@hotmail.com",alq_sin_iva:"1150",inicio:"2025-10-04",fin:"2028-10-03",pago:""},"3º1ª":{nombre:"CRISTINA MENENDEZ",cif:"",dir:"",telefono:"",mail:"cristinamenendezfelez@gmail.com",alq_sin_iva:"1181.08",inicio:"2022-07-20",fin:"2027-07-19",pago:""},"3º2ª":{nombre:"BBA FASHION ESPAÑA, SL",cif:"",dir:"",telefono:"",mail:"",alq_sin_iva:"997.42",inicio:"2025-03-22",fin:"2028-03-21",pago:""},"4º1ª":{nombre:"LEWIS & CARROLL SL",cif:"",dir:"",telefono:"660153357",mail:"alicia@lewisandcarroll.com",alq_sin_iva:"1613.75",inicio:"2022-02-17",fin:"2027-02-16",pago:""},"4º3ª":{nombre:"CARMEN GIMENEZ",cif:"",dir:"",telefono:"629387360",mail:"16987cgl@comb.cat",alq_sin_iva:"1750",inicio:"2025-11-01",fin:"2028-10-31",pago:""},"5º1ª":{nombre:"YUMA IBERICA S.L",cif:"B19408293",dir:"Passeig Sant Joan 97 5º1ª, 08009 Barcelona",telefono:"624449668",mail:"yumaiberica2022@gmail.com",alq_sin_iva:"1200",inicio:"2025-06-01",fin:"2026-05-31",pago:""},"5º3ª":{nombre:"PHD Lifescience SLU",cif:"",dir:"",telefono:"628644684",mail:"santiago.ros@phdlifescience.eu",alq_sin_iva:"1250",inicio:"2025-05-07",fin:"2029-05-06",pago:""},"5º4ª":{nombre:"VERSO HCARE ESPAÑA SL",cif:"",dir:"",telefono:"637476058",mail:"ljacquetton@verso.healthcare",alq_sin_iva:"1150",inicio:"2026-01-01",fin:"2030-01-01",pago:""},"6º1ª":{nombre:"JAPons - Serés",cif:"",dir:"Passeig Sant Joan 97 6º1ª",telefono:"",mail:"",alq_sin_iva:"",inicio:"",fin:"",pago:""},"6º2ª":{nombre:"JAPons - Serés",cif:"",dir:"",telefono:"",mail:"",alq_sin_iva:"",inicio:"",fin:"",pago:""},"6º3ª":{nombre:"PROINFANTS",cif:"",dir:"",telefono:"",mail:"",alq_sin_iva:"105",inicio:"2025-01-01",fin:"2025-12-31",pago:""},"6º4ª":{nombre:"PROINFANTS",cif:"",dir:"",telefono:"",mail:"",alq_sin_iva:"",inicio:"",fin:"",pago:""},"ATICO":{nombre:"JAPons - Serés",cif:"37643021W",dir:"Passeig Sant Joan 97 atc, 08009 Barcelona",telefono:"",mail:"",alq_sin_iva:"",inicio:"1979-06-01",fin:"INDEFINIDO",pago:""}};
+  inquilinos=Object.entries(defaults).map(([local,d],i)=>({
+    id:'inq_'+(Date.now()+i),
+    nombre:d.nombre,cif:d.cif||'',
+    dir:d.dir||'',cp:'08009 Barcelona',
+    telefono:d.telefono||'',mail:d.mail||'',
+    local,status:'activo',
+    yearEntrada:d.inicio?parseInt(d.inicio.slice(0,4)):'',
+    yearSalida:'',
+    alq_sin_iva:d.alq_sin_iva||'',
+    inicio:d.inicio||'',fin:d.fin||'',
+    pago:d.pago||'',
+    notas:'',notas_internas:'',
+    web:'',representante:''
+  }));
+  saveInquilinos();
+}
+
+function saveInquilinos(){
+  try{localStorage.setItem('psj97_inquilinos',JSON.stringify(inquilinos));}catch(e){}
+}
+
+function getInitials(nombre){
+  return nombre.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
+}
+
+function fmtEur(v){const n=parseFloat(v);if(!v||isNaN(n))return'—';return n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
+
+function setFilter(f,el){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));
+  renderList();
+}
+
+function renderList(){
+  const search=document.getElementById('search-input').value.toLowerCase();
+  const year=document.getElementById('filter-year').value;
+  let filtered=inquilinos.filter(inq=>{
+    if(currentFilter==='activo'&&inq.status!=='activo')return false;
+    if(currentFilter==='inactivo'&&inq.status!=='inactivo')return false;
+    if(year){
+      const ye=parseInt(year);
+      const yin=inq.yearEntrada?parseInt(inq.yearEntrada):0;
+      const yout=inq.yearSalida?parseInt(inq.yearSalida):9999;
+      if(ye<yin||ye>yout)return false;
+    }
+    if(search&&!inq.nombre.toLowerCase().includes(search)&&!inq.local.toLowerCase().includes(search))return false;
+    return true;
+  });
+  filtered.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  const list=document.getElementById('sidebar-list');
+  document.getElementById('sidebar-count').textContent=filtered.length+' inquilino'+(filtered.length!==1?'s':'');
+  if(!filtered.length){list.innerHTML='<div class="empty-list">Sin resultados</div>';return;}
+  list.innerHTML=filtered.map(inq=>`
+    <div class="inq-row${currentId===inq.id?' active':''}" onclick="selectInquilino('${inq.id}')">
+      <div class="inq-avatar${inq.status==='inactivo'?' past':''}">${getInitials(inq.nombre)}</div>
+      <div class="inq-info">
+        <div class="inq-name">${inq.nombre}</div>
+        <div class="inq-local">${inq.local||'Sin local asignado'}${inq.yearEntrada?' · '+inq.yearEntrada:''}</div>
+      </div>
+      <div class="inq-status-dot dot-${inq.status}"></div>
+    </div>
+  `).join('');
+}
+
+function populateYearFilter(){
+  const years=new Set();
+  inquilinos.forEach(inq=>{
+    if(inq.yearEntrada)years.add(parseInt(inq.yearEntrada));
+    if(inq.yearSalida)years.add(parseInt(inq.yearSalida));
+  });
+  const sel=document.getElementById('filter-year');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Todos los años</option>';
+  [...years].sort((a,b)=>b-a).forEach(y=>{
+    const opt=document.createElement('option');opt.value=y;opt.textContent=y;sel.appendChild(opt);
+  });
+  sel.value=cur;
+}
+
+function populateLocalSelects(){
+  [document.getElementById('new-local'),document.getElementById('f-local')].forEach(sel=>{
+    if(!sel)return;
+    const cur=sel.value;
+    sel.innerHTML='<option value="">— Sin asignar —</option>';
+    LOCALES.forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l;sel.appendChild(o);});
+    sel.value=cur;
+  });
+}
+
+function selectInquilino(id){
+  currentId=id;
+  renderList();
+  renderFicha();
+}
+
+function renderFicha(){
+  const inq=inquilinos.find(i=>i.id===currentId);
+  if(!inq){document.getElementById('ficha').innerHTML='<div class="ficha-empty"><div class="ficha-empty-icon">◻</div><div>Selecciona un inquilino</div></div>';return;}
+  document.getElementById('ficha').innerHTML=`
+  <div class="ficha-head">
+    <div class="ficha-head-left">
+      <div class="ficha-avatar">${getInitials(inq.nombre)}</div>
+      <div>
+        <div class="ficha-title">${inq.nombre}</div>
+        <div class="ficha-local">${inq.local||'Sin local asignado'}</div>
+      </div>
+    </div>
+    <div class="ficha-head-right">
+      <span class="status-badge status-${inq.status}">${inq.status==='activo'?'Activo':'Histórico'}</span>
+    </div>
+  </div>
+  <div class="ficha-body">
+    <div class="ficha-tabs">
+      <button class="ftab active" onclick="showFTab('datos',this)">Datos</button>
+      <button class="ftab" onclick="showFTab('contrato',this)">Contrato</button>
+      <button class="ftab" onclick="showFTab('notas',this)">Notas</button>
+      <button class="ftab" onclick="showFTab('historial',this)">Historial</button>
+    </div>
+
+    <div class="ftab-content active" id="ftab-datos">
+      <div class="section-title">Identificación</div>
+      <div class="grid two">
+        <div class="field"><label>Nombre / Razón social</label><input type="text" id="f-nombre" value="${esc(inq.nombre)}"/></div>
+        <div class="field"><label>CIF / NIF</label><input type="text" id="f-cif" value="${esc(inq.cif)}"/></div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label>Representante / Contacto</label><input type="text" id="f-representante" value="${esc(inq.representante||'')}"/></div>
+        <div class="field"><label>Web</label><input type="text" id="f-web" value="${esc(inq.web||'')}"/></div>
+      </div>
+      <div class="section-title" style="margin-top:4px;">Dirección fiscal</div>
+      <div class="grid full">
+        <div class="field"><label>Dirección</label><input type="text" id="f-dir" value="${esc(inq.dir)}"/></div>
+      </div>
+      <div class="section-title" style="margin-top:4px;">Contacto</div>
+      <div class="grid two">
+        <div class="field"><label>Teléfono</label><input type="text" id="f-tel" value="${esc(inq.telefono)}"/></div>
+        <div class="field"><label>Email</label><input type="text" id="f-mail" value="${esc(inq.mail)}"/></div>
+      </div>
+    </div>
+
+    <div class="ftab-content" id="ftab-contrato">
+      <div class="grid two">
+        <div class="field"><label>Local asignado</label>
+          <select id="f-local">${LOCALES.map(l=>`<option value="${l}"${inq.local===l?' selected':''}>${l}</option>`).join('')}<option value=""${!inq.local?' selected':''}>— Sin asignar —</option></select>
+        </div>
+        <div class="field"><label>Estado</label>
+          <select id="f-status">
+            <option value="activo"${inq.status==='activo'?' selected':''}>Activo</option>
+            <option value="inactivo"${inq.status==='inactivo'?' selected':''}>Histórico / Inactivo</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid three">
+        <div class="field"><label>Año de entrada</label><input type="number" id="f-year-entrada" value="${inq.yearEntrada||''}" placeholder="2024"/></div>
+        <div class="field"><label>Año de salida</label><input type="number" id="f-year-salida" value="${inq.yearSalida||''}" placeholder="—"/></div>
+        <div class="field"><label>Alquiler sin IVA (€)</label><input type="number" id="f-alq" value="${inq.alq_sin_iva||''}" step="0.01"/></div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label>Inicio de contrato</label><input type="date" id="f-inicio" value="${inq.inicio||''}"/></div>
+        <div class="field"><label>Fin de contrato</label><input type="text" id="f-fin" value="${inq.fin||''}" placeholder="aaaa-mm-dd o INDEFINIDO"/></div>
+      </div>
+      <div class="grid full">
+        <div class="field"><label>Forma de pago</label><input type="text" id="f-pago" value="${esc(inq.pago||'')}"/></div>
+      </div>
+    </div>
+
+    <div class="ftab-content" id="ftab-notas">
+      <div class="grid full">
+        <div class="field"><label>Notas del contrato / observaciones</label><textarea id="f-notas" style="height:100px;">${esc(inq.notas||'')}</textarea></div>
+      </div>
+      <div class="grid full">
+        <div class="field"><label>Notas internas (privadas)</label><textarea id="f-notas-int" style="height:100px;">${esc(inq.notas_internas||'')}</textarea></div>
+      </div>
+    </div>
+
+    <div class="ftab-content" id="ftab-historial">
+      ${buildHistorial(inq)}
+    </div>
+
+    <div class="ficha-actions">
+      <button class="btn danger sm" onclick="deleteInquilino('${inq.id}')">Eliminar</button>
+      <div class="saved-msg" id="saved-msg">✓ Guardado</div>
+      <button class="btn sm" onclick="selectInquilino('${inq.id}')">Cancelar</button>
+      <button class="btn primary sm" onclick="saveInquilino('${inq.id}')">Guardar cambios</button>
+    </div>
+  </div>`;
+}
+
+function buildHistorial(inq){
+  const same=inquilinos.filter(i=>i.local===inq.local&&i.id!==inq.id);
+  const all=[inq,...same].sort((a,b)=>(parseInt(b.yearEntrada)||0)-(parseInt(a.yearEntrada)||0));
+  if(all.length<=1&&!inq.yearEntrada)return'<p style="color:var(--gray);font-size:13px;padding:8px 0;">Sin historial registrado para este local.</p>';
+  return`<div class="section-title">Ocupación de ${inq.local||'este local'}</div>`+
+  all.map(i=>`<div class="hist-entry">
+    <div class="hist-local">${i.yearEntrada||'—'}</div>
+    <div class="hist-info">
+      <div class="hist-renta">${i.nombre}</div>
+      <div class="hist-dates">${i.inicio||'?'} → ${i.fin||'?'}${i.alq_sin_iva?' · '+fmtEur(i.alq_sin_iva)+'/mes':''}</div>
+    </div>
+    <span class="hist-tag tag-${i.status}">${i.status==='activo'?'Activo':'Hist.'}</span>
+  </div>`).join('');
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function showFTab(name,el){
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ftab-content').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const t=document.getElementById('ftab-'+name);
+  if(t)t.classList.add('active');
+}
+
+function saveInquilino(id){
+  const idx=inquilinos.findIndex(i=>i.id===id);
+  if(idx<0)return;
+  inquilinos[idx]=Object.assign({},inquilinos[idx],{
+    nombre:document.getElementById('f-nombre').value,
+    cif:document.getElementById('f-cif').value,
+    dir:document.getElementById('f-dir').value,
+    telefono:document.getElementById('f-tel').value,
+    mail:document.getElementById('f-mail').value,
+    representante:document.getElementById('f-representante').value,
+    web:document.getElementById('f-web').value,
+    local:document.getElementById('f-local').value,
+    status:document.getElementById('f-status').value,
+    yearEntrada:document.getElementById('f-year-entrada').value,
+    yearSalida:document.getElementById('f-year-salida').value,
+    alq_sin_iva:document.getElementById('f-alq').value,
+    inicio:document.getElementById('f-inicio').value,
+    fin:document.getElementById('f-fin').value,
+    pago:document.getElementById('f-pago').value,
+    notas:document.getElementById('f-notas').value,
+    notas_internas:document.getElementById('f-notas-int').value,
+  });
+  saveInquilinos();
+  populateYearFilter();
+  renderList();
+  renderFicha();
+  const msg=document.getElementById('saved-msg');
+  if(msg){msg.style.display='flex';setTimeout(()=>msg.style.display='none',2500);}
+}
+
+function deleteInquilino(id){
+  const inq=inquilinos.find(i=>i.id===id);
+  if(!confirm(`¿Eliminar a ${inq?.nombre}? Esta acción no se puede deshacer.`))return;
+  inquilinos=inquilinos.filter(i=>i.id!==id);
+  saveInquilinos();
+  currentId=null;
+  document.getElementById('ficha').innerHTML='<div class="ficha-empty"><div class="ficha-empty-icon">◻</div><div>Inquilino eliminado</div></div>';
+  populateYearFilter();
+  renderList();
+}
+
+function openNewModal(){
+  document.getElementById('new-nombre').value='';
+  document.getElementById('new-cif').value='';
+  document.getElementById('new-local').value='';
+  document.getElementById('new-status').value='activo';
+  document.getElementById('new-year').value=new Date().getFullYear();
+  document.getElementById('new-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('new-nombre').focus(),100);
+}
+
+function closeNewModal(){document.getElementById('new-modal').classList.remove('open');}
+
+function createInquilino(){
+  const nombre=document.getElementById('new-nombre').value.trim();
+  if(!nombre){alert('Introduce el nombre del inquilino.');return;}
+  const inq={
+    id:'inq_'+Date.now(),
+    nombre,
+    cif:document.getElementById('new-cif').value,
+    dir:'',cp:'08009 Barcelona',
+    telefono:'',mail:'',
+    local:document.getElementById('new-local').value,
+    status:document.getElementById('new-status').value,
+    yearEntrada:document.getElementById('new-year').value,
+    yearSalida:'',
+    alq_sin_iva:'',inicio:'',fin:'',pago:'',
+    notas:'',notas_internas:'',
+    web:'',representante:''
+  };
+  inquilinos.push(inq);
+  saveInquilinos();
+  populateYearFilter();
+  renderList();
+  closeNewModal();
+  currentId=inq.id;
+  renderList();
+  renderFicha();
+}
+
+// populate local selects for new modal
+function initNewLocalSelect(){
+  const sel=document.getElementById('new-local');
+  sel.innerHTML='<option value="">— Sin asignar —</option>';
+  LOCALES.forEach(l=>{const o=document.createElement('option');o.value=l;o.textContent=l;sel.appendChild(o);});
+}
+
+document.getElementById('new-modal').addEventListener('click',function(e){if(e.target===this)closeNewModal();});
+
+loadInquilinos();
+populateYearFilter();
+initNewLocalSelect();
+renderList();
+</script>
+</body>
+</html>
