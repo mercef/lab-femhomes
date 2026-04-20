@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edificio PSJ 97 · Fem Homes Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Barlow+Condensed:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a18;
+    --paper: #f5f2ec;
+    --paper2: #ede9e0;
+    --terra: #8b5e3c;
+    --terra-light: #c49a6c;
+    --terra-pale: #f0e6d8;
+    --green: #3a6b3a;
+    --green-light: #e8f2e8;
+    --amber: #b8860b;
+    --amber-light: #fef9e7;
+    --blue: #2c5282;
+    --blue-light: #ebf4ff;
+    --gray: #888;
+    --gray-light: #f0ede8;
+    --border: rgba(26,26,24,0.12);
+    --border-strong: rgba(26,26,24,0.25);
+    --radius: 8px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Archivo', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* BG image overlay */
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=60');
+    background-size: cover;
+    background-position: center top;
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-strong);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .header-left h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  .header-left p {
+    font-size: 12px;
+    color: var(--gray);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .header-right {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .header-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .admin-card {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: white;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 220px;
+  }
+  .admin-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .admin-card-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .admin-card-row input {
+    flex: 1;
+    font-family: 'Archivo', sans-serif;
+    font-size: 12px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 5px 8px;
+    min-width: 0;
+  }
+  .admin-card-row input:focus { outline: none; border-color: var(--terra); }
+  .admin-open-btn {
+    font-family: 'Archivo', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--ink);
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .admin-open-btn:hover { background: #333; }
+  .stat {
+    text-align: right;
+  }
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1px solid;
+  }
+
+  /* Building grid */
+  .building { margin-bottom: 2.5rem; }
+  .floor {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+  .floor-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    color: var(--gray);
+    width: 58px;
+    text-align: right;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    letter-spacing: 0.03em;
+  }
+  .units {
+    display: flex;
+    gap: 5px;
+    flex: 1;
+  }
+  .unit {
+    flex: 1;
+    min-height: 56px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 6px 4px;
+    position: relative;
+  }
+  .unit:hover { border-color: var(--terra-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .unit.selected { border: 1.5px solid var(--terra); background: var(--terra-pale); }
+  .unit.occupied { background: var(--green-light); border-color: rgba(58,107,58,0.3); }
+  .unit.occupied:hover { border-color: var(--green); }
+  .unit.vacant { background: white; }
+  .unit.familiar { background: var(--amber-light); border-color: rgba(184,134,11,0.3); }
+  .unit.familiar:hover { border-color: var(--amber); }
+  .unit.unassigned { background: var(--gray-light); border-style: dashed; }
+  .unit-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    text-align: center;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+  }
+  .unit-tenant {
+    font-size: 8.5px;
+    color: var(--gray);
+    margin-top: 2px;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 90%;
+  }
+  .unit-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    margin-top: 4px;
+  }
+  .dot-occupied { background: var(--green); }
+  .dot-vacant { background: #bbb; }
+  .dot-familiar { background: var(--amber); }
+  .dot-unassigned { background: #ddd; }
+
+  /* Panel */
+  .panel {
+    background: white;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .panel-header {
+    background: var(--ink);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .panel-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.04em;
+  }
+  .panel-nombre {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+  .panel-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    flex-shrink: 0;
+  }
+  .badge-occupied { background: var(--green-light); color: var(--green); }
+  .badge-vacant { background: #f0ede8; color: #888; }
+  .badge-familiar { background: var(--amber-light); color: var(--amber); }
+  .badge-unassigned { background: #f0ede8; color: #888; }
+
+  .panel-body { padding: 20px; }
+
+  .panel-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    font-family: 'Archivo', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--terra); border-bottom-color: var(--terra); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .fields-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .fields-grid.full { grid-template-columns: 1fr; }
+
+  .field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 5px;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    font-family: 'Archivo', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 7px 10px;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--terra);
+  }
+  .field textarea { height: 70px; resize: vertical; }
+  .field .value-display {
+    font-size: 13px;
+    color: var(--ink);
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .icloud-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .icloud-row input { flex: 1; }
+  .icloud-btn {
+    font-family: 'Archivo', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .icloud-btn:hover { background: var(--terra-pale); border-color: var(--terra); }
+  .icloud-btn.primary { background: var(--ink); color: white; border-color: var(--ink); }
+  .icloud-btn.primary:hover { background: #333; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+  }
+
+  .alert-box {
+    background: #fff8e6;
+    border: 1px solid #f0c040;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #7a5a00;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .panel-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .saved-msg {
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .finance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .finance-card {
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+  .finance-card .num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .finance-card .lbl {
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--gray);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    padding: 5px 0;
+    margin-bottom: 1.5rem;
+    transition: color 0.15s;
+    font-family: 'Archivo', sans-serif;
+  }
+  .back-btn:hover { color: var(--terra); }
+
+  @media (max-width: 700px) {
+    .fields-grid { grid-template-columns: 1fr; }
+    .fields-grid.three { grid-template-columns: 1fr 1fr; }
+    .finance-grid { grid-template-columns: 1fr 1fr; }
+    .floor-label { width: 42px; font-size: 10px; }
+    .unit { min-height: 46px; }
+    .unit-name { font-size: 9px; }
+    .header-stats { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-overlay"></div>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <a href="../" class="back-btn">← Lab</a>
+      <h1>Paseo Sant Joan 97</h1>
+      <p>Barcelona · Panel de gestión</p>
+    </div>
+    <div class="header-right">
+      <div class="header-stats" id="header-stats"></div>
+      <div class="admin-card">
+        <div class="admin-card-label">Administración general</div>
+        <div class="admin-card-row">
+          <input type="url" id="admin-icloud" placeholder="Enlace carpeta iCloud…" />
+          <button class="admin-open-btn" onclick="openAdmin()">Abrir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green-light);border-color:var(--green);"></div> Alquilado</div>
+    <div class="legend-item"><div class="legend-dot" style="background:white;border-color:#ccc;"></div> Vacío</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber-light);border-color:var(--amber);"></div> Familiar</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gray-light);border-color:#ccc;border-style:dashed;"></div> Sin datos</div>
+  </div>
+
+  <div class="building" id="building"></div>
+
+  <div class="panel" id="panel" style="display:none;">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title" id="p-title">—</div>
+        <div class="panel-nombre" id="p-nombre"></div>
+      </div>
+      <span class="panel-badge" id="p-badge">—</span>
+    </div>
+    <div class="panel-body">
+      <div class="panel-tabs">
+        <button class="tab-btn active" onclick="showTab('ficha')">Ficha</button>
+        <button class="tab-btn" onclick="showTab('contrato')">Contrato</button>
+        <button class="tab-btn" onclick="showTab('contacto')">Contacto</button>
+        <button class="tab-btn" onclick="showTab('notas')">Notas</button>
+        <button class="tab-btn" onclick="showTab('docs')">Documentos</button>
+      </div>
+
+      <!-- FICHA -->
+      <div class="tab-content active" id="tab-ficha">
+        <div class="fields-grid three">
+          <div class="field"><label>Tipo</label><input type="text" id="f-tipo" /></div>
+          <div class="field"><label>Metros</label><input type="number" id="f-metros" /></div>
+          <div class="field"><label>Estado</label>
+            <select id="f-status">
+              <option value="occupied">Alquilado</option>
+              <option value="vacant">Vacío</option>
+              <option value="familiar">Familiar</option>
+              <option value="unassigned">Sin datos</option>
+            </select>
+          </div>
+        </div>
+        <div class="fields-grid">
+          <div class="field"><label>Inquilino / empresa</label><input type="text" id="f-nombre" /></div>
+          <div class="field"><label>Revisión IPC</label><input type="text" id="f-ipc" /></div>
+        </div>
+        <hr class="divider">
+        <div class="finance-grid" id="finance-cards"></div>
+      </div>
+
+      <!-- CONTRATO -->
+      <div class="tab-content" id="tab-contrato">
+        <div id="contrato-alert"></div>
+        <div class="fields-grid">
+          <div class="field"><label>Inicio de contrato</label><input type="date" id="f-inicio" /></div>
+          <div class="field"><label>Fin de contrato</label><input type="text" id="f-fin" placeholder="aaaa-mm-dd o INDEFINIDO" /></div>
+        </div>
+        <div class="fields-grid full">
+          <div class="field"><label>Observaciones del contrato</label><textarea id="f-obs"></textarea></div>
+        </div>
+      </div>
+
+      <!-- CONTACTO -->
+      <div class="tab-content" id="tab-contacto">
+        <div class="fields-grid full">
+          <div class="field"><label>Teléfonos</label><input type="text" id="f-tel" /></div>
+        </div>
+        <div class="fields-grid full">
+          <div class="field"><label>Email</label><input type="text" id="f-mail" /></div>
+        </div>
+      </div>
+
+      <!-- NOTAS -->
+      <div class="tab-content" id="tab-notas">
+        <div class="fields-grid full">
+          <div class="field"><label>Notas internas (editable)</label><textarea id="f-notas" style="height:120px;" placeholder="Anotaciones, incidencias, recordatorios..."></textarea></div>
+        </div>
+      </div>
+
+      <!-- DOCUMENTOS -->
+      <div class="tab-content" id="tab-docs">
+        <p class="section-label">Carpeta iCloud</p>
+        <p style="font-size:12px;color:var(--gray);margin-bottom:12px;line-height:1.6;">Pega aquí el enlace compartido de la carpeta iCloud de esta unidad. Se abrirá directamente al hacer clic en "Abrir carpeta".</p>
+        <div class="icloud-row">
+          <div class="field" style="flex:1;margin:0;"><input type="url" id="f-icloud" placeholder="https://www.icloud.com/iclouddrive/..." /></div>
+          <a id="icloud-link" href="#" target="_blank" class="icloud-btn" onclick="return openIcloud()">
+            &#9656; Abrir carpeta
+          </a>
+        </div>
+      </div>
+
+      <div class="panel-actions">
+        <button class="icloud-btn" onclick="closePanel()">Cerrar</button>
+        <button class="icloud-btn primary" onclick="saveUnit()">Guardar cambios</button>
+      </div>
+      <div class="saved-msg" id="saved-msg">✓ Guardado correctamente</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+if (localStorage.getItem('fhl_auth') !== 'true') {
+  window.location.href = '../';
+}
+</script>
+<script>
+const FLOORS = [
+  { label: 'Ático', units: ['ATICO'] },
+  { label: '6º', units: ['6º1ª','6º2ª','6º3ª','6º4ª'] },
+  { label: '5º', units: ['5º1ª','5º2ª','5º3ª','5º4ª'] },
+  { label: '4º', units: ['4º1ª','4º2ª','4º3ª','4º4ª'] },
+  { label: '3º', units: ['3º1ª','3º2ª','3º3ª','3º4ª'] },
+  { label: '2º', units: ['2º1ª','2º2ª','2º3ª','2º4ª'] },
+  { label: '1º', units: ['1º1ª','1º2ª','1º3ª','1º4ª'] },
+  { label: 'Entlo.', units: ['Entlo. A','Entlo. B','Entlo. 3º','Entlo. 4º'] },
+  { label: 'Pl. Baja', units: ['LOCAL - Pl.Baja'], full: true },
+];
+
+const DEFAULTS = {"LOCAL - Altillo":{"status":"vacant","nombre":"VACIO","tipo":"","metros":"150","alq_sin_iva":"0","alq_con_iva":"","iva":"","total_recibo":"0","eur_m2":"0","inicio":"","fin":"","revision_ipc":"","observaciones":"VACIO","telefonos":"","mail":"","icloud":"","notas":""},"LOCAL - Pl.Baja":{"status":"occupied","nombre":"FORM STUDIO PILATES CLUB SL","tipo":"TIENDA","metros":"160","alq_sin_iva":"4092","alq_con_iva":"4951.32","iva":"859.32","total_recibo":"4951.32","eur_m2":"25.58","inicio":"2025-03-18","fin":"2031-03-17","revision_ipc":"Revisión cada mes de marzo aplicando índice de Febrero","observaciones":"Carencia hasta mayo. Primer recibo junio 2025","telefonos":"Cristiana - Alessia. 657372892","mail":"formstudiopilatesclub@gmail.com","icloud":"","notas":""},"Entlo. A":{"status":"occupied","nombre":"COEXIA SL","tipo":"DESPACHO","metros":"60","alq_sin_iva":"850","alq_con_iva":"1028.5","iva":"178.5","total_recibo":"1028.5","eur_m2":"14.17","inicio":"2025-07-01","fin":"2028-06-30","revision_ipc":"Revisión cada mes de Julio aplicando índice de Junio","observaciones":"","telefonos":"Moisés Espinosa.","mail":"mespinosa@coexia.com","icloud":"","notas":""},"Entlo. B":{"status":"occupied","nombre":"ANA TARRIDA FELIP","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1100","alq_con_iva":"1331","iva":"231","total_recibo":"1331","eur_m2":"18.33","inicio":"2026-01-01","fin":"2030-12-31","revision_ipc":"Revisión cada mes de enero aplicando índice de Diciembre.","observaciones":"VIGILA! 2.500EUROS A/C, no sujeto a IPC. El concepto incluído en el recibo de La caixa. 6 anys de contracte. Renova contracte gener 2026","telefonos":"","mail":"annatarridafelip@gmail.com","icloud":"","notas":""},"Entlo. 3º":{"status":"occupied","nombre":"TOOLTESTER SL","tipo":"DESPACHO","metros":"60","alq_sin_iva":"2400","alq_con_iva":"2904","iva":"504","total_recibo":"2904","eur_m2":"20","inicio":"2026-03-01","fin":"2031-02-28","revision_ipc":"Revisión cada mes de marzo aplicando índice de Febrero. (A partir de 2º año, en 2028)","observaciones":"Diferencia de fianza pagada en NOV 2025 1.200€","telefonos":"","mail":"robert@tooltester.net","icloud":"","notas":""},"Entlo. 4º":{"status":"unassigned","nombre":"","tipo":"","metros":"60","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"","fin":"","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"1º1ª":{"status":"vacant","nombre":"VACIO","tipo":"DESPACHO","metros":"60","alq_sin_iva":"","alq_con_iva":"0","iva":"0","total_recibo":"0","eur_m2":"0","inicio":"","fin":"","revision_ipc":"","observaciones":"VACIO","telefonos":"","mail":"","icloud":"","notas":""},"1º2ª":{"status":"occupied","nombre":"ZOE - LUCY","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1002.36","alq_con_iva":"1212.86","iva":"210.5","total_recibo":"1212.86","eur_m2":"16.71","inicio":"2024-01-01","fin":"2026-12-31","revision_ipc":"Revisión cada mes de enero aplicando índice de Diciembre","observaciones":"Es gira la meitat del lloguer a Zoe i la meitat a Lucy","telefonos":"ZOE 687033017","mail":"zoe@fisiopluspilates.com","icloud":"","notas":""},"1º3ª":{"status":"occupied","nombre":"JAVIER MONTILLA BELLIDO","tipo":"DESPACHO","metros":"60","alq_sin_iva":"950","alq_con_iva":"1149.5","iva":"199.5","total_recibo":"1149.5","eur_m2":"15.83","inicio":"2026-01-01","fin":"2031-12-31","revision_ipc":"Revisión cada mes de enero aplicando índice de Diciembre","observaciones":"Hay modificaciones de la Base del alquiler en Enero 2027 y Enero 2028 según contracto","telefonos":"","mail":"montiosteo@gmail.com","icloud":"","notas":""},"1º4ª":{"status":"occupied","nombre":"RICARDO BERENGUER","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1100","alq_con_iva":"1331","iva":"231","total_recibo":"1331","eur_m2":"18.33","inicio":"2025-08-01","fin":"2030-07-31","revision_ipc":"Revisión cada mes de Agosto aplicando el índice de Julio","observaciones":"APLICACION IPC a partir 2027","telefonos":"629685875 932080462","mail":"berenguer@bellgest.com","icloud":"","notas":""},"2º1ª":{"status":"occupied","nombre":"FMMC","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1685.4","alq_con_iva":"2039.33","iva":"353.93","total_recibo":"2039.33","eur_m2":"14.05","inicio":"2024-03-01","fin":"2027-02-28","revision_ipc":"Revisión cada mes de Marzo aplicando el índice de Febrero","observaciones":"","telefonos":"Neus. Loli (encarregada del manteniment: 600465943)","mail":"mantenimentfmmc@fmmc.cat","icloud":"","notas":""},"2º2ª":{"status":"unassigned","nombre":"","tipo":"","metros":"60","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"","fin":"","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"2º3ª":{"status":"occupied","nombre":"JUAN ANTONIO BELLIDO","tipo":"DESPACHO","metros":"60","alq_sin_iva":"950","alq_con_iva":"1149.5","iva":"199.5","total_recibo":"1149.5","eur_m2":"15.83","inicio":"2025-05-01","fin":"2028-04-30","revision_ipc":"Revisión cada mes de Mayo aplicando el índice de Abril","observaciones":"","telefonos":"625790885","mail":"jbellidot@gmail.com","icloud":"","notas":""},"2º4ª":{"status":"occupied","nombre":"DIMITRA DOUMPIOTI","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1150","alq_con_iva":"1391.5","iva":"241.5","total_recibo":"1391.5","eur_m2":"19.17","inicio":"2025-10-04","fin":"2028-10-03","revision_ipc":"Revisión cada mes de Octubre aplicando el índice de Sept","observaciones":"","telefonos":"669165916","mail":"d_doumpioti@hotmail.com","icloud":"","notas":""},"3º1ª":{"status":"occupied","nombre":"CRISTINA MENENDEZ","tipo":"VIVIENDA","metros":"60","alq_sin_iva":"1181.08","alq_con_iva":"0","iva":"0","total_recibo":"1181.08","eur_m2":"19.68","inicio":"2022-07-20","fin":"2027-07-19","revision_ipc":"Revision cada mes de Julio aplicando el indice de Junio","observaciones":"Recibo de vivienda","telefonos":"","mail":"cristinamenendezfelez@gmail.com","icloud":"","notas":""},"3º2ª":{"status":"occupied","nombre":"BBA FASHION ESPAÑA, SL","tipo":"DESPACHO","metros":"60","alq_sin_iva":"997.42","alq_con_iva":"1206.88","iva":"209.46","total_recibo":"1206.88","eur_m2":"16.62","inicio":"2025-03-22","fin":"2028-03-21","revision_ipc":"Revisión cada mes de Marzo aplicando índice de febrero","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"3º3ª":{"status":"vacant","nombre":"VACIO","tipo":"DESPACHO","metros":"60","alq_sin_iva":"0","alq_con_iva":"0","iva":"0","total_recibo":"0","eur_m2":"0","inicio":"","fin":"","revision_ipc":"","observaciones":"VACIO","telefonos":"","mail":"","icloud":"","notas":""},"3º4ª":{"status":"vacant","nombre":"","tipo":"","metros":"60","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"","fin":"","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"4º1ª":{"status":"occupied","nombre":"LEWIS & CARROLL SL","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1613.75","alq_con_iva":"1952.64","iva":"338.89","total_recibo":"1952.64","eur_m2":"13.45","inicio":"2022-02-17","fin":"2027-02-16","revision_ipc":"Revisión cada mes de Febrero aplicando el índice de Enero","observaciones":"","telefonos":"Alicia Iglesias 660153357 // Jose Antonio 619865151","mail":"alicia@lewisandcarroll.com // jose@lewisandcarroll.com","icloud":"","notas":""},"4º2ª":{"status":"occupied","nombre":"","tipo":"","metros":"60","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"","fin":"","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"4º3ª":{"status":"occupied","nombre":"CARMEN GIMENEZ","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1750","alq_con_iva":"2117.5","iva":"367.5","total_recibo":"2117.5","eur_m2":"14.58","inicio":"2025-11-01","fin":"2028-10-31","revision_ipc":"Revisión cada mes de Noviembre aplicando el índice de Octubre","observaciones":"Noviembre 2026: 1.900 € — Noviembre 2027: IPC","telefonos":"629387360","mail":"16987cgl@comb.cat","icloud":"","notas":""},"4º4ª":{"status":"occupied","nombre":"","tipo":"","metros":"60","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"","fin":"","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"5º1ª":{"status":"occupied","nombre":"YUMA IBERICA S.L","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1200","alq_con_iva":"1452","iva":"252","total_recibo":"1452","eur_m2":"20","inicio":"2025-06-01","fin":"2026-05-31","revision_ipc":"1 año","observaciones":"Novación del contrato por un año. Pago anticipado cada 6 meses.","telefonos":"SVETLANA 624 449 668","mail":"svetlanavg22@gmail.com / yumaiberica2022@gmail.com","icloud":"","notas":""},"5º2ª":{"status":"vacant","nombre":"VACIO","tipo":"VIVIENDA","metros":"60","alq_sin_iva":"0","alq_con_iva":"0","iva":"0","total_recibo":"0","eur_m2":"0","inicio":"","fin":"","revision_ipc":"","observaciones":"VACIO","telefonos":"","mail":"","icloud":"","notas":""},"5º3ª":{"status":"occupied","nombre":"PHD Lifescience SLU","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1250","alq_con_iva":"1512.5","iva":"262.5","total_recibo":"1512.5","eur_m2":"20.83","inicio":"2025-05-07","fin":"2029-05-06","revision_ipc":"Revisión cada mes de Mayo aplicando el índice de Abril","observaciones":"","telefonos":"630 000 823 — Alejandro Garreta / Santiago Ros 628 64 46 84","mail":"santiago.ros@phdlifescience.eu","icloud":"","notas":""},"5º4ª":{"status":"occupied","nombre":"VERSO HCARE ESPAÑA SL","tipo":"DESPACHO","metros":"60","alq_sin_iva":"1150","alq_con_iva":"1391.5","iva":"241.5","total_recibo":"1391.5","eur_m2":"19.17","inicio":"2026-01-01","fin":"2030-01-01","revision_ipc":"Revisión cada mes de enero aplicando índice de Diciembre","observaciones":"","telefonos":"Lionel JACQUETTON 637 47 60 58","mail":"ljacquetton@verso.healthcare","icloud":"","notas":""},"6º1ª":{"status":"familiar","nombre":"JAPons - Serés","tipo":"DESPACHO","metros":"60","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"","fin":"","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"6º2ª":{"status":"familiar","nombre":"JAPons - Serés","tipo":"DESPACHO","metros":"60","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"","fin":"","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"6º3ª":{"status":"familiar","nombre":"PROINFANTS","tipo":"DESPACHO","metros":"60","alq_sin_iva":"105","alq_con_iva":"127.05","iva":"22.05","total_recibo":"127.05","eur_m2":"","inicio":"2025-01-01","fin":"2025-12-31","revision_ipc":"No se aplica IPC","observaciones":"Se reconduce año a año","telefonos":"","mail":"","icloud":"","notas":""},"6º4ª":{"status":"familiar","nombre":"PROINFANTS","tipo":"DESPACHO","metros":"60","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"","fin":"","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""},"ATICO":{"status":"familiar","nombre":"JAPons - Serés","tipo":"VIVIENDA","metros":"85","alq_sin_iva":"","alq_con_iva":"","iva":"","total_recibo":"","eur_m2":"","inicio":"1979-06-01","fin":"INDEFINIDO","revision_ipc":"","observaciones":"","telefonos":"","mail":"","icloud":"","notas":""}};
+
+let data = {};
+try {
+  const saved = localStorage.getItem('psj97_v2');
+  data = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULTS));
+} catch(e) {
+  data = JSON.parse(JSON.stringify(DEFAULTS));
+}
+
+let selected = null;
+
+function getUnit(id) {
+  return data[id] || DEFAULTS[id] || { status:'unassigned', nombre:'', tipo:'', metros:'', alq_sin_iva:'', alq_con_iva:'', iva:'', total_recibo:'', eur_m2:'', inicio:'', fin:'', revision_ipc:'', observaciones:'', telefonos:'', mail:'', icloud:'', notas:'' };
+}
+
+function saveData() {
+  try { localStorage.setItem('psj97_v2', JSON.stringify(data)); } catch(e) {}
+}
+
+function fmtEur(v) {
+  const n = parseFloat(v);
+  if (!v || isNaN(n)) return '—';
+  return n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+function updateStats() {
+  const all = Object.values(data);
+  const occ = all.filter(u => u.status === 'occupied').length;
+  const vac = all.filter(u => u.status === 'vacant').length;
+  const total = all.reduce((s, u) => s + (parseFloat(u.total_recibo) || 0), 0);
+  document.getElementById('header-stats').innerHTML = `
+    <div class="stat"><div class="stat-num">${occ}</div><div class="stat-label">Alquiladas</div></div>
+    <div class="stat"><div class="stat-num">${vac}</div><div class="stat-label">Vacías</div></div>
+    <div class="stat"><div class="stat-num">${total.toLocaleString('es-ES',{maximumFractionDigits:0})} €</div><div class="stat-label">Ingresos / mes</div></div>
+  `;
+}
+
+function renderBuilding() {
+  const container = document.getElementById('building');
+  container.innerHTML = '';
+  FLOORS.forEach(floor => {
+    const row = document.createElement('div');
+    row.className = 'floor';
+    const lbl = document.createElement('div');
+    lbl.className = 'floor-label';
+    lbl.textContent = floor.label;
+    row.appendChild(lbl);
+    const unitsDiv = document.createElement('div');
+    unitsDiv.className = 'units';
+    floor.units.forEach(uid => {
+      const u = getUnit(uid);
+      const el = document.createElement('div');
+      el.className = 'unit ' + u.status + (selected === uid ? ' selected' : '');
+      const name = document.createElement('div');
+      name.className = 'unit-name';
+      name.textContent = uid === 'ATICO' ? 'Ático' : uid;
+      el.appendChild(name);
+      if (u.nombre && u.nombre !== 'VACIO') {
+        const sub = document.createElement('div');
+        sub.className = 'unit-tenant';
+        const short = u.nombre.length > 14 ? u.nombre.slice(0,14)+'…' : u.nombre;
+        sub.textContent = short;
+        el.appendChild(sub);
+      }
+      const dot = document.createElement('div');
+      dot.className = 'unit-dot dot-' + u.status;
+      el.appendChild(dot);
+      el.onclick = () => selectUnit(uid);
+      unitsDiv.appendChild(el);
+    });
+    row.appendChild(unitsDiv);
+    container.appendChild(row);
+  });
+}
+
+function selectUnit(id) {
+  selected = id;
+  renderBuilding();
+  const u = getUnit(id);
+  document.getElementById('panel').style.display = 'block';
+  document.getElementById('p-title').textContent = id === 'ATICO' ? 'Ático' : id;
+  document.getElementById('p-nombre').textContent = u.nombre && u.nombre !== 'VACIO' ? u.nombre : '';
+  const badge = document.getElementById('p-badge');
+  const badgeMap = { occupied: ['Alquilado','badge-occupied'], vacant: ['Vacío','badge-vacant'], familiar: ['Familiar','badge-familiar'], unassigned: ['Sin datos','badge-unassigned'] };
+  const [txt, cls] = badgeMap[u.status] || ['—','badge-unassigned'];
+  badge.textContent = txt;
+  badge.className = 'panel-badge ' + cls;
+  document.getElementById('f-tipo').value = u.tipo || '';
+  document.getElementById('f-metros').value = u.metros || '';
+  document.getElementById('f-status').value = u.status || 'vacant';
+  document.getElementById('f-nombre').value = u.nombre && u.nombre !== 'VACIO' ? u.nombre : '';
+  document.getElementById('f-ipc').value = u.revision_ipc || '';
+  document.getElementById('f-inicio').value = u.inicio || '';
+  document.getElementById('f-fin').value = u.fin || '';
+  document.getElementById('f-obs').value = u.observaciones && u.observaciones !== 'VACIO' ? u.observaciones : '';
+  document.getElementById('f-tel').value = u.telefonos || '';
+  document.getElementById('f-mail').value = u.mail || '';
+  document.getElementById('f-notas').value = u.notas || '';
+  document.getElementById('f-icloud').value = u.icloud || '';
+  document.getElementById('finance-cards').innerHTML = `
+    <div class="finance-card"><div class="num">${fmtEur(u.alq_sin_iva)}</div><div class="lbl">Alquiler sin IVA</div></div>
+    <div class="finance-card"><div class="num">${fmtEur(u.iva)}</div><div class="lbl">IVA</div></div>
+    <div class="finance-card"><div class="num">${fmtEur(u.total_recibo)}</div><div class="lbl">Total recibo</div></div>
+  `;
+  const alertBox = document.getElementById('contrato-alert');
+  if (u.fin && u.fin !== 'INDEFINIDO' && u.fin !== '') {
+    const finDate = new Date(u.fin);
+    const today = new Date();
+    const diff = Math.ceil((finDate - today) / (1000*60*60*24));
+    if (diff < 180) {
+      alertBox.innerHTML = `<div class="alert-box">⚠ Contrato vence ${diff < 0 ? 'hace ' + Math.abs(diff) + ' días' : 'en ' + diff + ' días'} — ${u.fin}</div>`;
+    } else {
+      alertBox.innerHTML = '';
+    }
+  } else {
+    alertBox.innerHTML = '';
+  }
+  showTab('ficha');
+  document.getElementById('panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('saved-msg').style.display = 'none';
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const tabs = ['ficha','contrato','contacto','notas','docs'];
+    b.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(t => {
+    t.classList.toggle('active', t.id === 'tab-' + name);
+  });
+}
+
+function saveUnit() {
+  if (!selected) return;
+  const u = getUnit(selected);
+  data[selected] = Object.assign({}, u, {
+    status: document.getElementById('f-status').value,
+    nombre: document.getElementById('f-nombre').value,
+    tipo: document.getElementById('f-tipo').value,
+    metros: document.getElementById('f-metros').value,
+    revision_ipc: document.getElementById('f-ipc').value,
+    inicio: document.getElementById('f-inicio').value,
+    fin: document.getElementById('f-fin').value,
+    observaciones: document.getElementById('f-obs').value,
+    telefonos: document.getElementById('f-tel').value,
+    mail: document.getElementById('f-mail').value,
+    notas: document.getElementById('f-notas').value,
+    icloud: document.getElementById('f-icloud').value,
+  });
+  saveData();
+  renderBuilding();
+  updateStats();
+  selectUnit(selected);
+  const msg = document.getElementById('saved-msg');
+  msg.style.display = 'flex';
+  setTimeout(() => msg.style.display = 'none', 2500);
+}
+
+function closePanel() {
+  selected = null;
+  document.getElementById('panel').style.display = 'none';
+  renderBuilding();
+}
+
+function openIcloud() {
+  const url = document.getElementById('f-icloud').value.trim();
+  if (!url) { alert('Primero añade el enlace de iCloud.'); return false; }
+  window.open(url, '_blank');
+  return false;
+}
+
+function openAdmin() {
+  const url = document.getElementById('admin-icloud').value.trim();
+  if (!url) { alert('Primero añade el enlace de la carpeta iCloud de administración.'); return; }
+  try { localStorage.setItem('psj97_admin_icloud', url); } catch(e) {}
+  window.open(url, '_blank');
+}
+
+renderBuilding();
+updateStats();
+
+const adminUrl = localStorage.getItem('psj97_admin_icloud');
+if (adminUrl) document.getElementById('admin-icloud').value = adminUrl;
+document.getElementById('admin-icloud').addEventListener('change', function() {
+  try { localStorage.setItem('psj97_admin_icloud', this.value.trim()); } catch(e) {}
+});
+</script>
+</body>
+</html>
