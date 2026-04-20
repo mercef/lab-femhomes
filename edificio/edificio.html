@@ -587,7 +587,11 @@
           <div class="field" id="unified-link-field" style="display:none;"></div>
         </div>
         <hr class="divider">
-        <div class="finance-grid" id="finance-cards"></div>
+        <div class="fields-grid three">
+          <div class="field"><label>Alquiler sin IVA (€)</label><input type="number" id="f-alq-sin-iva" step="0.01" placeholder="0.00" /></div>
+          <div class="field"><label>IVA (€)</label><input type="number" id="f-iva" step="0.01" placeholder="0.00" /></div>
+          <div class="field"><label>Total recibo (€)</label><input type="number" id="f-total" step="0.01" placeholder="0.00" /></div>
+        </div>
       </div>
 
       <!-- CONTRATO -->
@@ -636,6 +640,42 @@
         <button class="icloud-btn primary" onclick="saveUnit()">Guardar cambios</button>
       </div>
       <div class="saved-msg" id="saved-msg">✓ Guardado correctamente</div>
+    </div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="cal-section">
+    <div class="cal-header">
+      <div class="cal-header-left">
+        <h2 class="cal-title">Calendario</h2>
+        <p class="cal-sub">Vencimientos, revisiones y tareas</p>
+      </div>
+      <div class="cal-controls">
+        <button class="cal-view-btn active" id="btn-mes" onclick="setView('mes')">Mes</button>
+        <button class="cal-view-btn" id="btn-year" onclick="setView('year')">Año</button>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="navCal(-1)">‹</button>
+          <span class="cal-period" id="cal-period"></span>
+          <button class="cal-nav-btn" onclick="navCal(1)">›</button>
+        </div>
+        <button class="cal-export-btn" onclick="exportICS()">Exportar .ics</button>
+      </div>
+    </div>
+    <div id="cal-body"></div>
+  </div>
+
+  <!-- MODAL TAREA -->
+  <div id="task-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:100;align-items:center;justify-content:center;">
+    <div class="task-modal-box">
+      <div class="task-modal-header">
+        <span id="task-modal-date"></span>
+        <button onclick="closeTaskModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--gray);">×</button>
+      </div>
+      <div id="task-list"></div>
+      <div class="task-add-row">
+        <input type="text" id="task-input" placeholder="Nueva tarea…" onkeydown="if(event.key==='Enter')addTask()" />
+        <button class="icloud-btn primary" onclick="addTask()">Añadir</button>
+      </div>
     </div>
   </div>
 
@@ -774,11 +814,9 @@ function selectUnit(id) {
     linkField.style.display = 'none';
     linkField.innerHTML = '';
   }
-  document.getElementById('finance-cards').innerHTML = `
-    <div class="finance-card"><div class="num">${fmtEur(u.alq_sin_iva)}</div><div class="lbl">Alquiler sin IVA</div></div>
-    <div class="finance-card"><div class="num">${fmtEur(u.iva)}</div><div class="lbl">IVA</div></div>
-    <div class="finance-card"><div class="num">${fmtEur(u.total_recibo)}</div><div class="lbl">Total recibo</div></div>
-  `;
+  document.getElementById('f-alq-sin-iva').value = u.alq_sin_iva || '';
+  document.getElementById('f-iva').value = u.iva || '';
+  document.getElementById('f-total').value = u.total_recibo || '';
   const alertBox = document.getElementById('contrato-alert');
   if (u.fin && u.fin !== 'INDEFINIDO' && u.fin !== '') {
     const finDate = new Date(u.fin);
@@ -825,6 +863,9 @@ function saveUnit() {
     notas: document.getElementById('f-notas').value,
     icloud: document.getElementById('f-icloud').value,
     unified: unified,
+    alq_sin_iva: document.getElementById('f-alq-sin-iva').value,
+    iva: document.getElementById('f-iva').value,
+    total_recibo: document.getElementById('f-total').value,
   });
   data[selected] = updated;
   if (unified && unified !== selected) {
@@ -840,6 +881,9 @@ function saveUnit() {
       telefonos: updated.telefonos,
       mail: updated.mail,
       icloud: updated.icloud,
+      alq_sin_iva: updated.alq_sin_iva,
+      iva: updated.iva,
+      total_recibo: updated.total_recibo,
       unified: selected,
     });
   }
