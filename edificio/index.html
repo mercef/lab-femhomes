@@ -106,7 +106,7 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
 .unified-badge:hover{background:#e8d5c0;}
 
 /* CALENDARIO */
-.cal-section{border-top:1px solid var(--border-s);padding-top:2rem;}
+.cal-section{border-top:1px solid var(--border-s);padding-top:2rem;margin-left:66px;}
 .cal-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
 .cal-title{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:600;}
 .cal-sub{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
@@ -124,7 +124,7 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
 .cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
 .cal-dow{font-size:10px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.07em;text-align:center;padding:4px 0;}
 .cal-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.cal-day{min-height:80px;border:1px solid var(--border);border-radius:6px;background:white;padding:5px 6px;cursor:pointer;transition:border-color 0.15s,background 0.15s;position:relative;}
+.cal-day{height:80px;border:1px solid var(--border);border-radius:6px;background:white;padding:5px 6px;cursor:pointer;transition:border-color 0.15s,background 0.15s;position:relative;overflow:hidden;}
 .cal-day:hover{border-color:var(--terra-l);background:var(--terra-p);}
 .cal-day.other-month{background:var(--gray-l);opacity:0.45;pointer-events:none;}
 .cal-day.today{border-color:var(--terra);border-width:1.5px;}
@@ -156,12 +156,12 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
 /* MODAL */
 .task-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center;}
 .task-modal-overlay.open{display:flex;}
-.task-modal-box{background:white;border-radius:12px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.15);}
-.task-modal-header{background:var(--ink);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+.task-modal-box{background:white;border-radius:12px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.15);max-height:90vh;display:flex;flex-direction:column;}
+.task-modal-header{background:var(--ink);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .task-modal-date{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:600;color:white;letter-spacing:0.03em;}
 .task-modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:rgba(255,255,255,0.6);line-height:1;}
 .task-modal-close:hover{color:white;}
-.task-modal-body{padding:16px;}
+.task-modal-body{padding:16px;overflow-y:auto;}
 .task-auto-section{margin-bottom:12px;}
 .task-auto-label{font-size:10px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;}
 .task-auto-item{font-size:12px;padding:6px 10px;border-radius:5px;margin-bottom:4px;line-height:1.4;}
@@ -185,7 +185,8 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
   .unit{min-height:46px;}
   .unit-name{font-size:9px;}
   .cal-year-grid{grid-template-columns:repeat(2,1fr);}
-  .cal-day{min-height:60px;}
+  .cal-day{height:60px;}
+  .cal-section{margin-left:50px;}
 }
 </style>
 </head>
@@ -340,7 +341,7 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
         <div id="task-list"></div>
         <div class="color-picker" id="color-picker"></div>
         <div class="task-add-row">
-          <input type="text" id="task-input" placeholder="Nueva tarea…" onkeydown="if(event.key==='Enter')addTask()"/>
+          <textarea id="task-input" placeholder="Nueva tarea o lista… (Enter para nueva línea)" style="flex:1;font-family:'Archivo',sans-serif;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--border-s);border-radius:6px;padding:7px 10px;resize:none;height:60px;"></textarea>
           <button class="icloud-btn primary" onclick="addTask()">Añadir</button>
         </div>
       </div>
