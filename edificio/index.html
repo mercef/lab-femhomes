@@ -39,9 +39,8 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
 .admin-card-row input:focus{outline:none;border-color:var(--terra);}
 .admin-open-btn{font-family:'Archivo',sans-serif;font-size:11px;font-weight:500;padding:5px 10px;border-radius:6px;border:1px solid var(--border-s);background:var(--ink);color:white;cursor:pointer;white-space:nowrap;transition:background 0.15s;flex-shrink:0;}
 .admin-open-btn:hover{background:#333;}
-.facturas-btn{font-family:'Archivo',sans-serif;font-size:11px;font-weight:500;padding:10px 14px;border-radius:var(--r);border:1px solid var(--border-s);background:white;color:var(--ink);cursor:pointer;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.05em;}
+.facturas-btn{font-family:'Archivo',sans-serif;font-size:11px;font-weight:500;padding:10px 14px;border-radius:var(--r);border:1px solid var(--border-s);background:white;color:var(--ink);cursor:pointer;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:0.05em;text-decoration:none;}
 .facturas-btn:hover{background:var(--terra-p);border-color:var(--terra);color:var(--terra);}
-.facturas-btn.active{background:var(--ink);color:white;border-color:var(--ink);}
 
 /* LEGEND */
 .legend{display:flex;gap:1.25rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
@@ -145,7 +144,7 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
 .num-display{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:600;color:var(--terra);background:var(--terra-p);border:1px solid var(--terra-l);border-radius:var(--r);padding:8px 16px;display:inline-block;margin-bottom:16px;}
 
 /* CALENDARIO */
-.cal-section{border-top:1px solid var(--border-s);padding-top:2rem;margin-left:80px;}
+.cal-section{border-top:1px solid var(--border-s);padding-top:2rem;padding-left:80px;}
 .cal-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
 .cal-title{font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:600;}
 .cal-sub{font-size:12px;color:var(--gray);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
@@ -243,7 +242,7 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
   </div>
   <div class="header-right">
     <div class="header-stats" id="header-stats"></div>
-    <button class="facturas-btn" id="btn-facturas" onclick="toggleFacturas()">&#9632; Facturas</button>
+    <a href="./facturas.html" target="_blank" class="facturas-btn">&#9632; Facturas</a>
     <div class="admin-card">
       <div class="admin-card-label">Administración general</div>
       <div class="admin-card-row">
@@ -338,59 +337,6 @@ html,body{min-height:100%;font-family:'Archivo',sans-serif;background:var(--pape
       <button class="icloud-btn primary" onclick="saveUnit()">Guardar cambios</button>
     </div>
     <div class="saved-msg" id="saved-msg">✓ Guardado correctamente</div>
-  </div>
-</div>
-
-<!-- FACTURAS -->
-<div class="facturas-section" id="facturas-section">
-  <div class="facturas-header">
-    <div class="facturas-header-title">Facturas · Paseo Sant Joan 97</div>
-    <button class="modal-close" onclick="toggleFacturas()" style="color:rgba(255,255,255,0.6);">×</button>
-  </div>
-  <div class="facturas-body">
-    <div class="facturas-tabs">
-      <button class="ftab-btn active" onclick="showFTab('nueva')">Nueva factura</button>
-      <button class="ftab-btn" onclick="showFTab('historial')">Historial</button>
-    </div>
-    <div class="ftab-content active" id="ftab-nueva">
-      <div class="fields-grid three" style="margin-bottom:16px;">
-        <div><div class="section-label">Próximo número</div><div class="num-display" id="next-num">—</div></div>
-        <div class="field"><label>Fecha</label><input type="date" id="inv-fecha"/></div>
-        <div class="field"><label>Ciudad</label><input type="text" id="inv-ciudad" value="Barcelona"/></div>
-      </div>
-      <div class="fields-grid" style="margin-bottom:8px;">
-        <div class="field"><label>Inquilino (seleccionar o escribir)</label>
-          <select id="inv-inquilino-sel" onchange="fillInquilino()">
-            <option value="">— Seleccionar unidad —</option>
-          </select>
-        </div>
-        <div class="field"><label>CIF inquilino</label><input type="text" id="inv-cif"/></div>
-      </div>
-      <div class="fields-grid full" style="margin-bottom:8px;">
-        <div class="field"><label>Nombre / razón social</label><input type="text" id="inv-nombre"/></div>
-      </div>
-      <div class="fields-grid full" style="margin-bottom:8px;">
-        <div class="field"><label>Dirección inquilino</label><input type="text" id="inv-dir"/></div>
-      </div>
-      <div class="fields-grid full" style="margin-bottom:8px;">
-        <div class="field"><label>Concepto</label><textarea id="inv-concepto" style="height:56px;" placeholder="Alquiler mensual correspondiente al mes de…"></textarea></div>
-      </div>
-      <div class="fields-grid three" style="margin-bottom:8px;">
-        <div class="field"><label>Base imponible (€)</label><input type="number" id="inv-base" step="0.01" oninput="calcInv()"/></div>
-        <div class="field"><label>IVA %</label><input type="number" id="inv-iva-pct" value="21" step="1" oninput="calcInv()"/></div>
-        <div class="field"><label>Total (€)</label><input type="number" id="inv-total" step="0.01" readonly style="background:#f8f8f8;"/></div>
-      </div>
-      <div class="fields-grid full" style="margin-bottom:8px;">
-        <div class="field"><label>Forma de pago</label><input type="text" id="inv-pago" placeholder="Domiciliación / Transferencia ESXX…"/></div>
-      </div>
-      <div class="inv-actions">
-        <button class="icloud-btn" onclick="previewInv()">Vista previa</button>
-        <button class="icloud-btn primary" onclick="saveInv()">Guardar factura</button>
-      </div>
-    </div>
-    <div class="ftab-content" id="ftab-historial">
-      <div class="facturas-list" id="facturas-list"></div>
-    </div>
   </div>
 </div>
 
