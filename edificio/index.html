@@ -470,7 +470,27 @@
     margin-top: 3px;
   }
 
-  .back-btn {
+  .unit-link {
+    font-size: 8px;
+    color: var(--terra);
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+    text-align: center;
+  }
+  .unified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--terra);
+    background: var(--terra-pale);
+    border: 1px solid var(--terra-light);
+    border-radius: 20px;
+    padding: 3px 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .unified-badge:hover { background: #e8d5c0; }
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -561,6 +581,10 @@
         <div class="fields-grid">
           <div class="field"><label>Inquilino / empresa</label><input type="text" id="f-nombre" /></div>
           <div class="field"><label>Revisión IPC</label><input type="text" id="f-ipc" /></div>
+        </div>
+        <div class="fields-grid">
+          <div class="field"><label>Unificada con (ID de otra unidad)</label><input type="text" id="f-unified" placeholder="ej. 2º2ª" /></div>
+          <div class="field" id="unified-link-field" style="display:none;"></div>
         </div>
         <hr class="divider">
         <div class="finance-grid" id="finance-cards"></div>
@@ -703,6 +727,12 @@ function renderBuilding() {
       const dot = document.createElement('div');
       dot.className = 'unit-dot dot-' + u.status;
       el.appendChild(dot);
+      if (u.unified) {
+        const lnk = document.createElement('div');
+        lnk.className = 'unit-link';
+        lnk.textContent = '⬡ ' + u.unified;
+        el.appendChild(lnk);
+      }
       el.onclick = () => selectUnit(uid);
       unitsDiv.appendChild(el);
     });
@@ -735,6 +765,15 @@ function selectUnit(id) {
   document.getElementById('f-mail').value = u.mail || '';
   document.getElementById('f-notas').value = u.notas || '';
   document.getElementById('f-icloud').value = u.icloud || '';
+  document.getElementById('f-unified').value = u.unified || '';
+  const linkField = document.getElementById('unified-link-field');
+  if (u.unified && data[u.unified]) {
+    linkField.style.display = 'block';
+    linkField.innerHTML = `<label>Ir a unidad vinculada</label><div class="unified-badge" onclick="selectUnit('${u.unified}')">⬡ ${u.unified} — ${data[u.unified].nombre || '—'}</div>`;
+  } else {
+    linkField.style.display = 'none';
+    linkField.innerHTML = '';
+  }
   document.getElementById('finance-cards').innerHTML = `
     <div class="finance-card"><div class="num">${fmtEur(u.alq_sin_iva)}</div><div class="lbl">Alquiler sin IVA</div></div>
     <div class="finance-card"><div class="num">${fmtEur(u.iva)}</div><div class="lbl">IVA</div></div>
@@ -771,7 +810,8 @@ function showTab(name) {
 function saveUnit() {
   if (!selected) return;
   const u = getUnit(selected);
-  data[selected] = Object.assign({}, u, {
+  const unified = document.getElementById('f-unified').value.trim();
+  const updated = Object.assign({}, u, {
     status: document.getElementById('f-status').value,
     nombre: document.getElementById('f-nombre').value,
     tipo: document.getElementById('f-tipo').value,
@@ -784,7 +824,25 @@ function saveUnit() {
     mail: document.getElementById('f-mail').value,
     notas: document.getElementById('f-notas').value,
     icloud: document.getElementById('f-icloud').value,
+    unified: unified,
   });
+  data[selected] = updated;
+  if (unified && unified !== selected) {
+    const target = getUnit(unified);
+    data[unified] = Object.assign({}, target, {
+      status: updated.status,
+      nombre: updated.nombre,
+      tipo: updated.tipo,
+      revision_ipc: updated.revision_ipc,
+      inicio: updated.inicio,
+      fin: updated.fin,
+      observaciones: updated.observaciones,
+      telefonos: updated.telefonos,
+      mail: updated.mail,
+      icloud: updated.icloud,
+      unified: selected,
+    });
+  }
   saveData();
   renderBuilding();
   updateStats();
