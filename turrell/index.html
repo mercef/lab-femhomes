@@ -194,7 +194,7 @@
 <div class="pause-dot" id="pauseDot"></div>
 
 <!-- Initial hint -->
-<div class="hint" id="hint">M — menú &nbsp;·&nbsp; espacio — pausa &nbsp;·&nbsp; ← → — navegar</div>
+<div class="hint" id="hint">F — pantalla completa &nbsp;·&nbsp; M — menú &nbsp;·&nbsp; espacio — pausa &nbsp;·&nbsp; ← → — navegar</div>
 
 <!-- Noise -->
 <svg class="noise" viewBox="0 0 512 512" preserveAspectRatio="none">
@@ -410,9 +410,20 @@ function positionEdges(){
 }
 positionEdges();
 window.addEventListener('resize',positionEdges);
+document.addEventListener('fullscreenchange',()=>setTimeout(positionEdges,100));
+
+// Fullscreen
+function toggleFullscreen(){
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().then(()=>setTimeout(positionEdges,200)).catch(()=>{});
+  } else {
+    document.exitFullscreen().then(()=>setTimeout(positionEdges,200)).catch(()=>{});
+  }
+}
 
 // Keyboard
 window.addEventListener('keydown',e=>{
+  if(e.key==='f'||e.key==='F'){e.preventDefault();toggleFullscreen();return}
   if(e.key==='m'||e.key==='M'){e.preventDefault();toggleMenu();return}
   if(e.key==='Escape'&&menuOpen){e.preventDefault();toggleMenu();return}
   if(menuOpen) return;
