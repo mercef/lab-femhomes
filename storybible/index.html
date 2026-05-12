@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Story Bible</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#2D2BFF;--blue-light:#f0f0ff;--blue-mid:#d0d0ff;--green:#1a7a1a;--green-bg:#e8ffe8;--coral:#e85d3a;--bg:#ffffff;--bg2:#fafafa;--text:#111;--text2:#666;--text3:#aaa;--border:#e8e8e8;--radius:12px}
+html,body{height:100%;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+input,textarea,select,button{font-family:inherit;font-size:inherit}
+input[type="text"],input[type="number"],textarea,select{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-size:16px;line-height:1.6;background:var(--bg);color:var(--text);transition:border-color .2s}
+input[type="text"]:focus,textarea:focus,select:focus{outline:none;border-color:var(--blue)}
+textarea{resize:vertical;min-height:120px}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+
+.app{display:flex;height:100vh;overflow:hidden}
+
+nav{width:68px;min-width:68px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:20px 0;gap:6px;z-index:10}
+.nav-logo{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;margin-bottom:20px;cursor:default}
+.nav-logo svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:transparent;transition:all .2s;position:relative}
+.nav-btn svg{width:20px;height:20px;fill:none;stroke:#999;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
+.nav-btn:hover{background:var(--blue-light)}
+.nav-btn:hover svg{stroke:#555}
+.nav-btn.active{background:var(--blue-light)}
+.nav-btn.active svg{stroke:var(--blue)}
+.nav-tooltip{position:absolute;left:56px;background:var(--text);color:#fff;font-size:12px;padding:4px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;font-weight:500}
+.nav-btn:hover .nav-tooltip{opacity:1}
+
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:0}
+.section{display:none;padding:40px 48px 60px;max-width:860px;animation:fadeIn .25s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--blue);font-weight:700;margin-bottom:10px}
+.section-title{font-size:32px;font-weight:700;line-height:1.2;margin-bottom:6px}
+.section-sub{font-size:15px;color:var(--text2);margin-bottom:36px;line-height:1.5}
+
+.field-group{margin-bottom:28px}
+.field-label{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);font-weight:600;margin-bottom:8px}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px}
+.metric{background:var(--bg2);border-radius:var(--radius);padding:20px}
+.metric-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:6px;font-weight:600}
+.metric-value{font-size:26px;font-weight:700}
+.metric-value span{font-size:14px;font-weight:400;color:var(--text2)}
+
+.arc-bar{display:flex;align-items:flex-end;gap:3px;height:64px;margin-bottom:6px}
+.arc-col{flex:1;border-radius:3px 3px 0 0;transition:all .3s;cursor:pointer;position:relative}
+.arc-col:hover{opacity:.9!important;transform:scaleY(1.05);transform-origin:bottom}
+.arc-labels{display:flex;justify-content:space-between}
+.arc-labels span{font-size:10px;color:var(--text3)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#2220dd}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:transparent;border:1px solid #fcc;color:#c00;font-size:13px;padding:8px 16px}
+.btn-danger:hover{background:#fff0f0}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.card-list{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
+.card:hover{border-color:var(--blue-mid)}
+.card-left{display:flex;align-items:center;gap:16px;flex:1;min-width:0}
+.card-avatar{width:44px;height:44px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:var(--blue);flex-shrink:0;overflow:hidden}
+.card-avatar img{width:100%;height:100%;object-fit:cover}
+.card-info h3{font-size:16px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-info p{font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-badge{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600;white-space:nowrap;flex-shrink:0;margin-left:12px}
+.badge-sent{background:var(--green-bg);color:var(--green)}
+.badge-draft{background:var(--blue-light);color:var(--blue)}
+.badge-planned{background:#f5f5f5;color:var(--text2)}
+.badge-open{background:#fff3e0;color:#c57600}
+.badge-closed{background:var(--green-bg);color:var(--green)}
+
+.chapter-line{border-left:2px solid var(--border);padding:14px 0 14px 22px;transition:border-color .2s}
+.chapter-line.written{border-left-color:var(--blue)}
+.chapter-line.current{border-left-color:var(--blue);border-left-style:dashed}
+
+.detail-panel{display:none;animation:fadeIn .2s ease}
+.detail-panel.active{display:block}
+.detail-header{display:flex;align-items:center;gap:12px;margin-bottom:32px;cursor:pointer}
+.detail-header svg{width:20px;height:20px;fill:none;stroke:var(--text2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.detail-header span{font-size:14px;color:var(--text2);font-weight:500}
+.detail-header:hover span{color:var(--blue)}
+
+.img-upload{border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.img-upload:hover{border-color:var(--blue-mid);background:var(--blue-light)}
+.img-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.img-upload p{font-size:14px;color:var(--text2)}
+.img-upload .upload-icon{font-size:28px;color:var(--text3);margin-bottom:8px}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:20px}
+.gallery-item{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all .2s;position:relative}
+.gallery-item:hover{border-color:var(--blue-mid);transform:translateY(-2px)}
+.gallery-item img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.gallery-item .gallery-caption{padding:10px 14px}
+.gallery-item .gallery-caption h4{font-size:13px;font-weight:600;margin-bottom:2px}
+.gallery-item .gallery-caption p{font-size:11px;color:var(--text2)}
+.gallery-item .gallery-delete{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);border:none;cursor:pointer;display:none;align-items:center;justify-content:center}
+.gallery-item:hover .gallery-delete{display:flex}
+.gallery-item .gallery-delete svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal{background:var(--bg);border-radius:16px;padding:36px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-size:22px;font-weight:700;margin-bottom:24px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:28px}
+
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{font-size:12px;background:var(--blue-light);color:var(--blue);padding:4px 12px;border-radius:20px;font-weight:500;display:flex;align-items:center;gap:4px}
+.tag button{background:none;border:none;cursor:pointer;font-size:14px;color:var(--blue);padding:0;line-height:1}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-state svg{width:48px;height:48px;stroke:var(--border);fill:none;stroke-width:1.5;margin-bottom:16px}
+.empty-state p{font-size:15px;margin-bottom:20px}
+
+.img-preview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}}
+
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;cursor:pointer;padding:40px}
+.lightbox.active{display:flex}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+
+.writer{display:none;position:fixed;inset:0;z-index:300;background:var(--bg);flex-direction:column;animation:writerIn .35s ease}
+.writer.active{display:flex}
+@keyframes writerIn{from{opacity:0}to{opacity:1}}
+.writer-topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--border);flex-shrink:0}
+.writer-topbar-left{display:flex;align-items:center;gap:16px}
+.writer-back{width:40px;height:40px;border-radius:10px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.writer-back:hover{background:var(--bg2)}
+.writer-back svg{width:20px;height:20px;fill:none;stroke:var(--text2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.writer-chapter-num{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--blue);font-weight:700}
+.writer-topbar-right{display:flex;align-items:center;gap:16px}
+.writer-status{font-size:12px;color:var(--text3);transition:color .3s}
+.writer-status.saving{color:var(--blue)}
+.writer-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);transition:all .15s;display:flex;align-items:center;gap:6px}
+.writer-btn:hover{border-color:var(--blue);color:var(--blue)}
+.writer-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.writer-body{flex:1;overflow-y:auto;display:flex;justify-content:center;padding:48px 32px 120px}
+.writer-content{width:100%;max-width:680px}
+.writer-title-input{width:100%;border:none;outline:none;font-size:32px;font-weight:700;color:var(--text);background:transparent;padding:0;margin-bottom:32px;line-height:1.3;font-family:inherit}
+.writer-title-input::placeholder{color:var(--text3)}
+.writer-textarea{width:100%;border:none;outline:none;font-size:18px;line-height:2;color:var(--text);background:transparent;padding:0;resize:none;min-height:60vh;font-family:inherit}
+.writer-textarea::placeholder{color:var(--text3)}
+.writer-footer{position:fixed;bottom:0;left:0;right:0;z-index:301;display:flex;justify-content:center;padding:16px 32px;background:linear-gradient(transparent,var(--bg) 40%);pointer-events:none}
+.writer-footer-inner{display:flex;gap:24px;pointer-events:auto}
+.writer-stat{font-size:13px;color:var(--text3);font-weight:500}
+.writer-stat b{color:var(--text2);font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+  <div class="nav-logo"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+  <button class="nav-btn active" data-section="proyecto"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-tooltip">Proyecto</span></button>
+  <button class="nav-btn" data-section="personajes"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-tooltip">Personajes</span></button>
+  <button class="nav-btn" data-section="mundo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span class="nav-tooltip">Mundo</span></button>
+  <button class="nav-btn" data-section="capitulos"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span class="nav-tooltip">Capítulos</span></button>
+  <button class="nav-btn" data-section="hilos"><svg viewBox="0 0 24 24"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="nav-tooltip">Hilos</span></button>
+  <button class="nav-btn" data-section="ilustraciones"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span class="nav-tooltip">Ilustraciones</span></button>
+</nav>
+
+<main>
+<!-- PROYECTO -->
+<div class="section active" id="sec-proyecto">
+  <div class="section-label">Story Bible</div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap">
+    <div>
+      <h1 class="section-title" id="proj-title-display">Tu libro</h1>
+      <p class="section-sub" id="proj-sub-display">Configura los datos del proyecto</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap" id="proj-badges"></div>
+  </div>
+
+  <div class="metrics" id="proj-metrics">
+    <div class="metric"><div class="metric-label">Progreso</div><div class="metric-value" id="m-progress">0 <span>/ 0 cap.</span></div></div>
+    <div class="metric"><div class="metric-label">Hilos abiertos</div><div class="metric-value" id="m-threads" style="color:var(--blue)">0</div></div>
+    <div class="metric"><div class="metric-label">Personajes</div><div class="metric-value" id="m-chars">0</div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="field-group">
+      <div class="field-label">Título del libro</div>
+      <input type="text" id="proj-title" placeholder="El título de tu historia" style="font-size:18px;font-weight:600">
+    </div>
+    <div class="field-group">
+      <div class="field-label">Subtítulo o serie</div>
+      <input type="text" id="proj-subtitle" placeholder="Opcional">
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="field-group">
+      <div class="field-label">Edad del lector</div>
+      <select id="proj-age">
+        <option value="">Seleccionar</option>
+        <option value="4-6">4–6 años (pre-lectores / primeros lectores)</option>
+        <option value="6-8">6–8 años (lectores iniciales)</option>
+        <option value="8-10">8–10 años (lectores autónomos)</option>
+        <option value="10-12">10–12 años (lectores avanzados)</option>
+        <option value="12+">12+ años (juvenil)</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <div class="field-label">Capítulos planificados</div>
+      <input type="number" id="proj-chapters" placeholder="12" min="1" max="100">
+    </div>
+  </div>
+  <div class="field-group">
+    <div class="field-label">Sinopsis editorial</div>
+    <textarea id="proj-synopsis" placeholder="La historia en 3-5 frases. Esto es lo que leería un editor." style="min-height:140px;font-size:16px;line-height:1.7"></textarea>
+  </div>
+  <div class="field-group">
+    <div class="field-label">Temas y subtexto</div>
+    <textarea id="proj-themes" placeholder="¿Qué quieres que el lector se lleve? Las capas bajo la superficie." style="min-height:100px;font-size:16px;line-height:1.7"></textarea>
+  </div>
+  <div class="field-group">
+    <div class="field-label">Notas editoriales</div>
+    <textarea id="proj-notes" placeholder="Tono, estilo narrativo, referentes, decisiones de voz, vocabulario..." style="min-height:100px;font-size:16px;line-height:1.7"></textarea>
+  </div>
+</div>
+
+<!-- PERSONAJES -->
+<div class="section" id="sec-personajes">
+  <div class="section-label">Personajes</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <h1 class="section-title">Elenco</h1>
+    <button class="btn btn-primary" onclick="openCharModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nuevo personaje</button>
+  </div>
+  <p class="section-sub">Fichas completas de cada personaje. Haz clic para editar.</p>
+  <div id="char-list" class="card-list"></div>
+  <div id="char-empty" class="empty-state">
+    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    <p>Aún no hay personajes</p>
+    <button class="btn btn-outline" onclick="openCharModal()">Crear el primero</button>
+  </div>
+  <!-- Detail view -->
+  <div class="detail-panel" id="char-detail"></div>
+</div>
+
+<!-- MUNDO -->
+<div class="section" id="sec-mundo">
+  <div class="section-label">Mundo</div>
+  <h1 class="section-title">Universo y reglas</h1>
+  <p class="section-sub">El espacio donde vive la historia. Cada detalle que establezcas aquí es un contrato con el lector.</p>
+  <div class="field-group">
+    <div class="field-label">Escenario principal</div>
+    <textarea id="world-setting" placeholder="¿Dónde ocurre? Describe el lugar con los cinco sentidos." style="min-height:140px;font-size:16px;line-height:1.7"></textarea>
+  </div>
+  <div class="two-col">
+    <div class="field-group">
+      <div class="field-label">Época</div>
+      <input type="text" id="world-era" placeholder="Contemporáneo, medieval, futuro, atemporal...">
+    </div>
+    <div class="field-group">
+      <div class="field-label">Duración de la historia</div>
+      <input type="text" id="world-duration" placeholder="Un verano, un curso escolar, tres días...">
+    </div>
+  </div>
+  <div class="field-group">
+    <div class="field-label">Reglas del mundo</div>
+    <textarea id="world-rules" placeholder="¿Qué es posible y qué no? Si hay magia, ¿cuáles son sus límites? ¿Qué es real y qué no?" style="min-height:120px;font-size:16px;line-height:1.7"></textarea>
+  </div>
+  <div class="field-group">
+    <div class="field-label">Lugares clave</div>
+    <textarea id="world-locations" placeholder="Lista y describe los lugares importantes donde sucede la acción." style="min-height:120px;font-size:16px;line-height:1.7"></textarea>
+  </div>
+  <div class="field-group">
+    <div class="field-label">Atmósfera y tono visual</div>
+    <textarea id="world-atmosphere" placeholder="¿Cómo se siente estar ahí? Colores, luces, sonidos, olores." style="min-height:100px;font-size:16px;line-height:1.7"></textarea>
+  </div>
+</div>
+
+<!-- CAPÍTULOS -->
+<div class="section" id="sec-capitulos">
+  <div class="section-label">Capítulos</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <h1 class="section-title">Planificación</h1>
+    <button class="btn btn-primary" onclick="openChapModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nuevo capítulo</button>
+  </div>
+  <p class="section-sub">Arco global y ficha de cada capítulo. Haz clic para editar.</p>
+
+  <div style="margin-bottom:36px">
+    <div class="field-label" style="margin-bottom:12px">Arco narrativo</div>
+    <div class="arc-bar" id="arc-bar"></div>
+    <div class="arc-labels"><span>Inicio</span><span>Final</span></div>
+  </div>
+
+  <div id="chap-list"></div>
+  <div id="chap-empty" class="empty-state">
+    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+    <p>Aún no hay capítulos</p>
+    <button class="btn btn-outline" onclick="openChapModal()">Crear el primero</button>
+  </div>
+  <div class="detail-panel" id="chap-detail"></div>
+</div>
+
+<!-- HILOS -->
+<div class="section" id="sec-hilos">
+  <div class="section-label">Continuidad</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <h1 class="section-title">Hilos narrativos</h1>
+    <button class="btn btn-primary" onclick="openThreadModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nuevo hilo</button>
+  </div>
+  <p class="section-sub">Rastrea cada promesa narrativa. Todo lo que abras, ciérralo.</p>
+  <div id="thread-list" class="card-list"></div>
+  <div id="thread-empty" class="empty-state">
+    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+    <p>Aún no hay hilos</p>
+    <button class="btn btn-outline" onclick="openThreadModal()">Crear el primero</button>
+  </div>
+</div>
+
+<!-- ILUSTRACIONES -->
+<div class="section" id="sec-ilustraciones">
+  <div class="section-label">Ilustraciones</div>
+  <h1 class="section-title">Galería visual</h1>
+  <p class="section-sub">Sube tus ilustraciones y asócialas a capítulos o personajes.</p>
+  <div class="img-upload" id="illust-upload">
+    <input type="file" accept="image/*" multiple onchange="handleIllustUpload(event)">
+    <div class="upload-icon">⬆</div>
+    <p>Arrastra imágenes o haz clic para subir</p>
+  </div>
+  <div class="gallery" id="illust-gallery"></div>
+</div>
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('active')">
+  <img id="lightbox-img" src="">
+</div>
+
+<!-- WRITER MODE -->
+<div class="writer" id="writer">
+  <div class="writer-topbar">
+    <div class="writer-topbar-left">
+      <button class="writer-back" onclick="closeWriter()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <span class="writer-chapter-num" id="writer-chap-label">Capítulo 1</span>
+    </div>
+    <div class="writer-topbar-right">
+      <span class="writer-status" id="writer-save-status"></span>
+      <button class="writer-btn" onclick="openChapModalFromWriter()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Ficha</button>
+    </div>
+  </div>
+  <div class="writer-body">
+    <div class="writer-content">
+      <input type="text" class="writer-title-input" id="writer-title" placeholder="Título del capítulo">
+      <textarea class="writer-textarea" id="writer-text" placeholder="Empieza a escribir..."></textarea>
+    </div>
+  </div>
+  <div class="writer-footer">
+    <div class="writer-footer-inner">
+      <span class="writer-stat"><b id="writer-words">0</b> palabras</span>
+      <span class="writer-stat"><b id="writer-chars">0</b> caracteres</span>
+      <span class="writer-stat"><b id="writer-time">0</b> min lectura</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const LS_KEY='story-bible-v1';
+let data=load();
+
+function defaults(){return{project:{title:'',subtitle:'',age:'',chapters:'',synopsis:'',themes:'',notes:''},characters:[],world:{setting:'',era:'',duration:'',rules:'',locations:'',atmosphere:''},chapters:[],threads:[],illustrations:[]}}
+function load(){try{return JSON.parse(localStorage.getItem(LS_KEY))||defaults()}catch(e){return defaults()}}
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(data))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+// NAV
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById('sec-'+btn.dataset.section).classList.add('active');
+    // hide details
+    document.querySelectorAll('.detail-panel').forEach(d=>d.classList.remove('active'));
+    document.querySelectorAll('.card-list, #chap-list, #chap-empty, #char-empty, #thread-empty').forEach(el=>el.style.display='');
+  });
+});
+
+// MODAL
+function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal').classList.add('active')}
+function closeModal(){document.getElementById('modal').classList.remove('active')}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+
+// ============= PROJECT =============
+function initProject(){
+  const p=data.project;
+  document.getElementById('proj-title').value=p.title;
+  document.getElementById('proj-subtitle').value=p.subtitle;
+  document.getElementById('proj-age').value=p.age;
+  document.getElementById('proj-chapters').value=p.chapters;
+  document.getElementById('proj-synopsis').value=p.synopsis;
+  document.getElementById('proj-themes').value=p.themes;
+  document.getElementById('proj-notes').value=p.notes;
+  updateProjectDisplay();
+}
+function updateProjectDisplay(){
+  const p=data.project;
+  document.getElementById('proj-title-display').textContent=p.title||'Tu libro';
+  const parts=[];
+  if(p.age)parts.push(p.age+' años');
+  if(p.chapters)parts.push(p.chapters+' capítulos');
+  document.getElementById('proj-sub-display').textContent=parts.join(' · ')||'Configura los datos del proyecto';
+
+  const written=data.chapters.filter(c=>c.status==='enviado'||c.status==='revisado').length;
+  const total=parseInt(p.chapters)||data.chapters.length||0;
+  document.getElementById('m-progress').innerHTML=written+' <span>/ '+total+' cap.</span>';
+  document.getElementById('m-threads').textContent=data.threads.filter(t=>t.status==='abierto').length;
+  document.getElementById('m-chars').textContent=data.characters.length;
+
+  const badges=document.getElementById('proj-badges');
+  badges.innerHTML='';
+  if(data.characters.length){badges.innerHTML+='<span style="font-size:11px;background:var(--blue-light);color:var(--blue);padding:4px 12px;border-radius:20px;font-weight:600">'+data.characters.length+' personajes</span>'}
+  if(data.threads.filter(t=>t.status==='abierto').length){badges.innerHTML+='<span style="font-size:11px;background:#fff3e0;color:#c57600;padding:4px 12px;border-radius:20px;font-weight:600">'+data.threads.filter(t=>t.status==='abierto').length+' hilos abiertos</span>'}
+}
+['proj-title','proj-subtitle','proj-age','proj-chapters','proj-synopsis','proj-themes','proj-notes'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    const key=id.replace('proj-','');
+    data.project[key]=e.target.value;
+    save();updateProjectDisplay();
+    if(id==='proj-chapters')renderArc();
+  });
+});
+
+// ============= CHARACTERS =============
+function renderChars(){
+  const list=document.getElementById('char-list');
+  const empty=document.getElementById('char-empty');
+  if(!data.characters.length){list.style.display='none';empty.style.display='';return}
+  list.style.display='';empty.style.display='none';
+  list.innerHTML=data.characters.map(c=>{
+    const initials=(c.name||'??').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const avatar=c.image?'<img src="'+c.image+'" alt="">':initials;
+    return '<div class="card" onclick="showCharDetail(\''+c.id+'\')"><div class="card-left"><div class="card-avatar">'+avatar+'</div><div class="card-info"><h3>'+esc(c.name)+'</h3><p>'+(c.role||'Sin rol definido')+'</p></div></div></div>';
+  }).join('');
+}
+function openCharModal(id){
+  const c=id?data.characters.find(x=>x.id===id):{id:uid(),name:'',age:'',role:'',physical:'',personality:'',motivation:'',conflict:'',arc:'',voice:'',image:''};
+  const isEdit=!!id;
+  openModal(`
+    <div class="modal-title">${isEdit?'Editar':'Nuevo'} personaje</div>
+    <div class="field-group"><div class="field-label">Nombre</div><input type="text" id="mc-name" value="${esc(c.name)}" placeholder="Nombre completo"></div>
+    <div class="two-col">
+      <div class="field-group"><div class="field-label">Edad</div><input type="text" id="mc-age" value="${esc(c.age)}" placeholder="8 años"></div>
+      <div class="field-group"><div class="field-label">Rol</div><input type="text" id="mc-role" value="${esc(c.role)}" placeholder="Protagonista, antagonista..."></div>
+    </div>
+    <div class="field-group"><div class="field-label">Aspecto físico</div><textarea id="mc-physical" placeholder="¿Cómo se le ve? Detalles que el lector recordará.">${esc(c.physical)}</textarea></div>
+    <div class="field-group"><div class="field-label">Personalidad</div><textarea id="mc-personality" placeholder="Rasgos de carácter, manías, forma de hablar.">${esc(c.personality)}</textarea></div>
+    <div class="field-group"><div class="field-label">Motivación</div><textarea id="mc-motivation" placeholder="¿Qué quiere? ¿Qué le mueve?" style="min-height:80px">${esc(c.motivation)}</textarea></div>
+    <div class="field-group"><div class="field-label">Conflicto interno</div><textarea id="mc-conflict" placeholder="¿Qué le frena? ¿Qué tiene que superar?" style="min-height:80px">${esc(c.conflict)}</textarea></div>
+    <div class="field-group"><div class="field-label">Arco de transformación</div><textarea id="mc-arc" placeholder="¿Cómo es al principio y cómo es al final?" style="min-height:80px">${esc(c.arc)}</textarea></div>
+    <div class="field-group"><div class="field-label">Voz / registro lingüístico</div><textarea id="mc-voice" placeholder="¿Cómo habla? ¿Usa muletillas? ¿Es formal, coloquial?" style="min-height:80px">${esc(c.voice)}</textarea></div>
+    <div class="field-group"><div class="field-label">Imagen del personaje</div>
+      <div class="img-upload" style="padding:20px"><input type="file" accept="image/*" onchange="handleCharImg(event,'${c.id}')"><p>Subir imagen</p></div>
+      ${c.image?'<img src="'+c.image+'" class="img-preview" id="mc-img-preview">':'<div id="mc-img-preview"></div>'}
+    </div>
+    <div class="modal-actions">
+      ${isEdit?'<button class="btn btn-danger" onclick="deleteChar(\''+c.id+'\')">Eliminar</button>':''}
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveChar('${c.id}',${isEdit})">Guardar</button>
+    </div>
+  `);
+}
+let tempCharImg=null;
+function handleCharImg(e,id){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{tempCharImg=ev.target.result;document.getElementById('mc-img-preview').outerHTML='<img src="'+tempCharImg+'" class="img-preview" id="mc-img-preview">'};
+  reader.readAsDataURL(file);
+}
+function saveChar(id,isEdit){
+  const c={id,name:document.getElementById('mc-name').value,age:document.getElementById('mc-age').value,role:document.getElementById('mc-role').value,physical:document.getElementById('mc-physical').value,personality:document.getElementById('mc-personality').value,motivation:document.getElementById('mc-motivation').value,conflict:document.getElementById('mc-conflict').value,arc:document.getElementById('mc-arc').value,voice:document.getElementById('mc-voice').value,image:tempCharImg||(isEdit?data.characters.find(x=>x.id===id)?.image:'')};
+  if(isEdit){const i=data.characters.findIndex(x=>x.id===id);data.characters[i]=c}else{data.characters.push(c)}
+  tempCharImg=null;save();renderChars();updateProjectDisplay();closeModal();
+}
+function deleteChar(id){data.characters=data.characters.filter(c=>c.id!==id);save();renderChars();updateProjectDisplay();closeModal()}
+function showCharDetail(id){
+  const c=data.characters.find(x=>x.id===id);if(!c)return;
+  document.getElementById('char-list').style.display='none';
+  document.getElementById('char-empty').style.display='none';
+  const d=document.getElementById('char-detail');
+  const initials=(c.name||'??').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  d.innerHTML=`
+    <div class="detail-header" onclick="hideCharDetail()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Volver al elenco</span></div>
+    <div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:32px;flex-wrap:wrap">
+      <div style="width:100px;height:100px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:var(--blue);flex-shrink:0;overflow:hidden">${c.image?'<img src="'+c.image+'" style="width:100%;height:100%;object-fit:cover">':initials}</div>
+      <div style="flex:1;min-width:200px">
+        <h2 style="font-size:28px;font-weight:700;margin-bottom:4px">${esc(c.name)}</h2>
+        <p style="font-size:15px;color:var(--text2)">${esc(c.role)}${c.age?' · '+esc(c.age):''}</p>
+        <button class="btn btn-outline" style="margin-top:12px" onclick="openCharModal('${c.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar</button>
+      </div>
+    </div>
+    ${detailField('Aspecto físico',c.physical)}${detailField('Personalidad',c.personality)}${detailField('Motivación',c.motivation)}${detailField('Conflicto interno',c.conflict)}${detailField('Arco de transformación',c.arc)}${detailField('Voz',c.voice)}
+  `;
+  d.classList.add('active');
+}
+function detailField(label,val){if(!val)return '';return '<div style="margin-bottom:24px"><div class="field-label">'+label+'</div><p style="font-size:16px;line-height:1.7;color:var(--text)">'+esc(val)+'</p></div>'}
+function hideCharDetail(){document.getElementById('char-detail').classList.remove('active');document.getElementById('char-list').style.display='';renderChars()}
+
+// ============= WORLD =============
+function initWorld(){
+  const w=data.world;
+  document.getElementById('world-setting').value=w.setting||'';
+  document.getElementById('world-era').value=w.era||'';
+  document.getElementById('world-duration').value=w.duration||'';
+  document.getElementById('world-rules').value=w.rules||'';
+  document.getElementById('world-locations').value=w.locations||'';
+  document.getElementById('world-atmosphere').value=w.atmosphere||'';
+}
+['world-setting','world-era','world-duration','world-rules','world-locations','world-atmosphere'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>{data.world[id.replace('world-','')]=e.target.value;save()});
+});
+
+// ============= CHAPTERS =============
+const PHASES=['Planteamiento','Desarrollo','Nudo','Clímax','Desenlace'];
+const STATUSES=[{v:'planificado',l:'Planificado',c:'badge-planned'},{v:'borrador',l:'Borrador',c:'badge-draft'},{v:'revisado',l:'Revisado',c:'badge-draft'},{v:'enviado',l:'Enviado',c:'badge-sent'}];
+
+function renderChapters(){
+  const list=document.getElementById('chap-list');
+  const empty=document.getElementById('chap-empty');
+  if(!data.chapters.length){list.style.display='none';empty.style.display='';return}
+  list.style.display='';empty.style.display='none';
+  list.innerHTML=data.chapters.sort((a,b)=>a.number-b.number).map(c=>{
+    const st=STATUSES.find(s=>s.v===c.status)||STATUSES[0];
+    const isWritten=c.status==='enviado'||c.status==='revisado';
+    const wc=c.text?countWords(c.text):(c.words||0);
+    return '<div class="chapter-line '+(isWritten?'written':c.status==='borrador'?'current':'')+'" onclick="showChapDetail(\''+c.id+'\')"><div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer"><div><p style="font-size:16px;font-weight:600;margin-bottom:3px">'+c.number+' · '+esc(c.title||'Sin título')+'</p><p style="font-size:13px;color:var(--text2)">'+(c.phase||'Sin fase')+' · '+(wc?wc+' palabras':'sin texto')+'</p></div><span class="card-badge '+st.c+'">'+st.l+'</span></div></div>';
+  }).join('');
+  renderArc();
+}
+function renderArc(){
+  const total=parseInt(data.project.chapters)||data.chapters.length||0;
+  if(!total)return;
+  const bar=document.getElementById('arc-bar');
+  const arcCurve=[.3,.4,.5,.6,.75,.9,1,.95,.8,.6,.45,.35];
+  let html='';
+  for(let i=0;i<total;i++){
+    const h=arcCurve[Math.min(i,arcCurve.length-1)]||.3;
+    const chap=data.chapters.find(c=>c.number===i+1);
+    const written=chap&&(chap.status==='enviado'||chap.status==='revisado'||chap.status==='borrador');
+    html+='<div class="arc-col" style="height:'+Math.round(h*100)+'%;background:'+(written?'var(--blue)':'#e0e0e0')+';opacity:'+(written?.7+h*.3:1)+'" title="Cap. '+(i+1)+(chap?' — '+esc(chap.title||''):'')+'"></div>';
+  }
+  bar.innerHTML=html;
+}
+function openChapModal(id){
+  const c=id?data.chapters.find(x=>x.id===id):{id:uid(),number:data.chapters.length+1,title:'',phase:'',synopsis:'',function_in_arc:'',characters:[],words:'',status:'planificado',notes:'',text:''};
+  const isEdit=!!id;
+  openModal(`
+    <div class="modal-title">${isEdit?'Editar':'Nuevo'} capítulo</div>
+    <div class="two-col">
+      <div class="field-group"><div class="field-label">Número</div><input type="number" id="mch-number" value="${c.number}" min="1"></div>
+      <div class="field-group"><div class="field-label">Fase del arco</div><select id="mch-phase"><option value="">Seleccionar</option>${PHASES.map(p=>'<option value="'+p+'"'+(c.phase===p?' selected':'')+'>'+p+'</option>').join('')}</select></div>
+    </div>
+    <div class="field-group"><div class="field-label">Título del capítulo</div><input type="text" id="mch-title" value="${esc(c.title)}" placeholder="El título que leerá el niño" style="font-size:18px"></div>
+    <div class="field-group"><div class="field-label">Sinopsis del capítulo</div><textarea id="mch-synopsis" placeholder="¿Qué pasa en este capítulo? Inicio, desarrollo, cierre del capítulo.">${esc(c.synopsis)}</textarea></div>
+    <div class="field-group"><div class="field-label">Función en el arco global</div><textarea id="mch-function" placeholder="¿Para qué sirve este capítulo en la historia completa? ¿Qué avanza?" style="min-height:80px">${esc(c.function_in_arc)}</textarea></div>
+    <div class="two-col">
+      <div class="field-group"><div class="field-label">Palabras</div><input type="number" id="mch-words" value="${c.words}" placeholder="0"></div>
+      <div class="field-group"><div class="field-label">Estado</div><select id="mch-status">${STATUSES.map(s=>'<option value="'+s.v+'"'+(c.status===s.v?' selected':'')+'>'+s.l+'</option>').join('')}</select></div>
+    </div>
+    <div class="field-group"><div class="field-label">Notas</div><textarea id="mch-notes" placeholder="Dudas, ideas, cosas que revisar." style="min-height:80px">${esc(c.notes)}</textarea></div>
+    <div class="modal-actions">
+      ${isEdit?'<button class="btn btn-danger" onclick="deleteChap(\''+c.id+'\')">Eliminar</button>':''}
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveChap('${c.id}',${isEdit})">Guardar</button>
+    </div>
+  `);
+}
+function saveChap(id,isEdit){
+  const existingText=isEdit?(data.chapters.find(x=>x.id===id)?.text||''):'';
+  const c={id,number:parseInt(document.getElementById('mch-number').value)||1,title:document.getElementById('mch-title').value,phase:document.getElementById('mch-phase').value,synopsis:document.getElementById('mch-synopsis').value,function_in_arc:document.getElementById('mch-function').value,words:document.getElementById('mch-words').value,status:document.getElementById('mch-status').value,notes:document.getElementById('mch-notes').value,text:existingText};
+  if(isEdit){const i=data.chapters.findIndex(x=>x.id===id);data.chapters[i]=c}else{data.chapters.push(c)}
+  save();renderChapters();updateProjectDisplay();closeModal();
+}
+function deleteChap(id){data.chapters=data.chapters.filter(c=>c.id!==id);save();renderChapters();updateProjectDisplay();closeModal()}
+function showChapDetail(id){openWriter(id)}
+
+// ============= WRITER MODE =============
+let writerChapId=null;
+let writerSaveTimeout=null;
+
+function openWriter(id){
+  const c=data.chapters.find(x=>x.id===id);if(!c)return;
+  writerChapId=id;
+  document.getElementById('writer-chap-label').textContent='Capítulo '+c.number;
+  document.getElementById('writer-title').value=c.title||'';
+  document.getElementById('writer-text').value=c.text||'';
+  updateWriterStats();
+  document.getElementById('writer').classList.add('active');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>{
+    const ta=document.getElementById('writer-text');
+    if(!c.text)document.getElementById('writer-title').focus();
+    else{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)}
+    autoGrowTextarea(ta);
+  },100);
+}
+function closeWriter(){
+  saveWriterContent();
+  document.getElementById('writer').classList.remove('active');
+  document.body.style.overflow='';
+  writerChapId=null;
+  renderChapters();updateProjectDisplay();
+}
+function saveWriterContent(){
+  if(!writerChapId)return;
+  const i=data.chapters.findIndex(x=>x.id===writerChapId);if(i<0)return;
+  const title=document.getElementById('writer-title').value;
+  const text=document.getElementById('writer-text').value;
+  data.chapters[i].title=title;
+  data.chapters[i].text=text;
+  const wc=countWords(text);
+  data.chapters[i].words=wc;
+  save();
+  const status=document.getElementById('writer-save-status');
+  status.textContent='Guardado';status.classList.add('saving');
+  setTimeout(()=>{status.textContent='';status.classList.remove('saving')},1500);
+}
+function writerAutoSave(){
+  clearTimeout(writerSaveTimeout);
+  writerSaveTimeout=setTimeout(saveWriterContent,1000);
+  updateWriterStats();
+}
+function updateWriterStats(){
+  const text=document.getElementById('writer-text').value;
+  const words=countWords(text);
+  const chars=text.length;
+  const minutes=Math.max(1,Math.round(words/200));
+  document.getElementById('writer-words').textContent=words;
+  document.getElementById('writer-chars').textContent=chars.toLocaleString();
+  document.getElementById('writer-time').textContent=words<200?'~1':minutes;
+}
+function countWords(t){if(!t||!t.trim())return 0;return t.trim().split(/\s+/).length}
+function autoGrowTextarea(el){el.style.height='auto';el.style.height=Math.max(el.scrollHeight,window.innerHeight*0.6)+'px'}
+
+document.getElementById('writer-title').addEventListener('input',writerAutoSave);
+document.getElementById('writer-text').addEventListener('input',function(){writerAutoSave();autoGrowTextarea(this)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('writer').classList.contains('active'))closeWriter()});
+
+function openChapModalFromWriter(){
+  if(!writerChapId)return;
+  saveWriterContent();
+  openChapModal(writerChapId);
+}
+
+// ============= THREADS =============
+function renderThreads(){
+  const list=document.getElementById('thread-list');
+  const empty=document.getElementById('thread-empty');
+  if(!data.threads.length){list.style.display='none';empty.style.display='';return}
+  list.style.display='';empty.style.display='none';
+  list.innerHTML=data.threads.map(t=>{
+    const isOpen=t.status==='abierto';
+    return '<div class="card" onclick="openThreadModal(\''+t.id+'\')"><div class="card-left"><div class="card-avatar" style="background:'+(isOpen?'#fff3e0':'var(--green-bg)')+';color:'+(isOpen?'#c57600':'var(--green)')+';font-size:18px">'+(isOpen?'◯':'✓')+'</div><div class="card-info"><h3>'+esc(t.name)+'</h3><p>'+(t.opened?'Abre en cap. '+t.opened:'')+(t.closed?' · Cierra en cap. '+t.closed:'')+'</p></div></div><span class="card-badge '+(isOpen?'badge-open':'badge-closed')+'">'+(isOpen?'Abierto':'Cerrado')+'</span></div>';
+  }).join('');
+}
+function openThreadModal(id){
+  const t=id?data.threads.find(x=>x.id===id):{id:uid(),name:'',description:'',opened:'',closed:'',status:'abierto'};
+  const isEdit=!!id;
+  openModal(`
+    <div class="modal-title">${isEdit?'Editar':'Nuevo'} hilo</div>
+    <div class="field-group"><div class="field-label">Nombre del hilo</div><input type="text" id="mt-name" value="${esc(t.name)}" placeholder="¿Qué pregunta o misterio planteas?"></div>
+    <div class="field-group"><div class="field-label">Descripción</div><textarea id="mt-desc" placeholder="Contexto: qué se establece, qué espera el lector.">${esc(t.description)}</textarea></div>
+    <div class="two-col">
+      <div class="field-group"><div class="field-label">Se abre en capítulo</div><input type="number" id="mt-opened" value="${t.opened}" placeholder="1" min="1"></div>
+      <div class="field-group"><div class="field-label">Se cierra en capítulo</div><input type="number" id="mt-closed" value="${t.closed}" placeholder="—" min="1"></div>
+    </div>
+    <div class="field-group"><div class="field-label">Estado</div><select id="mt-status"><option value="abierto"${t.status==='abierto'?' selected':''}>Abierto</option><option value="cerrado"${t.status==='cerrado'?' selected':''}>Cerrado</option></select></div>
+    <div class="modal-actions">
+      ${isEdit?'<button class="btn btn-danger" onclick="deleteThread(\''+t.id+'\')">Eliminar</button>':''}
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveThread('${t.id}',${isEdit})">Guardar</button>
+    </div>
+  `);
+}
+function saveThread(id,isEdit){
+  const t={id,name:document.getElementById('mt-name').value,description:document.getElementById('mt-desc').value,opened:document.getElementById('mt-opened').value,closed:document.getElementById('mt-closed').value,status:document.getElementById('mt-status').value};
+  if(isEdit){const i=data.threads.findIndex(x=>x.id===id);data.threads[i]=t}else{data.threads.push(t)}
+  save();renderThreads();updateProjectDisplay();closeModal();
+}
+function deleteThread(id){data.threads=data.threads.filter(t=>t.id!==id);save();renderThreads();updateProjectDisplay();closeModal()}
+
+// ============= ILLUSTRATIONS =============
+function handleIllustUpload(e){
+  const files=Array.from(e.target.files);
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const ill={id:uid(),image:ev.target.result,title:file.name.replace(/\.[^.]+$/,''),chapter:'',notes:'',date:new Date().toISOString().slice(0,10)};
+      data.illustrations.push(ill);
+      save();renderIllustrations();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value='';
+}
+function renderIllustrations(){
+  const g=document.getElementById('illust-gallery');
+  g.innerHTML=data.illustrations.map(ill=>`
+    <div class="gallery-item">
+      <img src="${ill.image}" alt="${esc(ill.title)}" onclick="openLightbox('${ill.id}')">
+      <div class="gallery-caption" onclick="editIllust('${ill.id}')">
+        <h4>${esc(ill.title)}</h4>
+        <p>${ill.chapter?'Cap. '+ill.chapter:ill.date}</p>
+      </div>
+      <button class="gallery-delete" onclick="event.stopPropagation();deleteIllust('${ill.id}')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  `).join('');
+}
+function openLightbox(id){
+  const ill=data.illustrations.find(x=>x.id===id);if(!ill)return;
+  document.getElementById('lightbox-img').src=ill.image;
+  document.getElementById('lightbox').classList.add('active');
+}
+function editIllust(id){
+  const ill=data.illustrations.find(x=>x.id===id);if(!ill)return;
+  openModal(`
+    <div class="modal-title">Editar ilustración</div>
+    <img src="${ill.image}" style="width:100%;max-height:280px;object-fit:contain;border-radius:8px;margin-bottom:20px">
+    <div class="field-group"><div class="field-label">Título</div><input type="text" id="mi-title" value="${esc(ill.title)}"></div>
+    <div class="field-group"><div class="field-label">Capítulo asociado</div><input type="number" id="mi-chapter" value="${ill.chapter}" placeholder="—" min="1"></div>
+    <div class="field-group"><div class="field-label">Notas</div><textarea id="mi-notes" placeholder="Contexto, técnica, qué representa...">${esc(ill.notes)}</textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="deleteIllust('${ill.id}');closeModal()">Eliminar</button>
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveIllust('${ill.id}')">Guardar</button>
+    </div>
+  `);
+}
+function saveIllust(id){
+  const i=data.illustrations.findIndex(x=>x.id===id);
+  data.illustrations[i].title=document.getElementById('mi-title').value;
+  data.illustrations[i].chapter=document.getElementById('mi-chapter').value;
+  data.illustrations[i].notes=document.getElementById('mi-notes').value;
+  save();renderIllustrations();closeModal();
+}
+function deleteIllust(id){data.illustrations=data.illustrations.filter(x=>x.id!==id);save();renderIllustrations()}
+
+// UTILS
+function esc(s){if(!s)return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+
+// INIT
+initProject();initWorld();renderChars();renderChapters();renderThreads();renderIllustrations();
+</script>
+</body>
+</html>
